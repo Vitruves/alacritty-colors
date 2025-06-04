@@ -11,7 +11,15 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 install: build
-	cp $(BUILD_DIR)/$(BINARY_NAME) ~/bin/
+	@echo "Installing to /usr/local/bin/ (requires sudo)..."
+	sudo cp $(BUILD_DIR)/$(BINARY_NAME) /usr/local/bin/
+
+# Install to user's local bin directory (no sudo required)
+local-install: build
+	@mkdir -p ~/.local/bin
+	cp $(BUILD_DIR)/$(BINARY_NAME) ~/.local/bin/
+	@echo "Installed to ~/.local/bin/"
+	@echo "Make sure ~/.local/bin is in your PATH"
 
 test:
 	go test ./...

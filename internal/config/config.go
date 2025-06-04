@@ -148,3 +148,8 @@ func (c *Config) SetCurrentTheme(theme string) error {
 	c.CurrentTheme = theme
 	return c.save()
 }
+
+// Save persists the current configuration to disk
+func (c *Config) Save() error {
+	return c.save()
+}

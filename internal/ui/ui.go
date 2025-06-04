@@ -11,21 +11,21 @@ import (
 )
 
 var (
-	// Primary color scheme
+	// Primary color scheme - more sober yet colorful
 	headerColor  = color.New(color.FgCyan, color.Bold)
-	successColor = color.New(color.FgGreen, color.Bold)
+	successColor = color.New(color.FgGreen)
 	errorColor   = color.New(color.FgRed, color.Bold)
-	warningColor = color.New(color.FgYellow, color.Bold)
-	infoColor    = color.New(color.FgBlue)
+	warningColor = color.New(color.FgYellow)
+	infoColor    = color.New(color.FgWhite)
 	dimColor     = color.New(color.FgHiBlack)
-	accentColor  = color.New(color.FgMagenta, color.Bold)
+	accentColor  = color.New(color.FgMagenta)
 	themeColor   = color.New(color.FgCyan)
 	numberColor  = color.New(color.FgHiBlue)
 
 	// Enhanced color palette
-	primaryColor   = color.New(color.FgWhite, color.Bold)
+	primaryColor   = color.New(color.FgWhite)
 	secondaryColor = color.New(color.FgHiWhite)
-	highlightColor = color.New(color.FgYellow, color.Bold)
+	highlightColor = color.New(color.FgYellow)
 	codeColor      = color.New(color.FgGreen)
 
 	// Status colors
@@ -37,6 +37,9 @@ var (
 	fileColor = color.New(color.FgCyan)
 	timeColor = color.New(color.FgMagenta)
 	sizeColor = color.New(color.FgYellow)
+
+	// New verbose color
+	verboseColor = color.New(color.FgHiBlack)
 )
 
 // Terminal capability detection
@@ -52,7 +55,7 @@ func init() {
 	}
 }
 
-// Header and section functions
+// Header and section functions - made more sober
 func PrintHeader(text string) {
 	if !supportsUnicode {
 		// Fallback for terminals without Unicode support
@@ -63,52 +66,41 @@ func PrintHeader(text string) {
 		return
 	}
 
-	width := len(text) + 4
-	top := "╭" + strings.Repeat("─", width) + "╮"
-	middle := fmt.Sprintf("│  %s  │", text)
-	bottom := "╰" + strings.Repeat("─", width) + "╯"
-
-	headerColor.Println(top)
-	headerColor.Println(middle)
-	headerColor.Println(bottom)
+	headerColor.Printf("▌%s\n", text)
+	dimColor.Println("  " + strings.Repeat("─", len(text)))
 }
 
 func PrintSubHeader(text string) {
 	if !supportsUnicode {
 		fmt.Printf("\n> %s\n", text)
-		fmt.Println(strings.Repeat("-", len(text)+2))
 		return
 	}
 
 	accentColor.Printf("\n▶ %s\n", text)
-	dimColor.Println("  " + strings.Repeat("─", len(text)+2))
 }
 
 func PrintSection(title string) {
-	fmt.Println()
 	if !supportsUnicode {
 		highlightColor.Printf("# %s\n", title)
-		dimColor.Println(strings.Repeat("-", len(title)+2))
 		return
 	}
 
 	highlightColor.Printf("▼ %s\n", title)
-	dimColor.Println("  " + strings.Repeat("╌", len(title)+2))
 }
 
 func PrintSeparator() {
 	if !supportsUnicode {
-		dimColor.Println("  " + strings.Repeat("-", 60))
+		dimColor.Println("  " + strings.Repeat("-", 40))
 		return
 	}
-	dimColor.Println("  " + strings.Repeat("─", 60))
+	dimColor.Println("  " + strings.Repeat("─", 40))
 }
 
-// Status and message functions
+// Status and message functions - more concise
 func PrintSuccess(format string, args ...interface{}) {
 	symbol := "✓"
 	if !supportsUnicode {
-		symbol = "[OK]"
+		symbol = "OK"
 	}
 	successColor.Print(symbol + " ")
 	primaryColor.Printf(format+"\n", args...)
@@ -117,7 +109,7 @@ func PrintSuccess(format string, args ...interface{}) {
 func PrintError(format string, args ...interface{}) {
 	symbol := "✗"
 	if !supportsUnicode {
-		symbol = "[ERR]"
+		symbol = "ERROR"
 	}
 	errorColor.Print(symbol + " ")
 	primaryColor.Printf(format+"\n", args...)
@@ -126,19 +118,23 @@ func PrintError(format string, args ...interface{}) {
 func PrintWarning(format string, args ...interface{}) {
 	symbol := "⚠"
 	if !supportsUnicode {
-		symbol = "[WARN]"
+		symbol = "WARN"
 	}
 	warningColor.Print(symbol + " ")
 	primaryColor.Printf(format+"\n", args...)
 }
 
 func PrintInfo(format string, args ...interface{}) {
+	infoColor.Printf(format+"\n", args...)
+}
+
+func PrintVerbose(format string, args ...interface{}) {
 	symbol := "→"
 	if !supportsUnicode {
 		symbol = "->"
 	}
-	infoColor.Print(symbol + " ")
-	secondaryColor.Printf(format+"\n", args...)
+	verboseColor.Print(symbol + " ")
+	verboseColor.Printf(format+"\n", args...)
 }
 
 func PrintStep(step int, total int, text string) {
@@ -250,7 +246,7 @@ func PrintColorPreview(colorName, hexValue string) {
 }
 
 func PrintKeyValue(key, value string) {
-	codeColor.Printf("  %-15s", key+":")
+	accentColor.Printf("%-15s ", key+":")
 	primaryColor.Println(value)
 }
 
@@ -539,7 +535,6 @@ func PrintBanner() {
 		headerColor.Println("Alacritty Colors")
 	}
 
-	dimColor.Println("                    Advanced Alacritty Theme Manager")
 	fmt.Println()
 }
 
@@ -576,32 +571,53 @@ func PrintFileInfo(filename string, size int64, modTime time.Time) {
 }
 
 func ColorizeHeader(text string) string {
-	lines := strings.Split(text, "\n")
-	var result strings.Builder
-
-	for _, line := range lines {
-		if strings.Contains(line, "Alacritty Colors") {
-			result.WriteString(headerColor.Sprint(line))
-		} else if strings.HasPrefix(line, "•") || strings.HasPrefix(line, "-") {
-			result.WriteString(successColor.Sprint("• "))
-			result.WriteString(primaryColor.Sprint(line[2:]))
-		} else if strings.Contains(line, ":") {
-			parts := strings.SplitN(line, ":", 2)
-			if len(parts) == 2 {
-				result.WriteString(accentColor.Sprint(parts[0] + ":"))
-				result.WriteString(secondaryColor.Sprint(parts[1]))
-			} else {
-				result.WriteString(line)
-			}
-		} else if strings.HasPrefix(line, "#") {
-			result.WriteString(dimColor.Sprint(line))
-		} else {
-			result.WriteString(secondaryColor.Sprint(line))
-		}
-		result.WriteString("\n")
+	if !supportsColor {
+		return text
 	}
 
-	return result.String()
+	// Handle simple header text
+	if !strings.Contains(text, "\n") {
+		// Single line header - just colorize it
+		return headerColor.Sprint(text)
+	}
+
+	lines := strings.Split(text, "\n")
+	var result []string
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Handle different header types
+		if strings.HasPrefix(trimmed, "USAGE") ||
+			strings.HasPrefix(trimmed, "COMMANDS") ||
+			strings.HasPrefix(trimmed, "OPTIONS") ||
+			strings.HasPrefix(trimmed, "GLOBAL OPTIONS") ||
+			strings.HasPrefix(trimmed, "EXAMPLES") ||
+			strings.HasPrefix(trimmed, "MORE INFO") ||
+			strings.HasPrefix(trimmed, "Key Features:") {
+			result = append(result, headerColor.Sprint(line))
+		} else if strings.HasPrefix(trimmed, "Alacritty Colors") {
+			// Title line
+			result = append(result, headerColor.Sprint(line))
+		} else if strings.HasPrefix(trimmed, "  •") ||
+			strings.HasPrefix(trimmed, "  -") {
+			// Feature bullets
+			parts := strings.SplitN(line, " ", 3)
+			if len(parts) >= 3 {
+				result = append(result, fmt.Sprintf("  %s %s",
+					highlightColor.Sprint(parts[1]),
+					secondaryColor.Sprint(strings.Join(parts[2:], " "))))
+			} else {
+				result = append(result, secondaryColor.Sprint(line))
+			}
+		} else if trimmed == "" {
+			result = append(result, line)
+		} else {
+			result = append(result, infoColor.Sprint(line))
+		}
+	}
+
+	return strings.Join(result, "\n")
 }
 
 // Terminal capability detection
@@ -665,13 +681,6 @@ func formatSize(size int64) string {
 func PrintDebug(format string, args ...interface{}) {
 	if os.Getenv("DEBUG") != "" {
 		dimColor.Print("[DEBUG] ")
-		fmt.Printf(format+"\n", args...)
-	}
-}
-
-func PrintVerbose(format string, args ...interface{}) {
-	if os.Getenv("VERBOSE") != "" {
-		dimColor.Print("[VERBOSE] ")
 		fmt.Printf(format+"\n", args...)
 	}
 }
