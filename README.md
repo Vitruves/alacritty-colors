@@ -4,6 +4,9 @@
 
 A powerful command-line tool for managing Alacritty terminal themes with automatic downloads, custom theme generation, and safe configuration management.
 
+![image-10](https://github.com/user-attachments/assets/40163b06-ba60-4bb0-a961-074a55d32d3f)
+
+
 ## Features
 
 - **Theme Management** - Apply, preview, and switch between hundreds of themes
