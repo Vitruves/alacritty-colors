@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	ImportLine = `import = ["themes/current.toml"]`
+	ImportLine = `[general]\nimport = ["themes/current.toml"]`
 )
 
 type Manager struct {
@@ -93,6 +93,7 @@ func (m *Manager) createDefaultConfig() error {
 	defaultConfig := `# Alacritty Configuration
 # Managed by alacritty-colors - theme imported from themes/current.toml
 
+[general]
 import = ["themes/current.toml"]
 
 # Personal configuration below - will be preserved when switching themes
@@ -173,9 +174,10 @@ func (m *Manager) addImportLine() error {
 		i++
 	}
 
-	// Add import line
+	// Add [general] section and import line
 	newLines = append(newLines, "")
-	newLines = append(newLines, ImportLine)
+	newLines = append(newLines, "[general]")
+	newLines = append(newLines, "import = [\"themes/current.toml\"]")
 	newLines = append(newLines, "")
 
 	// Add rest of config
