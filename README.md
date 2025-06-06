@@ -22,16 +22,17 @@ A powerful command-line tool for managing Alacritty terminal themes with automat
 
 ### Installation
 
+
+**Using Go (recommanded) **
+```bash
+go install github.com/vitruves/alacritty-colors/cmd/alacritty-colors@latest
+```
+
 **From Source:**
 ```bash
 git clone https://github.com/vitruves/alacritty-colors.git
 cd alacritty-colors
 make build && make install
-```
-
-**Using Go:**
-```bash
-go install github.com/vitruves/alacritty-colors/cmd/alacritty-colors@latest
 ```
 
 ### First Time Setup
