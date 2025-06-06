@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vitruves/alacritty-colors/internal/config"
 	"github.com/vitruves/alacritty-colors/internal/theme"
+	"github.com/vitruves/alacritty-colors/internal/tui"
 	"github.com/vitruves/alacritty-colors/internal/ui"
 )
 
@@ -77,6 +78,7 @@ Advanced Alacritty theme manager with 500+ themes, smart font pairing, and visua
 	rootCmd.AddCommand(generateCmd())
 	rootCmd.AddCommand(searchCmd())
 	rootCmd.AddCommand(previewCmd())
+	rootCmd.AddCommand(interactiveCmd())
 	rootCmd.AddCommand(backupCmd())
 	rootCmd.AddCommand(restoreCmd())
 	rootCmd.AddCommand(updateCmd())
@@ -459,6 +461,40 @@ Examples:
 	cmd.Flags().BoolVar(&showHex, "hex", false, "Show hex color values")
 
 	return cmd
+}
+
+func interactiveCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "interactive",
+		Short: "Interactive color editor TUI",
+		Long: `Launch an interactive terminal user interface for editing themes:
+
+Features:
+• Browse and select themes from the collection
+• Live color preview with terminal output examples
+• Real-time color editing with hex and RGB inputs
+• Visual color palette display
+• Save changes back to theme files
+• Keyboard navigation and shortcuts
+
+Controls:
+• Arrow keys: Navigate colors
+• Enter: Edit selected color
+• 's': Save theme
+• 'r': Reset to original
+• 'q': Quit (with unsaved changes prompt)`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(configFile, themesDir, backupDir)
+			if err != nil {
+				return fmt.Errorf("failed to load config: %w", err)
+			}
+
+			ui.PrintInfo("Launching interactive color editor...")
+			ui.PrintInfo("Use 'q' to quit, 's' to save changes")
+
+			return tui.StartInteractive(cfg)
+		},
+	}
 }
 
 func backupCmd() *cobra.Command {

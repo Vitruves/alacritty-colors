@@ -153,3 +153,8 @@ func (c *Config) SetCurrentTheme(theme string) error {
 func (c *Config) Save() error {
 	return c.save()
 }
+
+// GetThemePath returns the full path to a theme file
+func (c *Config) GetThemePath(themeName string) string {
+	return filepath.Join(c.ThemesDir, themeName+".toml")
+}
