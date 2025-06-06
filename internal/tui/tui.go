@@ -722,15 +722,25 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 	ce.colorValues[colorKey] = newHex
 	ce.isDirty = true
 
-	// Update the display
+	// Update just the current item in place instead of rebuilding the whole panel
 	currentIndex := ce.colorPanel.GetCurrentItem()
-	ce.buildColorPanel()
-	ce.updatePreview()
 
-	// Restore selection
-	if currentIndex >= 0 {
-		ce.colorPanel.SetCurrentItem(currentIndex)
+	// Update the current list item with the new color
+	colorValue := newHex
+	if !strings.HasPrefix(colorValue, "#") && len(colorValue) == 6 {
+		colorValue = "#" + colorValue
 	}
+
+	// Convert to RGB for display
+	rgbDisplay := fmt.Sprintf("R:%d G:%d B:%d", rgb.R, rgb.G, rgb.B)
+	displayName := strings.Replace(colorKey, ".", " ", -1)
+	text := fmt.Sprintf("  [%s]██[-] %-20s %s", colorValue, displayName, rgbDisplay)
+
+	// Update the current item
+	ce.colorPanel.SetItemText(currentIndex, text, "")
+
+	// Update preview and status
+	ce.updatePreview()
 	ce.updateColorStatus()
 }
 
