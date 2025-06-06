@@ -17,6 +17,11 @@ A powerful command-line tool for managing Alacritty terminal themes with automat
 - **Backup & Restore** - Safe configuration management with automatic backups
 - **Cross-Platform** - Works on macOS, Linux, and Windows
 - **Fast & Safe** - Preserves your personal Alacritty settings
+- **User Friendly interactive terminal interface** - Theme creation made easy!
+
+
+<img width="918" alt="image" src="https://github.com/user-attachments/assets/e8a82abd-bf34-408e-acf0-955e72a61fb1" />
+
 
 ## Quick Start
 
@@ -66,6 +71,9 @@ alacritty-colors preview dracula         # Preview theme colors
 # Theme Generation
 alacritty-colors generate --scheme random
 alacritty-colors generate --scheme pastel --name "my-theme"
+
+# Interactive theme editor
+alacritty-colors interactive
 
 # Backup Management
 alacritty-colors backup                  # Create backup
@@ -252,31 +260,6 @@ fi
 if [ "$RANDOM_THEME" = "1" ]; then
     alacritty-colors random
 fi
-```
-
-## Development
-
-### Building from Source
-
-```bash
-# Clone repository
-git clone https://github.com/vitruves/alacritty-colors.git
-cd alacritty-colors
-
-# Build for current platform
-make build
-
-# Install to local bin directory
-make install
-
-# Run tests
-make test
-
-# Clean build artifacts
-make clean
-
-# Build for all platforms
-make release
 ```
 
 ### Contributing
