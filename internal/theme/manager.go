@@ -6,6 +6,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -64,6 +65,15 @@ type SearchOptions struct {
 type PreviewOptions struct {
 	AutoApply bool
 	ShowHex   bool
+}
+
+type SlideshowOptions struct {
+	Interval   time.Duration
+	DarkOnly   bool
+	LightOnly  bool
+	Randomize  bool
+	Loop       bool
+	Categories []string
 }
 
 type BackupOptions struct {
@@ -1010,6 +1020,242 @@ foreground = "#ffffff"
 		}
 	}
 
+	return nil
+}
+
+func (m *Manager) ThemeSlideshow(opts *SlideshowOptions) error {
+	// Import required packages for keyboard input
+	themes, err := m.getThemeInfos()
+	if err != nil {
+		return err
+	}
+
+	// Filter themes based on options
+	if opts.DarkOnly {
+		themes = m.filterDarkThemes(themes)
+	} else if opts.LightOnly {
+		themes = m.filterLightThemes(themes)
+	}
+
+	if len(themes) == 0 {
+		return fmt.Errorf("no themes available for slideshow")
+	}
+
+	// Randomize if requested
+	if opts.Randomize {
+		rand.Seed(time.Now().UnixNano())
+		for i := range themes {
+			j := rand.Intn(i + 1)
+			themes[i], themes[j] = themes[j], themes[i]
+		}
+	}
+
+	// Save current theme for restoration
+	currentThemePath := filepath.Join(m.config.ThemesDir, "current.toml")
+	backupThemePath := filepath.Join(m.config.ThemesDir, "slideshow_backup.toml")
+
+	// Create backup of current theme
+	if _, err := os.Stat(currentThemePath); err == nil {
+		if err := m.copyFile(currentThemePath, backupThemePath); err != nil {
+			return fmt.Errorf("failed to backup current theme: %w", err)
+		}
+	}
+
+	ui.PrintHeader("🎨 Theme Slideshow")
+	ui.PrintInfo("Cycling through %d themes with %v intervals", len(themes), opts.Interval)
+	ui.PrintInfo("Controls:")
+	ui.PrintInfo("  SPACE/ENTER - Select current theme and exit")
+	ui.PrintInfo("  n/RIGHT     - Next theme immediately")
+	ui.PrintInfo("  p/LEFT      - Previous theme")
+	ui.PrintInfo("  r           - Restart slideshow")
+	ui.PrintInfo("  q/ESC       - Quit without applying")
+	ui.PrintInfo("  +/-         - Increase/decrease speed")
+	fmt.Println()
+
+	// Channel for keyboard input
+	keyboardInput := make(chan rune, 1)
+	go m.captureKeyboardInput(keyboardInput)
+
+	currentIndex := 0
+	ticker := time.NewTicker(opts.Interval)
+	defer ticker.Stop()
+
+	// Apply first theme
+	if err := m.applyThemeForSlideshow(themes[currentIndex], currentIndex+1, len(themes)); err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case key := <-keyboardInput:
+			switch key {
+			case ' ', '\r', '\n': // Space or Enter - select current theme
+				ui.PrintSuccess("Selected theme: %s", themes[currentIndex].Name)
+				if err := m.config.SetCurrentTheme(themes[currentIndex].Name); err != nil {
+					ui.PrintWarning("Failed to update theme tracking: %v", err)
+				}
+				os.Remove(backupThemePath)
+				return nil
+
+			case 'q', '\x1b': // q or ESC - quit without applying
+				ui.PrintInfo("Restoring original theme...")
+				if err := m.restoreFromBackup(currentThemePath, backupThemePath); err != nil {
+					ui.PrintError("Failed to restore original theme: %v", err)
+				} else {
+					ui.PrintSuccess("Original theme restored")
+				}
+				return nil
+
+			case 'n', '\x1d': // n or RIGHT arrow - next theme
+				currentIndex = (currentIndex + 1) % len(themes)
+				if err := m.applyThemeForSlideshow(themes[currentIndex], currentIndex+1, len(themes)); err != nil {
+					ui.PrintError("Failed to apply theme: %v", err)
+				}
+				ticker.Reset(opts.Interval)
+
+			case 'p', '\x1c': // p or LEFT arrow - previous theme
+				currentIndex = (currentIndex - 1 + len(themes)) % len(themes)
+				if err := m.applyThemeForSlideshow(themes[currentIndex], currentIndex+1, len(themes)); err != nil {
+					ui.PrintError("Failed to apply theme: %v", err)
+				}
+				ticker.Reset(opts.Interval)
+
+			case 'r': // r - restart
+				currentIndex = 0
+				if err := m.applyThemeForSlideshow(themes[currentIndex], currentIndex+1, len(themes)); err != nil {
+					ui.PrintError("Failed to apply theme: %v", err)
+				}
+				ticker.Reset(opts.Interval)
+
+			case '+', '=': // + - increase speed
+				opts.Interval = opts.Interval - time.Second
+				if opts.Interval < time.Second {
+					opts.Interval = time.Second
+				}
+				ticker.Reset(opts.Interval)
+				ui.PrintInfo("Speed increased - interval: %v", opts.Interval)
+
+			case '-', '_': // - - decrease speed
+				opts.Interval = opts.Interval + time.Second
+				if opts.Interval > 10*time.Second {
+					opts.Interval = 10 * time.Second
+				}
+				ticker.Reset(opts.Interval)
+				ui.PrintInfo("Speed decreased - interval: %v", opts.Interval)
+			}
+
+		case <-ticker.C:
+			// Auto advance to next theme
+			currentIndex = (currentIndex + 1) % len(themes)
+			if err := m.applyThemeForSlideshow(themes[currentIndex], currentIndex+1, len(themes)); err != nil {
+				ui.PrintError("Failed to apply theme: %v", err)
+				continue
+			}
+
+			// If not looping and we're at the end, stop
+			if !opts.Loop && currentIndex == 0 {
+				ui.PrintInfo("Slideshow complete. Press SPACE to keep current theme or q to restore original.")
+			}
+		}
+	}
+}
+
+func (m *Manager) applyThemeForSlideshow(theme ThemeInfo, current, total int) error {
+	currentThemePath := filepath.Join(m.config.ThemesDir, "current.toml")
+
+	if err := m.copyFile(theme.FilePath, currentThemePath); err != nil {
+		return err
+	}
+
+	// Clear previous lines and display theme info with better formatting
+	fmt.Print("\033[2J\033[H") // Clear screen and move to top
+
+	ui.PrintHeader(fmt.Sprintf("🎨 Now Showing: %s (%d/%d)", theme.Name, current, total))
+
+	if theme.Description != "" {
+		ui.PrintInfo("📝 %s", theme.Description)
+	}
+	if theme.Author != "" {
+		ui.PrintInfo("👤 Author: %s", theme.Author)
+	}
+
+	// Show some key colors as preview
+	if bg := theme.Colors["background"]; bg != "" {
+		ui.PrintColorPreview("Background", bg)
+	}
+	if fg := theme.Colors["foreground"]; fg != "" {
+		ui.PrintColorPreview("Foreground", fg)
+	}
+
+	// Show normal colors in a compact format
+	fmt.Print("🎨 Colors: ")
+	normalColors := []string{"red", "green", "yellow", "blue", "magenta", "cyan"}
+	for _, color := range normalColors {
+		if value := theme.Colors[color]; value != "" {
+			fmt.Printf("%s ", value)
+		}
+	}
+	fmt.Println()
+
+	ui.PrintInfo("\n⌨️  Controls: SPACE=select | n/p=nav | q=quit | +/-=speed")
+
+	return nil
+}
+
+func (m *Manager) captureKeyboardInput(input chan rune) {
+	// Platform-specific terminal setup
+	var setupCmd, restoreCmd string
+
+	// Try to detect the platform and setup appropriate commands
+	if _, err := exec.LookPath("stty"); err == nil {
+		// Unix-like systems (Linux, macOS)
+		setupCmd = "stty -echo cbreak"
+		restoreCmd = "stty echo -cbreak"
+	} else {
+		// Windows or systems without stty - use basic mode
+		m.logVerbose("stty not available, using basic input mode")
+	}
+
+	// Setup terminal if possible
+	if setupCmd != "" {
+		if cmd := exec.Command("sh", "-c", setupCmd); cmd.Run() == nil {
+			defer func() {
+				exec.Command("sh", "-c", restoreCmd).Run()
+			}()
+		}
+	}
+
+	// Read characters
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		char, _, err := reader.ReadRune()
+		if err != nil {
+			break
+		}
+		select {
+		case input <- char:
+		default:
+		}
+	}
+}
+
+func (m *Manager) restoreFromBackup(currentThemePath, backupThemePath string) error {
+	if _, err := os.Stat(backupThemePath); err == nil {
+		if err := m.copyFile(backupThemePath, currentThemePath); err != nil {
+			return err
+		}
+		os.Remove(backupThemePath)
+	} else {
+		// No backup exists, create empty current.toml
+		defaultTheme := `# No theme applied
+# Run 'alacritty-colors apply <theme-name>' to apply a theme
+
+[colors.primary]
+background = "#1e1e1e"
+foreground = "#ffffff"
+`
+		os.WriteFile(currentThemePath, []byte(defaultTheme), 0644)
+	}
 	return nil
 }
 

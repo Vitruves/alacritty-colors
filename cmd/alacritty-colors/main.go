@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/vitruves/alacritty-colors/internal/config"
@@ -78,6 +79,7 @@ Advanced Alacritty theme manager with 500+ themes, smart font pairing, and visua
 	rootCmd.AddCommand(generateCmd())
 	rootCmd.AddCommand(searchCmd())
 	rootCmd.AddCommand(previewCmd())
+	rootCmd.AddCommand(slideshowCmd())
 	rootCmd.AddCommand(interactiveCmd())
 	rootCmd.AddCommand(backupCmd())
 	rootCmd.AddCommand(restoreCmd())
@@ -416,29 +418,48 @@ Examples:
 
 func previewCmd() *cobra.Command {
 	var (
-		apply   bool
-		showHex bool
+		apply     bool
+		showHex   bool
+		slideshow bool
+		interval  int
+		darkOnly  bool
+		lightOnly bool
+		randomize bool
+		loop      bool
 	)
 
 	cmd := &cobra.Command{
-		Use:   "preview <theme-name>",
-		Short: "Preview a theme by temporarily applying it",
-		Long: `Preview a theme by temporarily applying it to your terminal:
+		Use:   "preview [theme-name]",
+		Short: "Preview themes with live terminal updates",
+		Long: `Preview themes in your actual terminal with live updates:
 
-This command will:
-• Temporarily apply the theme so you can see the real visual effect
-• Show theme information and description  
-• Allow you to test the theme in your actual terminal
-• Offer to keep the theme or restore your previous one
+SINGLE THEME MODE (with theme name):
+• Temporarily apply a specific theme
+• Show theme information and color palette
+• Offer to keep or restore previous theme
 
-Unlike just showing color values, this gives you a true preview
-of how the theme will look and feel during actual usage.
+SLIDESHOW MODE (no theme name or --slideshow flag):
+• Automatically cycle through all available themes
+• Live preview with configurable intervals
+• Interactive controls for navigation and selection
+• Alacritty auto-reloads each theme in real-time
+
+Controls during slideshow:
+• SPACE/ENTER: Select current theme and exit
+• n/RIGHT: Next theme immediately
+• p/LEFT: Previous theme
+• r: Restart slideshow from beginning
+• q/ESC: Quit and restore original theme
+• +/-: Increase/decrease cycling speed
 
 Examples:
-  alacritty-colors preview dracula
-  alacritty-colors preview nord --apply
-  alacritty-colors preview gruvbox --hex`,
-		Args: cobra.ExactArgs(1),
+  alacritty-colors preview                      # Start slideshow mode
+  alacritty-colors preview --slideshow         # Explicit slideshow mode
+  alacritty-colors preview --interval 5        # 5-second intervals
+  alacritty-colors preview --dark --random     # Random dark themes only
+  alacritty-colors preview dracula             # Preview specific theme
+  alacritty-colors preview nord --apply        # Preview and auto-apply`,
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(configFile, themesDir, backupDir)
 			if err != nil {
@@ -448,6 +469,20 @@ Examples:
 			tm := theme.NewManager(cfg)
 			tm.SetVerbose(verbose)
 
+			// If no theme name provided or slideshow flag is set, start slideshow
+			if len(args) == 0 || slideshow {
+				opts := &theme.SlideshowOptions{
+					Interval:   time.Duration(interval) * time.Second,
+					DarkOnly:   darkOnly,
+					LightOnly:  lightOnly,
+					Randomize:  randomize,
+					Loop:       loop,
+					Categories: nil,
+				}
+				return tm.ThemeSlideshow(opts)
+			}
+
+			// Single theme preview mode
 			opts := &theme.PreviewOptions{
 				AutoApply: apply,
 				ShowHex:   showHex,
@@ -457,8 +492,86 @@ Examples:
 		},
 	}
 
-	cmd.Flags().BoolVarP(&apply, "apply", "a", false, "Apply theme after preview")
-	cmd.Flags().BoolVar(&showHex, "hex", false, "Show hex color values")
+	cmd.Flags().BoolVarP(&apply, "apply", "a", false, "Apply theme after preview (single theme mode)")
+	cmd.Flags().BoolVar(&showHex, "hex", false, "Show hex color values (single theme mode)")
+	cmd.Flags().BoolVarP(&slideshow, "slideshow", "s", false, "Force slideshow mode")
+	cmd.Flags().IntVarP(&interval, "interval", "i", 3, "Seconds between theme changes (slideshow mode)")
+	cmd.Flags().BoolVar(&darkOnly, "dark", false, "Show only dark themes (slideshow mode)")
+	cmd.Flags().BoolVar(&lightOnly, "light", false, "Show only light themes (slideshow mode)")
+	cmd.Flags().BoolVar(&randomize, "random", false, "Randomize theme order (slideshow mode)")
+	cmd.Flags().BoolVar(&loop, "loop", true, "Loop indefinitely (slideshow mode)")
+
+	return cmd
+}
+
+func slideshowCmd() *cobra.Command {
+	var (
+		interval   int
+		darkOnly   bool
+		lightOnly  bool
+		randomize  bool
+		loop       bool
+		categories []string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "slideshow",
+		Short: "Cycle through themes automatically with live preview",
+		Long: `Automatically cycle through themes with live preview in your terminal:
+
+This command will apply themes successively with configurable intervals,
+allowing you to see each theme in action in your actual Alacritty terminal.
+Alacritty will auto-reload each theme as it's applied.
+
+Features:
+• Auto-cycle through themes with customizable intervals
+• Live preview in your actual terminal (not just color swatches)
+• Interactive controls for navigation and selection
+• Filter by dark/light themes or categories
+• Randomization option for discovery
+• Loop or single-pass modes
+
+Controls during slideshow:
+• SPACE/ENTER: Select current theme and exit
+• n/RIGHT: Next theme immediately
+• p/LEFT: Previous theme
+• r: Restart slideshow from beginning
+• q/ESC: Quit and restore original theme
+• +/-: Increase/decrease cycling speed
+
+Examples:
+  alacritty-colors slideshow                    # Default 3-second intervals
+  alacritty-colors slideshow --interval 5      # 5-second intervals
+  alacritty-colors slideshow --dark --random   # Random dark themes only
+  alacritty-colors slideshow --interval 2 --loop  # Loop indefinitely`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(configFile, themesDir, backupDir)
+			if err != nil {
+				return err
+			}
+
+			tm := theme.NewManager(cfg)
+			tm.SetVerbose(verbose)
+
+			opts := &theme.SlideshowOptions{
+				Interval:   time.Duration(interval) * time.Second,
+				DarkOnly:   darkOnly,
+				LightOnly:  lightOnly,
+				Randomize:  randomize,
+				Loop:       loop,
+				Categories: categories,
+			}
+
+			return tm.ThemeSlideshow(opts)
+		},
+	}
+
+	cmd.Flags().IntVarP(&interval, "interval", "i", 3, "Seconds between theme changes (1-10)")
+	cmd.Flags().BoolVar(&darkOnly, "dark", false, "Show only dark themes")
+	cmd.Flags().BoolVar(&lightOnly, "light", false, "Show only light themes")
+	cmd.Flags().BoolVar(&randomize, "random", false, "Randomize theme order")
+	cmd.Flags().BoolVar(&loop, "loop", true, "Loop indefinitely (default true)")
+	cmd.Flags().StringSliceVar(&categories, "categories", nil, "Filter by theme categories")
 
 	return cmd
 }

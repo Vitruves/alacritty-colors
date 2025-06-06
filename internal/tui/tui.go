@@ -490,12 +490,19 @@ func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
 }
 
 func (ce *ColorEditor) confirmQuit() {
-	// Apply user's theme to the modal
-	ce.applyUserThemeToTUI()
+	// Temporarily reset to default colors for the modal to ensure visibility
+	ce.resetTUITheme()
 
 	modal := tview.NewModal()
 	modal.SetText("You have unsaved changes. Are you sure you want to quit?")
 	modal.AddButtons([]string{"Save & Quit", "Quit", "Cancel"})
+
+	// Style the modal with high contrast colors
+	modal.SetBackgroundColor(tcell.ColorBlack)
+	modal.SetTextColor(tcell.ColorWhite)
+	modal.SetButtonBackgroundColor(tcell.ColorBlue)
+	modal.SetButtonTextColor(tcell.ColorWhite)
+
 	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 		switch buttonIndex {
 		case 0: // Save & Quit
@@ -504,8 +511,8 @@ func (ce *ColorEditor) confirmQuit() {
 		case 1: // Quit
 			ce.app.Stop()
 		case 2: // Cancel
-			// Reset theme styles to default and return to main view
-			ce.resetTUITheme()
+			// Restore user theme and return to main view
+			ce.applyUserThemeToTUI()
 			ce.setupUI()
 			ce.buildColorPanel()
 			ce.updatePreview()
@@ -541,7 +548,20 @@ func (ce *ColorEditor) saveThemeToFile() error {
 	// Generate TOML content
 	content := ce.generateTOMLContent()
 
-	return os.WriteFile(themeFile, []byte(content), 0644)
+	// Write to file with proper error handling
+	err := os.WriteFile(themeFile, []byte(content), 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write theme file %s: %w", themeFile, err)
+	}
+
+	// Force sync to disk
+	file, err := os.OpenFile(themeFile, os.O_RDONLY, 0)
+	if err == nil {
+		file.Sync()
+		file.Close()
+	}
+
+	return nil
 }
 
 func (ce *ColorEditor) generateTOMLContent() string {
@@ -693,7 +713,13 @@ func (ce *ColorEditor) updateColorStatus() {
 		if rgb, err := theme.HexToRGB(colorValue); err == nil {
 			rgbDisplay = fmt.Sprintf("R:%d G:%d B:%d", rgb.R, rgb.G, rgb.B)
 		}
-		ce.setStatus(fmt.Sprintf("Selected: %s (%s) | ←→: adjust RGB | Enter: edit | Tab: switch panels", displayName, rgbDisplay))
+
+		dirtyIndicator := ""
+		if ce.isDirty {
+			dirtyIndicator = " [UNSAVED] "
+		}
+
+		ce.setStatus(fmt.Sprintf("Selected: %s (%s)%s | ←→: adjust RGB | s: save | Tab: switch panels", displayName, rgbDisplay, dirtyIndicator))
 	}
 }
 
@@ -739,9 +765,11 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 	// Update the current item
 	ce.colorPanel.SetItemText(currentIndex, text, "")
 
-	// Update preview and status
+	// Update preview
 	ce.updatePreview()
-	ce.updateColorStatus()
+
+	// Show that changes have been made (don't call updateColorStatus as it would overwrite this message)
+	ce.setStatus(fmt.Sprintf("Modified %s (%s) | Press 's' to save | ←→: adjust RGB", displayName, rgbDisplay))
 }
 
 func max(a, b int) int {
