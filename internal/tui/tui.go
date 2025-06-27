@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strings"
@@ -431,8 +432,14 @@ func (ce *ColorEditor) handleColorPanelKeys(event *tcell.EventKey) *tcell.EventK
 			return event
 		}
 
-		// If on a color item, adjust the color with Left/Right
-		ce.adjustColorWithArrows(colorKey, event.Key())
+		// Check for Shift modifier for hue adjustment
+		if event.Modifiers()&tcell.ModShift != 0 {
+			// Shift+Left/Right for hue adjustment
+			ce.adjustColorHue(colorKey, event.Key())
+		} else {
+			// Normal Left/Right for brightness adjustment
+			ce.adjustColorWithArrows(colorKey, event.Key())
+		}
 		return nil
 	}
 	return event
@@ -836,10 +843,14 @@ func (ce *ColorEditor) updateColorStatus() {
 	
 	colorValue := ce.colorValues[colorKey]
 	displayName := strings.Replace(colorKey, ".", " ", -1)
-	// Convert hex to RGB for display in status
+	
+	// Convert hex to RGB and HSL for display in status
 	rgbDisplay := colorValue
+	hslDisplay := ""
 	if rgb, err := theme.HexToRGB(colorValue); err == nil {
 		rgbDisplay = fmt.Sprintf("R:%d G:%d B:%d", rgb.R, rgb.G, rgb.B)
+		hsl := RGBToHSL(rgb.R, rgb.G, rgb.B)
+		hslDisplay = fmt.Sprintf("H:%.0f° S:%.0f%% L:%.0f%%", hsl.H, hsl.S*100, hsl.L*100)
 	}
 
 	dirtyIndicator := ""
@@ -847,7 +858,7 @@ func (ce *ColorEditor) updateColorStatus() {
 		dirtyIndicator = " [UNSAVED] "
 	}
 
-	ce.setStatus(fmt.Sprintf("Selected: %s (%s)%s | ←→: adjust RGB | s: save | Tab: switch panels", displayName, rgbDisplay, dirtyIndicator))
+	ce.setStatus(fmt.Sprintf("Selected: %s (%s | %s)%s | ←→: brightness | Shift+←→: hue | s: save", displayName, rgbDisplay, hslDisplay, dirtyIndicator))
 }
 
 func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
@@ -925,6 +936,100 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 	}()
 }
 
+func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
+	// Create a copy of the theme if this is the first edit
+	if !ce.isDirty {
+		ce.createThemeCopy()
+	}
+	
+	currentValue := ce.colorValues[colorKey]
+	rgb, err := theme.HexToRGB(currentValue)
+	if err != nil {
+		return
+	}
+
+	// Convert to HSL for hue adjustment
+	hsl := RGBToHSL(rgb.R, rgb.G, rgb.B)
+	
+	// Adjust hue - 15 degree steps around the color wheel
+	hueStep := 15.0
+	if key == tcell.KeyRight {
+		hsl.H += hueStep
+		if hsl.H >= 360 {
+			hsl.H -= 360
+		}
+	} else if key == tcell.KeyLeft {
+		hsl.H -= hueStep
+		if hsl.H < 0 {
+			hsl.H += 360
+		}
+	}
+
+	// Ensure minimum saturation for visible hue changes
+	if hsl.S < 0.2 {
+		hsl.S = 0.2
+	}
+
+	// Convert back to RGB
+	newR, newG, newB := HSLToRGB(hsl)
+	
+	// Ensure values are in valid range
+	newR = max(0, min(255, newR))
+	newG = max(0, min(255, newG))
+	newB = max(0, min(255, newB))
+
+	// Create new RGB and convert to hex
+	newRGB := &theme.RGB{R: newR, G: newG, B: newB}
+	newHex := newRGB.ToHex()
+	ce.colorValues[colorKey] = newHex
+	ce.isDirty = true
+
+	// Update just the current item in place
+	currentIndex := ce.colorPanel.GetCurrentItem()
+
+	// Update the current list item with the new color
+	colorValue := newHex
+	if !strings.HasPrefix(colorValue, "#") && len(colorValue) == 6 {
+		colorValue = "#" + colorValue
+	}
+
+	// Convert to RGB for display
+	rgbDisplay := fmt.Sprintf("R:%d G:%d B:%d", newR, newG, newB)
+	displayName := strings.Replace(colorKey, ".", " ", -1)
+	text := fmt.Sprintf("  [%s]██[-] %-20s %s", colorValue, displayName, rgbDisplay)
+
+	// Update the current item
+	ce.colorPanel.SetItemText(currentIndex, text, "")
+
+	// Update preview
+	ce.updatePreview()
+
+	// Show hue adjustment info
+	ce.setStatus(fmt.Sprintf("Hue adjusted %s (H:%.0f° S:%.0f%% L:%.0f%%) | Shift+←→: hue | ←→: brightness", 
+		displayName, hsl.H, hsl.S*100, hsl.L*100))
+	
+	// Apply changes in real-time
+	go func() {
+		// Save the current state to disk temporarily
+		ce.updateThemeConfig()
+		if err := ce.saveThemeToFile(); err == nil {
+			// Apply the theme to see changes immediately
+			if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
+				ce.app.QueueUpdateDraw(func() {
+					ce.setStatus(fmt.Sprintf("Failed to apply changes: %v", err))
+				})
+			} else {
+				// Update the applied theme tracking since we're applying the edited copy
+				ce.appliedTheme = ce.themeName
+			}
+		}
+		// Force a complete redraw to prevent text overlap
+		ce.app.QueueUpdateDraw(func() {
+			ce.app.ForceDraw()
+		})
+	}()
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -937,6 +1042,107 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// HSL represents a color in HSL color space
+type HSL struct {
+	H float64 // Hue (0-360)
+	S float64 // Saturation (0-1)
+	L float64 // Lightness (0-1)
+}
+
+// RGBToHSL converts RGB to HSL color space
+func RGBToHSL(r, g, b int) HSL {
+	rf := float64(r) / 255.0
+	gf := float64(g) / 255.0
+	bf := float64(b) / 255.0
+
+	max := math.Max(math.Max(rf, gf), bf)
+	min := math.Min(math.Min(rf, gf), bf)
+	diff := max - min
+
+	// Lightness
+	l := (max + min) / 2.0
+
+	var h, s float64
+
+	if diff == 0 {
+		h = 0 // Achromatic
+		s = 0
+	} else {
+		// Saturation
+		if l > 0.5 {
+			s = diff / (2.0 - max - min)
+		} else {
+			s = diff / (max + min)
+		}
+
+		// Hue
+		switch max {
+		case rf:
+			h = (gf-bf)/diff + (func() float64 {
+				if gf < bf {
+					return 6.0
+				}
+				return 0.0
+			})()
+		case gf:
+			h = (bf-rf)/diff + 2.0
+		case bf:
+			h = (rf-gf)/diff + 4.0
+		}
+		h /= 6.0
+	}
+
+	return HSL{H: h * 360, S: s, L: l}
+}
+
+// HSLToRGB converts HSL to RGB color space
+func HSLToRGB(hsl HSL) (int, int, int) {
+	h := hsl.H / 360.0
+	s := hsl.S
+	l := hsl.L
+
+	var r, g, b float64
+
+	if s == 0 {
+		r = l // Achromatic
+		g = l
+		b = l
+	} else {
+		hue2rgb := func(p, q, t float64) float64 {
+			if t < 0 {
+				t += 1
+			}
+			if t > 1 {
+				t -= 1
+			}
+			if t < 1.0/6.0 {
+				return p + (q-p)*6*t
+			}
+			if t < 1.0/2.0 {
+				return q
+			}
+			if t < 2.0/3.0 {
+				return p + (q-p)*(2.0/3.0-t)*6
+			}
+			return p
+		}
+
+		var q float64
+		if l < 0.5 {
+			q = l * (1 + s)
+		} else {
+			q = l + s - l*s
+		}
+		p := 2*l - q
+
+		r = hue2rgb(p, q, h+1.0/3.0)
+		g = hue2rgb(p, q, h)
+		b = hue2rgb(p, q, h-1.0/3.0)
+	}
+
+	return int(r*255 + 0.5), int(g*255 + 0.5), int(b*255 + 0.5)
 }
 
 func (ce *ColorEditor) applyUserThemeToTUI() {
