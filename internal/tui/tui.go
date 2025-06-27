@@ -20,6 +20,7 @@ type ColorEditor struct {
 	themeManager *theme.Manager
 	currentTheme *alacritty.Config
 	themeName    string
+	appliedTheme string // Currently applied theme in Alacritty
 
 	// UI components
 	themeList    *tview.List
@@ -30,11 +31,13 @@ type ColorEditor struct {
 	// Color editing state
 	colorValues map[string]string
 	colorKeys   []string
+	listItemToColorKey map[int]string // Maps list item index to color key
 	isDirty     bool
 }
 
 func NewColorEditor(cfg *config.Config) *ColorEditor {
 	tm := theme.NewManager(cfg)
+	tm.SetSilent(true) // Suppress console output in TUI mode
 
 	editor := &ColorEditor{
 		app:          tview.NewApplication(),
@@ -42,6 +45,8 @@ func NewColorEditor(cfg *config.Config) *ColorEditor {
 		themeManager: tm,
 		colorValues:  make(map[string]string),
 		colorKeys:    make([]string, 0),
+		listItemToColorKey: make(map[int]string),
+		appliedTheme: tm.GetCurrentTheme(), // Get the currently applied theme
 	}
 
 	// Theme will be applied in setupUI()
@@ -95,7 +100,7 @@ func (ce *ColorEditor) setupUI() {
 
 	// Status bar at bottom
 	ce.statusBar = tview.NewTextView()
-	ce.statusBar.SetText("Tab: switch panels | ↑↓: navigate | ←→: adjust RGB values | Enter: edit | q: quit | s: save | r: reset")
+	ce.statusBar.SetText("Tab: switch panels | ↑↓: navigate | ←→: brightness | Shift+←→: hue/tint | Enter: apply theme | a: apply theme | q: quit | s: save | r: reset")
 	ce.statusBar.SetTextColor(tcell.ColorYellow)
 
 	// Layout - just use theme list as left panel
@@ -129,14 +134,26 @@ func (ce *ColorEditor) loadThemes() {
 
 	sort.Strings(themeFiles)
 
-	for _, themeName := range themeFiles {
-		ce.themeList.AddItem(themeName, "", 0, nil)
+	currentThemeIndex := -1
+	for i, themeName := range themeFiles {
+		displayName := themeName
+		if themeName == ce.appliedTheme {
+			displayName = fmt.Sprintf("★ %s", themeName) // Mark current theme with a star
+			currentThemeIndex = i
+		}
+		ce.themeList.AddItem(displayName, "", 0, nil)
 	}
 
 	if len(themeFiles) > 0 {
-		ce.themeList.SetCurrentItem(0)
-		// Auto-load the first theme
-		ce.onThemeSelected(0, themeFiles[0], "", 0)
+		// Set current item to the applied theme if found, otherwise first theme
+		if currentThemeIndex >= 0 {
+			ce.themeList.SetCurrentItem(currentThemeIndex)
+			ce.onThemeSelected(currentThemeIndex, themeFiles[currentThemeIndex], "", 0)
+		} else {
+			ce.themeList.SetCurrentItem(0)
+			// Auto-load the first theme
+			ce.onThemeSelected(0, themeFiles[0], "", 0)
+		}
 	}
 }
 
@@ -158,6 +175,9 @@ func (ce *ColorEditor) getThemeFiles() ([]string, error) {
 }
 
 func (ce *ColorEditor) onThemeSelected(index int, themeName string, _ string, _ rune) {
+	// Remove star prefix if present
+	themeName = strings.TrimPrefix(themeName, "★ ")
+	
 	ce.themeName = themeName
 	ce.loadTheme(themeName)
 	ce.buildColorPanel()
@@ -166,6 +186,21 @@ func (ce *ColorEditor) onThemeSelected(index int, themeName string, _ string, _ 
 		ce.colorPanel.SetCurrentItem(0)
 		ce.updateColorStatus()
 	}
+	
+	// Apply theme in real-time
+	go func() {
+		if err := ce.themeManager.ApplyTheme(themeName); err != nil {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus(fmt.Sprintf("Failed to apply theme: %v", err))
+				ce.app.ForceDraw()
+			})
+		} else {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus(fmt.Sprintf("Applied theme: %s", themeName))
+				ce.app.ForceDraw()
+			})
+		}
+	}()
 }
 
 func (ce *ColorEditor) loadTheme(themeName string) {
@@ -237,6 +272,7 @@ func (ce *ColorEditor) addColor(key, value string) {
 
 func (ce *ColorEditor) buildColorPanel() {
 	ce.colorPanel.Clear()
+	ce.listItemToColorKey = make(map[int]string) // Reset the mapping
 
 	if ce.currentTheme == nil {
 		ce.colorPanel.AddItem("Select a theme to start editing", "", 0, nil)
@@ -263,6 +299,7 @@ func (ce *ColorEditor) buildColorPanel() {
 	// Define order to ensure consistent display
 	sectionOrder := []string{"Primary", "Cursor", "Selection", "Normal", "Bright", "Dim"}
 
+	itemIndex := 0
 	for _, sectionName := range sectionOrder {
 		keys := sections[sectionName]
 		if len(keys) == 0 {
@@ -284,6 +321,7 @@ func (ce *ColorEditor) buildColorPanel() {
 
 		// Add section header
 		ce.colorPanel.AddItem(fmt.Sprintf("[cyan::b]%s[-]", sectionName), "", 0, nil)
+		itemIndex++ // Section headers don't have color keys
 
 		for _, key := range keys {
 			if value, exists := ce.colorValues[key]; exists {
@@ -304,7 +342,11 @@ func (ce *ColorEditor) buildColorPanel() {
 				displayName := strings.Replace(key, ".", " ", -1)
 				text := fmt.Sprintf("  [%s]██[-] %-20s %s", colorValue, displayName, rgbDisplay)
 
+				// Map this list item index to the color key
+				ce.listItemToColorKey[itemIndex] = key
+				
 				ce.colorPanel.AddItem(text, "", 0, nil)
+				itemIndex++
 			}
 		}
 	}
@@ -323,12 +365,30 @@ func (ce *ColorEditor) handleThemeListKeys(event *tcell.EventKey) *tcell.EventKe
 		index := ce.themeList.GetCurrentItem()
 		if index >= 0 {
 			themeName, _ := ce.themeList.GetItemText(index)
+			// Clean theme name
+			themeName = strings.TrimPrefix(themeName, "★ ")
 			ce.onThemeSelected(index, themeName, "", 0)
 			ce.app.SetFocus(ce.colorPanel)
 			ce.colorPanel.SetBorderColor(tcell.ColorYellow)
 			ce.themeList.SetBorderColor(tcell.ColorDefault)
 		}
 		return nil
+	case tcell.KeyUp, tcell.KeyDown:
+		// Allow navigation and apply theme on selection change
+		result := event
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			ce.app.QueueUpdateDraw(func() {
+				index := ce.themeList.GetCurrentItem()
+				if index >= 0 {
+					themeName, _ := ce.themeList.GetItemText(index)
+					themeName = strings.TrimPrefix(themeName, "★ ")
+					ce.onThemeSelected(index, themeName, "", 0)
+				}
+				ce.app.ForceDraw()
+			})
+		}()
+		return result
 	}
 	return event
 }
@@ -338,27 +398,6 @@ func (ce *ColorEditor) onColorSelected(index int, text string, _ string, _ rune)
 	ce.updateColorStatus()
 }
 
-func (ce *ColorEditor) getColorIndexFromListIndex(listIndex int) int {
-	// Skip section headers to find actual color items
-	colorIndex := 0
-	for i := 0; i <= listIndex; i++ {
-		text, _ := ce.colorPanel.GetItemText(i)
-		// If it's not a section header (doesn't start with space), it's a color item
-		if !strings.HasPrefix(text, "  ") {
-			// This is a section header, don't count it
-			if i == listIndex {
-				return -1 // Selected a header
-			}
-		} else {
-			// This is a color item
-			if i == listIndex {
-				return colorIndex
-			}
-			colorIndex++
-		}
-	}
-	return -1
-}
 
 func (ce *ColorEditor) handleColorPanelKeys(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
@@ -385,21 +424,16 @@ func (ce *ColorEditor) handleColorPanelKeys(event *tcell.EventKey) *tcell.EventK
 	case tcell.KeyLeft, tcell.KeyRight:
 		// Check if we're on a color item (not a section header)
 		index := ce.colorPanel.GetCurrentItem()
-		colorIndex := ce.getColorIndexFromListIndex(index)
+		colorKey, exists := ce.listItemToColorKey[index]
 
 		// If on a section header, do normal navigation
-		if colorIndex < 0 {
+		if !exists {
 			return event
 		}
 
 		// If on a color item, adjust the color with Left/Right
-		if colorIndex >= 0 && colorIndex < len(ce.colorKeys) {
-			colorKey := ce.colorKeys[colorIndex]
-			ce.adjustColorWithArrows(colorKey, event.Key())
-			return nil
-		}
-
-		return event
+		ce.adjustColorWithArrows(colorKey, event.Key())
+		return nil
 	}
 	return event
 }
@@ -483,6 +517,9 @@ func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
 			return nil
 		case 'r', 'R':
 			ce.resetTheme()
+			return nil
+		case 'a', 'A':
+			ce.applyCurrentTheme()
 			return nil
 		}
 	}
@@ -697,33 +734,128 @@ func (ce *ColorEditor) resetTheme() {
 	ce.setStatus("Theme reset to original values")
 }
 
+func (ce *ColorEditor) applyCurrentTheme() {
+	if ce.themeName == "" {
+		ce.setStatus("No theme selected to apply")
+		return
+	}
+
+	// Save the theme first if it has been modified
+	if ce.isDirty {
+		ce.saveTheme()
+	}
+
+	// Apply the theme
+	if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
+		ce.setStatus(fmt.Sprintf("Failed to apply theme: %v", err))
+	} else {
+		ce.appliedTheme = ce.themeName
+		ce.setStatus(fmt.Sprintf("Theme '%s' applied successfully", ce.themeName))
+		// Refresh the theme list to update the star
+		ce.refreshThemeList()
+	}
+}
+
+func (ce *ColorEditor) createThemeCopy() {
+	if ce.themeName == "" {
+		return
+	}
+	
+	// Generate a unique name for the copy
+	originalName := ce.themeName
+	timestamp := time.Now().Format("150405") // HHMMSS format
+	copyName := fmt.Sprintf("%s_edited_%s", originalName, timestamp)
+	
+	// Update the theme name to the copy
+	ce.themeName = copyName
+	
+	// Update the color panel title to show it's a copy
+	ce.colorPanel.SetTitle(fmt.Sprintf(" Color Palette - %s (Copy) ", copyName))
+	
+	// Save the copy with current values and apply it immediately
+	go func() {
+		ce.updateThemeConfig()
+		if err := ce.saveThemeToFile(); err == nil {
+			// Apply the copied theme so we can see real-time changes
+			if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
+				ce.app.QueueUpdateDraw(func() {
+					ce.setStatus(fmt.Sprintf("Failed to apply copy: %v", err))
+				})
+			} else {
+				ce.app.QueueUpdateDraw(func() {
+					ce.setStatus(fmt.Sprintf("Created and applied copy: %s - Ready to edit", copyName))
+					ce.appliedTheme = copyName // Update the applied theme tracking
+				})
+			}
+		}
+		ce.app.QueueUpdateDraw(func() {
+			ce.app.ForceDraw()
+		})
+	}()
+}
+
+func (ce *ColorEditor) refreshThemeList() {
+	currentItem := ce.themeList.GetCurrentItem()
+	ce.themeList.Clear()
+	
+	// Get theme files directly
+	themeFiles, err := ce.getThemeFiles()
+	if err != nil {
+		return
+	}
+
+	sort.Strings(themeFiles)
+
+	for _, themeName := range themeFiles {
+		displayName := themeName
+		if themeName == ce.appliedTheme {
+			displayName = fmt.Sprintf("★ %s", themeName)
+		}
+		ce.themeList.AddItem(displayName, "", 0, nil)
+	}
+
+	// Restore the selection
+	if currentItem >= 0 && currentItem < ce.themeList.GetItemCount() {
+		ce.themeList.SetCurrentItem(currentItem)
+	}
+}
+
 func (ce *ColorEditor) setStatus(message string) {
 	ce.statusBar.SetText(message)
 }
 
 func (ce *ColorEditor) updateColorStatus() {
 	index := ce.colorPanel.GetCurrentItem()
-	colorIndex := ce.getColorIndexFromListIndex(index)
-	if colorIndex >= 0 && colorIndex < len(ce.colorKeys) {
-		colorKey := ce.colorKeys[colorIndex]
-		colorValue := ce.colorValues[colorKey]
-		displayName := strings.Replace(colorKey, ".", " ", -1)
-		// Convert hex to RGB for display in status
-		rgbDisplay := colorValue
-		if rgb, err := theme.HexToRGB(colorValue); err == nil {
-			rgbDisplay = fmt.Sprintf("R:%d G:%d B:%d", rgb.R, rgb.G, rgb.B)
-		}
-
-		dirtyIndicator := ""
-		if ce.isDirty {
-			dirtyIndicator = " [UNSAVED] "
-		}
-
-		ce.setStatus(fmt.Sprintf("Selected: %s (%s)%s | ←→: adjust RGB | s: save | Tab: switch panels", displayName, rgbDisplay, dirtyIndicator))
+	
+	// Check if this item has a corresponding color key
+	colorKey, exists := ce.listItemToColorKey[index]
+	if !exists {
+		ce.setStatus("Navigate to color items to edit | Tab: switch panels")
+		return
 	}
+	
+	colorValue := ce.colorValues[colorKey]
+	displayName := strings.Replace(colorKey, ".", " ", -1)
+	// Convert hex to RGB for display in status
+	rgbDisplay := colorValue
+	if rgb, err := theme.HexToRGB(colorValue); err == nil {
+		rgbDisplay = fmt.Sprintf("R:%d G:%d B:%d", rgb.R, rgb.G, rgb.B)
+	}
+
+	dirtyIndicator := ""
+	if ce.isDirty {
+		dirtyIndicator = " [UNSAVED] "
+	}
+
+	ce.setStatus(fmt.Sprintf("Selected: %s (%s)%s | ←→: adjust RGB | s: save | Tab: switch panels", displayName, rgbDisplay, dirtyIndicator))
 }
 
 func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
+	// Create a copy of the theme if this is the first edit
+	if !ce.isDirty {
+		ce.createThemeCopy()
+	}
+	
 	currentValue := ce.colorValues[colorKey]
 	rgb, err := theme.HexToRGB(currentValue)
 	if err != nil {
@@ -770,6 +902,27 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 
 	// Show that changes have been made (don't call updateColorStatus as it would overwrite this message)
 	ce.setStatus(fmt.Sprintf("Modified %s (%s) | Press 's' to save | ←→: adjust RGB", displayName, rgbDisplay))
+	
+	// Apply changes in real-time
+	go func() {
+		// Save the current state to disk temporarily
+		ce.updateThemeConfig()
+		if err := ce.saveThemeToFile(); err == nil {
+			// Apply the theme to see changes immediately
+			if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
+				ce.app.QueueUpdateDraw(func() {
+					ce.setStatus(fmt.Sprintf("Failed to apply changes: %v", err))
+				})
+			} else {
+				// Update the applied theme tracking since we're applying the edited copy
+				ce.appliedTheme = ce.themeName
+			}
+		}
+		// Force a complete redraw to prevent text overlap
+		ce.app.QueueUpdateDraw(func() {
+			ce.app.ForceDraw()
+		})
+	}()
 }
 
 func max(a, b int) int {

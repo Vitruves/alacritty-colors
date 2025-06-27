@@ -129,6 +129,7 @@ func applyCmd() *cobra.Command {
 		blur       float64
 		fontSize   float64
 		fontFamily string
+		backup     bool
 	)
 
 	cmd := &cobra.Command{
@@ -143,7 +144,8 @@ Examples:
 
   alacritty-colors apply dracula
   alacritty-colors apply nord --font --font-size 16
-  alacritty-colors apply gruvbox --opacity 0.9 --blur 10`,
+  alacritty-colors apply gruvbox --opacity 0.9 --blur 10
+  alacritty-colors apply cyberpunk --backup`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(configFile, themesDir, backupDir)
@@ -160,6 +162,7 @@ Examples:
 				Blur:       blur,
 				FontSize:   fontSize,
 				FontFamily: fontFamily,
+				Backup:     backup,
 			}
 
 			return tm.ApplyThemeWithOptions(args[0], opts)
@@ -171,6 +174,7 @@ Examples:
 	cmd.Flags().Float64Var(&blur, "blur", 0, "Set background blur radius")
 	cmd.Flags().Float64Var(&fontSize, "font-size", 0, "Set font size")
 	cmd.Flags().StringVar(&fontFamily, "font-family", "", "Set font family")
+	cmd.Flags().BoolVar(&backup, "backup", false, "Create backup before applying theme")
 
 	return cmd
 }
@@ -233,6 +237,7 @@ func randomCmd() *cobra.Command {
 		opacity    float64
 		blur       float64
 		scheme     string
+		backup     bool
 	)
 
 	cmd := &cobra.Command{
@@ -274,6 +279,7 @@ Examples:
 				Opacity:   opacity,
 				Blur:      blur,
 				Scheme:    scheme,
+				Backup:    backup,
 			}
 
 			return tm.RandomThemeWithOptions(opts)
@@ -286,6 +292,7 @@ Examples:
 	cmd.Flags().Float64Var(&opacity, "opacity", 0, "Set window opacity (0.0-1.0)")
 	cmd.Flags().Float64Var(&blur, "blur", 0, "Set background blur radius")
 	cmd.Flags().StringVarP(&scheme, "scheme", "s", "", "Generate new theme with scheme (random|pastel|neon|mono|warm|cool|nature|cyberpunk|dracula|nord|solarized|gruvbox)")
+	cmd.Flags().BoolVar(&backup, "backup", false, "Create backup before applying theme")
 
 	return cmd
 }

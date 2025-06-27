@@ -28,6 +28,7 @@ type ApplyOptions struct {
 	Blur       float64
 	FontSize   float64
 	FontFamily string
+	Backup     bool
 }
 
 type ListOptions struct {
@@ -44,6 +45,7 @@ type RandomOptions struct {
 	Opacity   float64
 	Blur      float64
 	Scheme    string
+	Backup    bool
 }
 
 type GenerateOptions struct {
@@ -93,6 +95,7 @@ type UpdateOptions struct {
 type Manager struct {
 	config  *config.Config
 	verbose bool
+	silent  bool
 }
 
 type ThemeInfo struct {
@@ -117,11 +120,15 @@ var ThemeFonts = map[string][]string{
 }
 
 func NewManager(cfg *config.Config) *Manager {
-	return &Manager{config: cfg, verbose: false}
+	return &Manager{config: cfg, verbose: false, silent: false}
 }
 
 func (m *Manager) SetVerbose(verbose bool) {
 	m.verbose = verbose
+}
+
+func (m *Manager) SetSilent(silent bool) {
+	m.silent = silent
 }
 
 func (m *Manager) logVerbose(format string, args ...interface{}) {
@@ -281,6 +288,10 @@ func (m *Manager) addImportLine() error {
 }
 
 func (m *Manager) ApplyTheme(themeName string) error {
+	return m.ApplyThemeWithBackup(themeName, false)
+}
+
+func (m *Manager) ApplyThemeWithBackup(themeName string, createBackup bool) error {
 	themes, err := m.getThemeInfos()
 	if err != nil {
 		return err
@@ -298,11 +309,17 @@ func (m *Manager) ApplyTheme(themeName string) error {
 		return fmt.Errorf("theme '%s' not found", themeName)
 	}
 
-	ui.PrintInfo("Applying theme: %s", selectedTheme.Name)
+	if !m.silent {
+		ui.PrintInfo("Applying theme: %s", selectedTheme.Name)
+	}
 
-	// Create backup
-	if err := m.CreateBackup(); err != nil {
-		ui.PrintWarning("Failed to create backup: %v", err)
+	// Create backup only if requested
+	if createBackup {
+		if err := m.CreateBackup(); err != nil {
+			if !m.silent {
+				ui.PrintWarning("Failed to create backup: %v", err)
+			}
+		}
 	}
 
 	// Copy theme to current.toml
@@ -313,10 +330,14 @@ func (m *Manager) ApplyTheme(themeName string) error {
 
 	// Update config to track current theme
 	if err := m.config.SetCurrentTheme(selectedTheme.Name); err != nil {
-		ui.PrintWarning("Failed to update theme tracking: %v", err)
+		if !m.silent {
+			ui.PrintWarning("Failed to update theme tracking: %v", err)
+		}
 	}
 
-	ui.PrintSuccess("Applied theme '%s'", selectedTheme.Name)
+	if !m.silent {
+		ui.PrintSuccess("Applied theme '%s'", selectedTheme.Name)
+	}
 	return nil
 }
 
@@ -425,7 +446,9 @@ func (m *Manager) CreateBackup() error {
 		return fmt.Errorf("failed to copy config: %w", err)
 	}
 
-	ui.PrintSuccess("Backup created: %s", filepath.Base(backupFile))
+	if !m.silent {
+		ui.PrintSuccess("Backup created: %s", filepath.Base(backupFile))
+	}
 	return nil
 }
 
@@ -736,7 +759,12 @@ func (m *Manager) interactiveRestore() error {
 func (m *Manager) ApplyThemeWithOptions(themeName string, opts *ApplyOptions) error {
 	m.logVerbose("Applying theme %s with options", themeName)
 
-	if err := m.ApplyTheme(themeName); err != nil {
+	createBackup := false
+	if opts != nil {
+		createBackup = opts.Backup
+	}
+
+	if err := m.ApplyThemeWithBackup(themeName, createBackup); err != nil {
 		return err
 	}
 
@@ -831,6 +859,7 @@ func (m *Manager) RandomThemeWithOptions(opts *RandomOptions) error {
 		WithFont: opts.WithFont,
 		Opacity:  opts.Opacity,
 		Blur:     opts.Blur,
+		Backup:   opts.Backup,
 	}
 
 	return m.ApplyThemeWithOptions(selectedTheme.Name, applyOpts)
