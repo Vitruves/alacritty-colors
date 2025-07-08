@@ -4,7 +4,10 @@
 
 A command-line tool for managing Alacritty terminal themes, offering automatic downloads, custom theme generation, font configuration, and configuration management features.
 
-![image-10](https://github.com/user-attachments/assets/40163b06-ba60-4bb0-a961-074a55d32d3f)
+<img width="1093" alt="tui_1" src="https://github.com/user-attachments/assets/ea487e16-d404-48fb-a029-50057d5aa749" />
+
+<img width="1093" alt="tui_2" src="https://github.com/user-attachments/assets/b38763af-2150-4825-bdf3-0ae84a97b9ed" />
+
 
 ## Features
 
@@ -20,7 +23,6 @@ A command-line tool for managing Alacritty terminal themes, offering automatic d
 - **Cross-Platform** - Compatible with macOS, Linux, and Windows.
 - **Efficient & Safe** - Designed to preserve your personal Alacritty settings.
 
-<img width="918" alt="image" src="https://github.com/user-attachments/assets/e8a82abd-bf34-408e-acf0-955d72a61fb1" />
 
 ## Quick Start
 
