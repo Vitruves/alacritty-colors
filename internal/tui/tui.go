@@ -11,17 +11,20 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/vitruves/alacritty-colors/internal/config"
+	"github.com/vitruves/alacritty-colors/internal/font"
 	"github.com/vitruves/alacritty-colors/internal/theme"
 	"github.com/vitruves/alacritty-colors/pkg/alacritty"
 )
 
 type ColorEditor struct {
-	app          *tview.Application
-	config       *config.Config
-	themeManager *theme.Manager
-	currentTheme *alacritty.Config
-	themeName    string
-	appliedTheme string // Currently applied theme in Alacritty
+	app               *tview.Application
+	config            *config.Config
+	themeManager      *theme.Manager
+	fontManager       *font.Manager
+	parametersManager *config.ParametersManager
+	currentTheme      *alacritty.Config
+	themeName         string
+	appliedTheme      string // Currently applied theme in Alacritty
 
 	// UI components
 	themeList    *tview.List
@@ -34,7 +37,7 @@ type ColorEditor struct {
 	colorKeys          []string
 	listItemToColorKey map[int]string // Maps list item index to color key
 	isDirty            bool
-	colorMode          int // 0=hex colors, 1=named colors, 2=bright colors
+	colorMode          int  // 0=hex colors, 1=named colors, 2=bright colors
 	isApplying         bool // Prevent concurrent theme applications
 }
 
@@ -42,10 +45,15 @@ func NewColorEditor(cfg *config.Config) *ColorEditor {
 	tm := theme.NewManager(cfg)
 	tm.SetSilent(true) // Suppress console output in TUI mode
 
+	fm := font.NewManager(cfg)
+	pm := config.NewParametersManager(cfg)
+
 	editor := &ColorEditor{
 		app:                tview.NewApplication(),
 		config:             cfg,
 		themeManager:       tm,
+		fontManager:        fm,
+		parametersManager:  pm,
 		colorValues:        make(map[string]string),
 		colorKeys:          make([]string, 0),
 		listItemToColorKey: make(map[int]string),
@@ -103,7 +111,7 @@ func (ce *ColorEditor) setupUI() {
 
 	// Status bar at bottom
 	ce.statusBar = tview.NewTextView()
-	ce.statusBar.SetText("Tab: switch panels | ↑↓: navigate | ←→: brightness | Shift+←→: hue | Enter/a: apply | e: edit copy | d: delete | c: cycle colors | q: quit | s: save | r: reset")
+	ce.statusBar.SetText("Tab: switch panels | ↑↓: navigate | ←→: brightness | Shift+←→: hue | Enter/a: apply | e: edit copy | d: delete | c: cycle colors | p: parameters | f: font | q: quit | s: save | r: reset")
 	ce.statusBar.SetTextColor(tcell.ColorYellow)
 
 	// Layout - just use theme list as left panel
@@ -127,24 +135,6 @@ func (ce *ColorEditor) setupUI() {
 	ce.themeList.SetBorderColor(tcell.ColorYellow)
 }
 
-func (ce *ColorEditor) setupLayout() *tview.Flex {
-	// Layout - just use theme list as left panel
-	leftPanel := ce.themeList
-	centerPanel := ce.colorPanel
-	rightPanel := ce.previewPanel
-
-	mainFlex := tview.NewFlex()
-	mainFlex.AddItem(leftPanel, 0, 1, false)
-	mainFlex.AddItem(centerPanel, 0, 2, false)
-	mainFlex.AddItem(rightPanel, 0, 1, false)
-
-	rootFlex := tview.NewFlex()
-	rootFlex.SetDirection(tview.FlexRow)
-	rootFlex.AddItem(mainFlex, 0, 1, true)
-	rootFlex.AddItem(ce.statusBar, 1, 0, false)
-
-	return rootFlex
-}
 
 func (ce *ColorEditor) loadThemes() {
 	// Get theme files directly
@@ -219,7 +209,7 @@ func (ce *ColorEditor) onThemeSelected(index int, themeName string, _ string, _ 
 		} else {
 			ce.app.QueueUpdateDraw(func() {
 				ce.appliedTheme = theme // Update the applied theme tracking
-				ce.setStatus(fmt.Sprintf("Applied theme: %s | e: edit copy | d: delete | Tab: switch panels | q: quit", theme))
+				ce.setStatus(fmt.Sprintf("Applied theme: %s | e: edit copy | d: delete | p: parameters | f: font | q: quit", theme))
 				ce.app.ForceDraw()
 			})
 		}
@@ -646,6 +636,12 @@ func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
 		case 'd', 'D':
 			ce.deleteCurrentTheme()
 			return nil
+		case 'p', 'P':
+			ce.showParametersPanel()
+			return nil
+		case 'f', 'F':
+			ce.showFontPanel()
+			return nil
 		}
 	}
 	return event
@@ -875,7 +871,7 @@ func (ce *ColorEditor) applyCurrentTheme() {
 		ce.setStatus(fmt.Sprintf("Failed to apply theme: %v", err))
 	} else {
 		ce.appliedTheme = ce.themeName
-		ce.setStatus(fmt.Sprintf("Theme '%s' applied successfully | e: edit copy | d: delete | Tab: switch panels | q: quit", ce.themeName))
+		ce.setStatus(fmt.Sprintf("Theme '%s' applied successfully | e: edit copy | d: delete | p: parameters | f: font | q: quit", ce.themeName))
 		// Refresh the theme list to update the star
 		ce.refreshThemeList()
 	}
@@ -914,7 +910,7 @@ func (ce *ColorEditor) createThemeCopy() {
 				})
 			} else {
 				ce.app.QueueUpdateDraw(func() {
-					ce.setStatus(fmt.Sprintf("Created and applied copy: %s - Ready to edit | e: edit copy | d: delete | q: quit", themeName))
+					ce.setStatus(fmt.Sprintf("Created and applied copy: %s - Ready to edit | e: edit copy | d: delete | p: parameters | f: font | q: quit", themeName))
 					ce.appliedTheme = themeName // Update the applied theme tracking
 					// Refresh theme list to show the new edited theme
 					ce.refreshThemeList()
@@ -995,7 +991,7 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 	if colorKey == "" {
 		return
 	}
-	
+
 	// Mark theme as dirty when editing begins
 	ce.isDirty = true
 
@@ -1003,7 +999,7 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 	if !exists || currentValue == "" {
 		return
 	}
-	
+
 	rgb, err := theme.HexToRGB(currentValue)
 	if err != nil {
 		return
@@ -1079,7 +1075,7 @@ func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
 	if colorKey == "" {
 		return
 	}
-	
+
 	// Mark theme as dirty when editing begins
 	ce.isDirty = true
 
@@ -1087,7 +1083,7 @@ func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
 	if !exists || currentValue == "" {
 		return
 	}
-	
+
 	rgb, err := theme.HexToRGB(currentValue)
 	if err != nil {
 		return
@@ -1361,64 +1357,531 @@ func (ce *ColorEditor) resetTUITheme() {
 	tview.Styles.InverseTextColor = tcell.ColorBlue
 }
 
+func (ce *ColorEditor) showParametersPanel() {
+	// Temporarily reset to default colors for the modal to ensure visibility
+	ce.resetTUITheme()
+
+	modal := tview.NewModal()
+	modal.SetText("Parameters & Utilities\n\nSelect an option:")
+	modal.AddButtons([]string{"Clean & Redownload Themes", "Backup Current Config", "Reset to Defaults", "Cancel"})
+
+	// Style the modal with high contrast colors
+	modal.SetBackgroundColor(tcell.ColorBlack)
+	modal.SetTextColor(tcell.ColorWhite)
+	modal.SetButtonBackgroundColor(tcell.ColorBlue)
+	modal.SetButtonTextColor(tcell.ColorWhite)
+
+	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+		// Restore the main UI layout first
+		ce.restoreMainUI()
+
+		switch buttonIndex {
+		case 0: // Clean & Redownload Themes
+			ce.cleanAndRedownloadThemes()
+		case 1: // Backup Current Config
+			ce.backupCurrentConfig()
+		case 2: // Reset to Defaults
+			ce.resetToDefaults()
+		case 3: // Cancel
+			// Do nothing, just return to main UI
+		}
+	})
+
+	ce.app.SetRoot(modal, true)
+}
+
+func (ce *ColorEditor) showFontPanel() {
+	// Temporarily reset to default colors for the modal to ensure visibility
+	ce.resetTUITheme()
+
+	modal := tview.NewModal()
+	modal.SetText("Font Settings\n\nSelect an option:")
+	modal.AddButtons([]string{"Change Font Family", "Adjust Font Size", "Font Weight", "Cancel"})
+
+	// Style the modal with high contrast colors
+	modal.SetBackgroundColor(tcell.ColorBlack)
+	modal.SetTextColor(tcell.ColorWhite)
+	modal.SetButtonBackgroundColor(tcell.ColorGreen)
+	modal.SetButtonTextColor(tcell.ColorWhite)
+
+	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+		// Restore the main UI layout first
+		ce.restoreMainUI()
+
+		switch buttonIndex {
+		case 0: // Change Font Family
+			ce.changeFontFamily()
+		case 1: // Adjust Font Size
+			ce.adjustFontSize()
+		case 2: // Font Weight
+			ce.changeFontWeight()
+		case 3: // Cancel
+			// Do nothing, just return to main UI
+		}
+	})
+
+	ce.app.SetRoot(modal, true)
+}
+
+func (ce *ColorEditor) restoreMainUI() {
+	// Restore the main UI layout
+	rootFlex := tview.NewFlex()
+	rootFlex.SetDirection(tview.FlexRow)
+
+	mainFlex := tview.NewFlex()
+	mainFlex.AddItem(ce.themeList, 0, 1, false)
+	mainFlex.AddItem(ce.colorPanel, 0, 2, false)
+	mainFlex.AddItem(ce.previewPanel, 0, 1, false)
+
+	rootFlex.AddItem(mainFlex, 0, 1, true)
+	rootFlex.AddItem(ce.statusBar, 1, 0, false)
+
+	ce.app.SetRoot(rootFlex, true)
+	ce.applyUserThemeToTUI()
+
+	// Restore the main global key handler
+	ce.app.SetInputCapture(ce.handleGlobalKeys)
+
+	// Ensure proper focus restoration
+	ce.app.SetFocus(ce.themeList)
+	ce.themeList.SetBorderColor(tcell.ColorYellow)
+}
+
+func (ce *ColorEditor) cleanAndRedownloadThemes() {
+	go func() {
+		ce.app.QueueUpdateDraw(func() {
+			ce.setStatus("Cleaning and redownloading themes...")
+		})
+
+		if err := ce.parametersManager.CleanAndRedownloadThemes(); err != nil {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus(fmt.Sprintf("Failed to clean and redownload themes: %v", err))
+			})
+		} else {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus("Themes cleaned and redownloaded successfully")
+				ce.loadThemes() // Reload the theme list
+			})
+		}
+	}()
+}
+
+func (ce *ColorEditor) backupCurrentConfig() {
+	go func() {
+		ce.app.QueueUpdateDraw(func() {
+			ce.setStatus("Creating backup of current configuration...")
+		})
+
+		if err := ce.parametersManager.BackupConfig(); err != nil {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus(fmt.Sprintf("Failed to backup config: %v", err))
+			})
+		} else {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus("Configuration backed up successfully")
+			})
+		}
+	}()
+}
+
+func (ce *ColorEditor) resetToDefaults() {
+	go func() {
+		ce.app.QueueUpdateDraw(func() {
+			ce.setStatus("Resetting to default configuration...")
+		})
+
+		if err := ce.parametersManager.ResetToDefaults(); err != nil {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus(fmt.Sprintf("Failed to reset to defaults: %v", err))
+			})
+		} else {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus("Configuration reset to defaults successfully")
+			})
+		}
+	}()
+}
+
+func (ce *ColorEditor) changeFontFamily() {
+	ce.showFontTUI()
+}
+
+func (ce *ColorEditor) adjustFontSize() {
+	ce.showFontTUI()
+}
+
+func (ce *ColorEditor) changeFontWeight() {
+	ce.showFontTUI()
+}
+
+func (ce *ColorEditor) showFontTUI() {
+	// Apply user theme to TUI first
+	ce.applyUserThemeToTUI()
+
+	// Font family list on the left
+	fontList := tview.NewList()
+	fontList.ShowSecondaryText(false)
+	fontList.SetMainTextColor(tcell.ColorWhite)
+	fontList.SetSelectedTextColor(tcell.ColorBlack)
+	fontList.SetSelectedBackgroundColor(tcell.ColorWhite)
+	fontList.SetBorder(true)
+	fontList.SetTitle(" Font Families ")
+
+	// Font style list in the center
+	styleList := tview.NewList()
+	styleList.ShowSecondaryText(false)
+	styleList.SetMainTextColor(tcell.ColorWhite)
+	styleList.SetSelectedTextColor(tcell.ColorBlack)
+	styleList.SetSelectedBackgroundColor(tcell.ColorWhite)
+	styleList.SetBorder(true)
+	styleList.SetTitle(" Font Styles ")
+
+	// Font info panel on the right
+	infoPanel := tview.NewTextView()
+	infoPanel.SetDynamicColors(true)
+	infoPanel.SetWordWrap(true)
+	infoPanel.SetBorder(true)
+	infoPanel.SetTitle(" Font Preview ")
+
+	// Status bar
+	statusBar := tview.NewTextView()
+	statusBar.SetText("Tab: switch panels | ↑↓: navigate fonts | Enter: apply | Left/Right: change size | q: quit")
+	statusBar.SetTextColor(tcell.ColorYellow)
+
+	// Get available mono fonts
+	monoFonts := ce.fontManager.GetFontFamilies()
+	currentFamily := ce.fontManager.GetCurrentFontFamily()
+	currentStyle := ce.fontManager.GetCurrentFontStyle()
+	currentSize := ce.fontManager.GetCurrentFontSize()
+
+	// Populate font list
+	currentFontIndex := -1
+	for i, fontFamily := range monoFonts {
+		displayName := fontFamily
+		if fontFamily == currentFamily {
+			displayName = fmt.Sprintf("★ %s", fontFamily)
+			currentFontIndex = i
+		}
+		fontList.AddItem(displayName, "", 0, nil)
+	}
+
+	// Load styles for current font
+	loadStylesForFont := func(fontFamily string) {
+		styleList.Clear()
+		styles := ce.fontManager.GetStylesForFont(fontFamily)
+		currentStyleIndex := -1
+		for i, style := range styles {
+			displayName := style
+			if style == currentStyle && fontFamily == currentFamily {
+				displayName = fmt.Sprintf("★ %s", style)
+				currentStyleIndex = i
+			}
+			styleList.AddItem(displayName, "", 0, nil)
+		}
+		if currentStyleIndex >= 0 {
+			styleList.SetCurrentItem(currentStyleIndex)
+		} else if len(styles) > 0 {
+			styleList.SetCurrentItem(0)
+		}
+	}
+
+	// Update font info panel
+	updateFontInfo := func(fontFamily, style string, size float64) {
+		info := fmt.Sprintf(`[yellow::b]Font Configuration[-]
+
+[white::b]Family:[-] %s
+[white::b]Style:[-]  %s
+[white::b]Size:[-]   %.1f
+
+[white::b]Sample Text:[-]
+[white]The quick brown fox jumps over the lazy dog.[-]
+[white]ABCDEFGHIJKLMNOPQRSTUVWXYZ[-]
+[white]abcdefghijklmnopqrstuvwxyz[-]
+[white]0123456789 !@#$%%^&*()[-]
+
+[white::b]Code Sample:[-]
+[cyan]func[-] [yellow]main[-]() {
+    [cyan]fmt[-].[yellow]Println[-]([green]"Hello, World!"[-])
+    [magenta]// This is a comment[-]
+}
+
+[white::b]Terminal Commands:[-]
+[green]user@hostname[-]:[blue]~/projects[-]$ [yellow]ls -la[-]
+[white]total 24[-]
+[blue]drwxr-xr-x[-] [white]3 user staff 96 Jan 15 10:30[-] [blue].[-]
+[blue]drwxr-xr-x[-] [white]5 user staff 160 Jan 15 10:25[-] [blue]..[-]
+[green]-rwxr-xr-x[-] [white]1 user staff 8192 Jan 15 10:20[-] [green]alacritty-colors[-]
+
+[white]Note: Font changes apply instantly to Alacritty[-]
+[white]Use Left/Right arrows to adjust font size[-]`,
+			fontFamily, style, size)
+		infoPanel.SetText(info)
+	}
+
+	// Set up font selection handler
+	fontList.SetSelectedFunc(func(index int, fontFamily string, _ string, _ rune) {
+		fontFamily = strings.TrimPrefix(fontFamily, "★ ")
+		loadStylesForFont(fontFamily)
+		if styleList.GetItemCount() > 0 {
+			styleName, _ := styleList.GetItemText(styleList.GetCurrentItem())
+			styleName = strings.TrimPrefix(styleName, "★ ")
+			updateFontInfo(fontFamily, styleName, currentSize)
+
+			// Apply font change instantly
+			go func() {
+				if err := ce.fontManager.UpdateFontFamily(fontFamily); err == nil {
+					if err := ce.fontManager.UpdateFontStyle(styleName); err != nil {
+						// If style fails, try Regular
+						ce.fontManager.UpdateFontStyle("Regular")
+					}
+				}
+			}()
+		}
+	})
+
+	// Set up style selection handler
+	styleList.SetSelectedFunc(func(index int, style string, _ string, _ rune) {
+		style = strings.TrimPrefix(style, "★ ")
+		fontIndex := fontList.GetCurrentItem()
+		if fontIndex >= 0 {
+			fontFamily, _ := fontList.GetItemText(fontIndex)
+			fontFamily = strings.TrimPrefix(fontFamily, "★ ")
+			updateFontInfo(fontFamily, style, currentSize)
+
+			// Apply style change instantly
+			go func() {
+				ce.fontManager.UpdateFontStyle(style)
+			}()
+		}
+	})
+
+	// Handle key events
+	fontList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyTab:
+			ce.app.SetFocus(styleList)
+			styleList.SetBorderColor(tcell.ColorYellow)
+			fontList.SetBorderColor(tcell.ColorDefault)
+			statusBar.SetText("Tab: switch panels | ↑↓: navigate styles | Enter: apply | Left/Right: change size | q: quit")
+			return nil
+		case tcell.KeyLeft, tcell.KeyRight:
+			// Adjust font size
+			adjustment := 0.5
+			if event.Key() == tcell.KeyLeft {
+				adjustment = -0.5
+			}
+			newSize := currentSize + adjustment
+			if newSize < 6 {
+				newSize = 6
+			} else if newSize > 48 {
+				newSize = 48
+			}
+			currentSize = newSize
+
+			// Update display and apply
+			fontIndex := fontList.GetCurrentItem()
+			styleIndex := styleList.GetCurrentItem()
+			if fontIndex >= 0 && styleIndex >= 0 {
+				fontFamily, _ := fontList.GetItemText(fontIndex)
+				fontFamily = strings.TrimPrefix(fontFamily, "★ ")
+				styleName, _ := styleList.GetItemText(styleIndex)
+				styleName = strings.TrimPrefix(styleName, "★ ")
+				updateFontInfo(fontFamily, styleName, currentSize)
+
+				go func() {
+					ce.fontManager.UpdateFontSize(fmt.Sprintf("%.1f", currentSize))
+				}()
+			}
+			return nil
+		case tcell.KeyUp, tcell.KeyDown:
+			result := event
+			go func() {
+				time.Sleep(10 * time.Millisecond)
+				ce.app.QueueUpdateDraw(func() {
+					index := fontList.GetCurrentItem()
+					if index >= 0 {
+						fontFamily, _ := fontList.GetItemText(index)
+						fontFamily = strings.TrimPrefix(fontFamily, "★ ")
+						loadStylesForFont(fontFamily)
+						if styleList.GetItemCount() > 0 {
+							styleName, _ := styleList.GetItemText(styleList.GetCurrentItem())
+							styleName = strings.TrimPrefix(styleName, "★ ")
+							updateFontInfo(fontFamily, styleName, currentSize)
+
+							// Apply font change instantly
+							go func() {
+								if err := ce.fontManager.UpdateFontFamily(fontFamily); err == nil {
+									if err := ce.fontManager.UpdateFontStyle(styleName); err != nil {
+										ce.fontManager.UpdateFontStyle("Regular")
+									}
+								}
+							}()
+						}
+					}
+				})
+			}()
+			return result
+		}
+		return event
+	})
+
+	styleList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyTab:
+			ce.app.SetFocus(fontList)
+			fontList.SetBorderColor(tcell.ColorYellow)
+			styleList.SetBorderColor(tcell.ColorDefault)
+			statusBar.SetText("Tab: switch panels | ↑↓: navigate fonts | Enter: apply | Left/Right: change size | q: quit")
+			return nil
+		case tcell.KeyLeft, tcell.KeyRight:
+			// Adjust font size (same as fontList)
+			adjustment := 0.5
+			if event.Key() == tcell.KeyLeft {
+				adjustment = -0.5
+			}
+			newSize := currentSize + adjustment
+			if newSize < 6 {
+				newSize = 6
+			} else if newSize > 48 {
+				newSize = 48
+			}
+			currentSize = newSize
+
+			fontIndex := fontList.GetCurrentItem()
+			styleIndex := styleList.GetCurrentItem()
+			if fontIndex >= 0 && styleIndex >= 0 {
+				fontFamily, _ := fontList.GetItemText(fontIndex)
+				fontFamily = strings.TrimPrefix(fontFamily, "★ ")
+				styleName, _ := styleList.GetItemText(styleIndex)
+				styleName = strings.TrimPrefix(styleName, "★ ")
+				updateFontInfo(fontFamily, styleName, currentSize)
+
+				go func() {
+					ce.fontManager.UpdateFontSize(fmt.Sprintf("%.1f", currentSize))
+				}()
+			}
+			return nil
+		case tcell.KeyUp, tcell.KeyDown:
+			result := event
+			go func() {
+				time.Sleep(10 * time.Millisecond)
+				ce.app.QueueUpdateDraw(func() {
+					styleIndex := styleList.GetCurrentItem()
+					fontIndex := fontList.GetCurrentItem()
+					if styleIndex >= 0 && fontIndex >= 0 {
+						styleName, _ := styleList.GetItemText(styleIndex)
+						styleName = strings.TrimPrefix(styleName, "★ ")
+						fontFamily, _ := fontList.GetItemText(fontIndex)
+						fontFamily = strings.TrimPrefix(fontFamily, "★ ")
+						updateFontInfo(fontFamily, styleName, currentSize)
+
+						// Apply style change instantly
+						go func() {
+							ce.fontManager.UpdateFontStyle(styleName)
+						}()
+					}
+				})
+			}()
+			return result
+		}
+		return event
+	})
+
+	// Global key handler for quitting
+	globalKeyHandler := func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Rune() == 'q' || event.Rune() == 'Q' || event.Key() == tcell.KeyEscape {
+			ce.restoreMainUI()
+			return nil
+		}
+		return event
+	}
+
+	// Initialize with current font
+	if currentFontIndex >= 0 {
+		fontList.SetCurrentItem(currentFontIndex)
+		loadStylesForFont(currentFamily)
+		updateFontInfo(currentFamily, currentStyle, currentSize)
+	} else if len(monoFonts) > 0 {
+		fontList.SetCurrentItem(0)
+		loadStylesForFont(monoFonts[0])
+		updateFontInfo(monoFonts[0], "Regular", currentSize)
+	}
+
+	// Layout
+	mainFlex := tview.NewFlex()
+	mainFlex.AddItem(fontList, 0, 1, true)
+	mainFlex.AddItem(styleList, 0, 1, false)
+	mainFlex.AddItem(infoPanel, 0, 2, false)
+
+	rootFlex := tview.NewFlex()
+	rootFlex.SetDirection(tview.FlexRow)
+	rootFlex.AddItem(mainFlex, 0, 1, true)
+	rootFlex.AddItem(statusBar, 1, 0, false)
+
+	ce.app.SetRoot(rootFlex, true)
+	ce.app.SetInputCapture(globalKeyHandler)
+	ce.app.SetFocus(fontList)
+	fontList.SetBorderColor(tcell.ColorYellow)
+}
+
 func (ce *ColorEditor) deleteCurrentTheme() {
 	if ce.themeName == "" {
 		ce.setStatus("No theme selected to delete")
 		return
 	}
-	
+
 	// Don't allow deleting the base theme if it's not an edited version
 	if !strings.Contains(ce.themeName, "_edited_") {
 		ce.setStatus("Cannot delete base theme. Only edited versions can be deleted.")
 		return
 	}
-	
+
 	// Create confirmation modal
 	ce.resetTUITheme()
-	
+
 	modal := tview.NewModal()
 	modal.SetText(fmt.Sprintf("Are you sure you want to delete theme '%s'?", ce.themeName))
 	modal.AddButtons([]string{"Delete", "Cancel"})
-	
+
 	// Style the modal with high contrast colors
 	modal.SetBackgroundColor(tcell.ColorBlack)
 	modal.SetTextColor(tcell.ColorWhite)
 	modal.SetButtonBackgroundColor(tcell.ColorRed)
 	modal.SetButtonTextColor(tcell.ColorWhite)
-	
+
 	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 		// Restore the main UI layout first
 		rootFlex := tview.NewFlex()
 		rootFlex.SetDirection(tview.FlexRow)
-		
+
 		mainFlex := tview.NewFlex()
 		mainFlex.AddItem(ce.themeList, 0, 1, false)
 		mainFlex.AddItem(ce.colorPanel, 0, 2, false)
 		mainFlex.AddItem(ce.previewPanel, 0, 1, false)
-		
+
 		rootFlex.AddItem(mainFlex, 0, 1, true)
 		rootFlex.AddItem(ce.statusBar, 1, 0, false)
-		
+
 		ce.app.SetRoot(rootFlex, true)
 		ce.applyUserThemeToTUI()
-		
+
 		if buttonIndex == 0 { // Delete
 			themeFile := ce.config.GetThemePath(ce.themeName)
 			if err := os.Remove(themeFile); err != nil {
 				ce.setStatus(fmt.Sprintf("Failed to delete theme: %v", err))
 				return
 			}
-			
+
 			// Remove tracking file if this was the applied theme
 			if ce.appliedTheme == ce.themeName {
 				trackingFile := ce.config.GetThemePath(".current-theme")
 				os.Remove(trackingFile) // Ignore errors
 				ce.appliedTheme = ""
 			}
-			
+
 			ce.setStatus(fmt.Sprintf("Theme '%s' deleted successfully", ce.themeName))
 			ce.refreshThemeList()
-			
+
 			// Select the first theme in the list
 			if ce.themeList.GetItemCount() > 0 {
 				ce.themeList.SetCurrentItem(0)
@@ -1427,12 +1890,12 @@ func (ce *ColorEditor) deleteCurrentTheme() {
 				ce.onThemeSelected(0, themeName, "", 0)
 			}
 		}
-		
+
 		// Ensure proper focus restoration
 		ce.app.SetFocus(ce.themeList)
 		ce.themeList.SetBorderColor(tcell.ColorYellow)
 	})
-	
+
 	ce.app.SetRoot(modal, true)
 }
 

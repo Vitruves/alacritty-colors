@@ -20,7 +20,7 @@ A powerful command-line tool for managing Alacritty terminal themes with automat
 - **User Friendly interactive terminal interface** - Theme creation made easy!
 
 
-<img width="918" alt="image" src="https://github.com/user-attachments/assets/e8a82abd-bf34-408e-acf0-955e72a61fb1" />
+<img width="918" alt="image" src="https://github.com/user-attachments/assets/e8a82abd-bf34-408e-acf0-955d72a61fb1" />
 
 
 ## Quick Start
@@ -40,93 +40,29 @@ cd alacritty-colors
 make build && make install
 ```
 
-### First Time Setup
-
-```bash
-# Initialize configuration and download themes
-alacritty-colors init
-
-# List available themes
-alacritty-colors list
-
-# Apply your first theme
-alacritty-colors apply dracula
-```
-
 ## Usage
 
-### Basic Commands
+Simply run `alacritty-colors` to launch the interactive theme editor:
 
 ```bash
-# Theme Management
-alacritty-colors list                    # List all themes
-alacritty-colors apply <theme>           # Apply a specific theme
-alacritty-colors random                  # Apply random theme
-alacritty-colors current                 # Show current theme
-
-# Search and Preview
-alacritty-colors search nord             # Search themes
-alacritty-colors preview dracula         # Preview theme colors
-
-# Theme Generation
-alacritty-colors generate --scheme random
-alacritty-colors generate --scheme pastel --name "my-theme"
-
-# Interactive theme editor
-alacritty-colors interactive
-
-# Backup Management
-alacritty-colors backup                  # Create backup
-alacritty-colors restore                 # Restore from backup
-
-# Updates
-alacritty-colors update                  # Update theme database
+alacritty-colors
 ```
 
-### Theme Generation Schemes
+### Interactive TUI Keybindings
 
-Generate custom themes with various color palettes:
+The interactive terminal interface (TUI) provides the following keybindings for navigation and theme management:
 
-| Scheme      | Description                | Best For                        |
-| ----------- | -------------------------- | ------------------------------- |
-| `random`    | Completely random colors   | Experimentation                 |
-| `pastel`    | Soft, muted tones          | Extended coding sessions        |
-| `neon`      | Bright, vibrant colors     | High contrast, retro aesthetics |
-| `mono`      | Monochromatic grayscale    | Minimalist setups               |
-| `warm`      | Reds, oranges, yellows     | Cozy, comfortable environments  |
-| `cool`      | Blues, greens, purples     | Clean, professional look        |
-| `nature`    | Earth tones, forest colors | Natural, organic feel           |
-| `cyberpunk` | Neon greens, magentas      | Futuristic, hacker aesthetic    |
-| `dracula`   | Dracula-inspired variants  | Popular dark theme variations   |
-| `nord`      | Nord-inspired cool tones   | Scandinavian minimalism         |
-| `solarized` | Solarized variations       | Scientific color precision      |
-| `gruvbox`   | Gruvbox retro variants     | Warm retro computing feel       |
-
-### Command Examples
-
-```bash
-# Apply popular themes
-alacritty-colors apply dracula
-alacritty-colors apply nord
-alacritty-colors apply gruvbox-dark
-
-# Generate custom themes
-alacritty-colors generate --scheme cyberpunk --name "my-cyberpunk"
-alacritty-colors generate --scheme warm --name "sunset-terminal"
-
-# Search for specific themes
-alacritty-colors search dark
-alacritty-colors search solarized
-
-# Preview before applying
-alacritty-colors preview nord
-# Shows color palette and prompts to apply
-
-# Different output formats
-alacritty-colors list --format grid
-alacritty-colors list --format json
-alacritty-colors list --format list
-```
+- **Tab**: Switch between panels
+- **↑↓**: Navigate through lists
+- **←→**: Adjust brightness of selected color
+- **Shift+←→**: Adjust hue of selected color
+- **Enter/a**: Apply the selected theme
+- **e**: Edit a copy of the current theme
+- **d**: Delete the current theme
+- **c**: Cycle through color modes
+- **q**: Quit the application
+- **s**: Save the current theme
+- **r**: Reset changes to the current theme
 
 ## Configuration
 
@@ -152,11 +88,7 @@ Alacritty Colors automatically detects your configuration location:
 ```
 
 **Custom Paths:**
-```bash
-alacritty-colors --config /path/to/alacritty.toml \
-                 --themes-dir /path/to/themes \
-                 apply dracula
-```
+The application automatically handles paths.
 
 ## How It Works
 
@@ -176,93 +108,9 @@ Alacritty Colors uses a simple and safe approach:
 
 ## Theme Preview
 
-When previewing themes, you'll see:
-- **Color Palette**: Visual representation of all theme colors
-- **Theme Information**: Author, description, and metadata when available
-- **Interactive Apply**: Option to apply the theme immediately
+The interactive TUI provides a real-time preview of the selected theme as you navigate and make changes.
 
-Example preview output:
-```bash
-$ alacritty-colors preview nord
-
-Theme Preview: Nord
-Description: An arctic, north-bluish clean and elegant color palette
-Author: Arctic Ice Studio
-
-Primary Colors:
-  background    #2e3440
-  foreground    #d8dee9
-
-Normal Colors:
-  black         #3b4252
-  red           #bf616a
-  green         #a3be8c
-  yellow        #ebcb8b
-  blue          #81a1c1
-  magenta       #b48ead
-  cyan          #88c0d0
-  white         #e5e9f0
-
-Bright Colors:
-  black         #4c566a
-  red           #bf616a
-  green         #a3be8c
-  ...
-
-Apply this theme? [y/N]:
-```
-
-## Advanced Usage
-
-### Batch Operations
-
-```bash
-# Apply random themes from a specific set
-alacritty-colors search dark | grep -v "^Search" | head -5 | while read theme; do
-    echo "Trying: $theme"
-    alacritty-colors apply "$theme"
-    sleep 2
-done
-
-# Generate multiple themed variants
-for scheme in warm cool nature cyberpunk; do
-    alacritty-colors generate --scheme "$scheme" --name "auto-$scheme"
-done
-```
-
-### Configuration Management
-
-```bash
-# Create named backup
-alacritty-colors backup
-cp ~/.config/alacritty/backups/alacritty_*.toml my-config-backup.toml
-
-# Restore specific configuration
-alacritty-colors restore my-config-backup.toml
-
-# Reset to default theme
-echo '# Default theme' > ~/.config/alacritty/themes/current.toml
-```
-
-### Integration with Other Tools
-
-```bash
-# Use with system theme switching
-if [ "$(uname)" = "Darwin" ]; then
-    if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -q Dark; then
-        alacritty-colors apply dracula
-    else
-        alacritty-colors apply solarized-light
-    fi
-fi
-
-# Random theme on new shell
-if [ "$RANDOM_THEME" = "1" ]; then
-    alacritty-colors random
-fi
-```
-
-### Contributing
+## Contributing
 
 Contributions are welcome! Here's how to get started:
 
@@ -279,47 +127,28 @@ Contributions are welcome! Here's how to get started:
 ### Common Issues
 
 **Themes not applying properly:**
-```bash
-# Reinitialize configuration
-alacritty-colors init
-
-# Check current theme status
-alacritty-colors current
-
-# Verify import line exists in config
-grep -n "import.*themes/current.toml" ~/.config/alacritty/alacritty.toml
-```
+- Reinitialize configuration (re-run `alacritty-colors` and ensure themes are downloaded).
+- Check current theme status within the TUI.
+- Verify import line exists in config (manual check of `~/.config/alacritty/alacritty.toml`).
 
 **Permission errors:**
-```bash
-# Fix directory permissions
-chmod 755 ~/.config/alacritty/
-chmod 644 ~/.config/alacritty/alacritty.toml
-
-# Ensure themes directory is writable
-chmod 755 ~/.config/alacritty/themes/
-```
+- Fix directory permissions:
+  ```bash
+  chmod 755 ~/.config/alacritty/
+  chmod 644 ~/.config/alacritty/alacritty.toml
+  ```
+- Ensure themes directory is writable:
+  ```bash
+  chmod 755 ~/.config/alacritty/themes/
+  ```
 
 **Missing themes after update:**
-```bash
-# Re-download theme database
-alacritty-colors update
-
-# Check themes directory
-ls -la ~/.config/alacritty/themes/
-```
+- The application automatically handles theme updates during startup.
+- Check themes directory: `ls -la ~/.config/alacritty/themes/`
 
 **Configuration backup and restore:**
-```bash
-# List available backups
-alacritty-colors restore
-
-# Restore from specific backup
-alacritty-colors restore alacritty_2024-01-15_10-30-45.toml
-
-# Manual backup
-cp ~/.config/alacritty/alacritty.toml ~/alacritty-backup.toml
-```
+- Backups are automatically created by the application. You can manually manage them in `~/.config/alacritty/backups/`.
+- To restore, you would typically replace your `alacritty.toml` with a backup.
 
 ### Getting Help
 
