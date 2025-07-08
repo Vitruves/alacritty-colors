@@ -15,7 +15,6 @@ A command-line tool for managing Alacritty terminal themes, offering automatic d
 - **Theme Management** - Apply, preview, and switch between available themes.
 - **Theme Editing** - Edit theme colors directly within the TUI, with options for brightness and hue adjustments.
 - **Font Management** - Adjust font family, size, and style for your Alacritty configuration.
-- **Random Themes** - Apply random themes for variety.
 - **Theme Generation** - Create custom themes with various color schemes.
 - **Auto-Download** - Automatically download themes from the official Alacritty repository.
 - **Search & Preview** - Find themes by name and preview them.
