@@ -59,6 +59,8 @@ The interactive terminal interface (TUI) provides the following keybindings for 
 - **Enter/a**: Apply the selected theme
 - **e**: Edit a copy of the current theme
 - **d**: Delete the current theme
+- **p**: Show parameters panel (backup, restore, clean themes)
+- **f**: Show font settings panel (change font family, size, style)
 - **c**: Cycle through color modes
 - **q**: Quit the application
 - **s**: Save the current theme

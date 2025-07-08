@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/vitruves/alacritty-colors/internal/config"
 )
@@ -31,6 +32,99 @@ func NewManager(cfg *config.Config) *Manager {
 	}
 }
 
+// isValidTerminalFont checks if a font name is suitable for terminal use
+func isValidTerminalFont(fontName string) bool {
+	if fontName == "" || len(fontName) > 60 {
+		return false
+	}
+	
+	// Skip fonts that start with dots (system fonts) unless they're known good ones
+	if strings.HasPrefix(fontName, ".") && !strings.Contains(strings.ToLower(fontName), "mono") {
+		return false
+	}
+	
+	lowerName := strings.ToLower(fontName)
+	
+	// Check if the font name contains mostly Latin characters (but allow some special chars)
+	latinCount := 0
+	nonLatinCount := 0
+	
+	for _, r := range fontName {
+		if unicode.IsLetter(r) {
+			if (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') {
+				latinCount++
+			} else {
+				// Allow some European characters like ö, ü, etc.
+				if r < 256 {
+					latinCount++
+				} else {
+					nonLatinCount++
+				}
+			}
+		}
+	}
+	
+	// Skip fonts with only non-Latin characters
+	if latinCount == 0 && nonLatinCount > 0 {
+		return false
+	}
+	
+	// Additional filters for known problematic patterns
+	skipPatterns := []string{
+		"emoji", "symbol", "icons", "wingdings", "webdings",
+		"dingbats", "ornaments", "arabic", "hebrew", "thai",
+		"chinese", "japanese", "korean", "hindi", "bengali",
+		"tamil", "telugu", "kannada", "malayalam", "gujarati",
+		"punjabi", "oriya", "assamese", "devanagari", "sinhala",
+	}
+	
+	for _, pattern := range skipPatterns {
+		if strings.Contains(lowerName, pattern) {
+			return false
+		}
+	}
+	
+	return true
+}
+
+// isValidEnglishFontStyle checks if a font style is a valid English style name
+func isValidEnglishFontStyle(style string) bool {
+	if style == "" || len(style) > 30 {
+		return false
+	}
+	
+	// Check if it contains only ASCII characters (English)
+	for _, r := range style {
+		if r > 127 {
+			return false
+		}
+	}
+	
+	styleLower := strings.ToLower(style)
+	
+	// Known valid English font style names
+	validStyles := []string{
+		"regular", "normal", "book", "roman",
+		"bold", "heavy", "black", "extrabold", "ultrabold",
+		"italic", "oblique", "slanted",
+		"light", "thin", "ultralight", "extralight", 
+		"medium", "semibold", "demibold",
+		"condensed", "narrow", "extended", "expanded",
+		"bold italic", "light italic", "medium italic", "semibold italic",
+		"extralight italic", "extrabold italic", "thin italic",
+	}
+	
+	// Check if the style matches any valid patterns
+	for _, validStyle := range validStyles {
+		if styleLower == validStyle {
+			return true
+		}
+	}
+	
+	return false
+}
+
+
 // GetCurrentFontFamily reads the current font family from alacritty.toml
 func (m *Manager) GetCurrentFontFamily() string {
 	content, err := os.ReadFile(m.config.ConfigFile)
@@ -55,12 +149,22 @@ func (m *Manager) GetCurrentFontFamily() string {
 
 		if inFontSection && strings.Contains(line, "normal") && strings.Contains(line, "family") {
 			// Parse: normal = { family = "Font Name", style = "Style" }
+			// Handle UTF-8 characters and special characters in font names
 			if parts := strings.Split(line, "family"); len(parts) > 1 {
 				familyPart := parts[1]
-				if start := strings.Index(familyPart, "\""); start != -1 {
-					familyPart = familyPart[start+1:]
-					if end := strings.Index(familyPart, "\""); end != -1 {
-						return familyPart[:end]
+				// Look for the pattern = "fontname"
+				if equalIdx := strings.Index(familyPart, "="); equalIdx != -1 {
+					familyPart = familyPart[equalIdx+1:]
+					familyPart = strings.TrimSpace(familyPart)
+					if start := strings.Index(familyPart, "\""); start != -1 {
+						familyPart = familyPart[start+1:]
+						if end := strings.Index(familyPart, "\""); end != -1 {
+							fontName := familyPart[:end]
+							// Validate and clean the font name
+							if len(fontName) > 0 {
+								return fontName
+							}
+						}
 					}
 				}
 			}
@@ -130,12 +234,22 @@ func (m *Manager) GetCurrentFontStyle() string {
 
 		if inFontSection && strings.Contains(line, "normal") && strings.Contains(line, "style") {
 			// Parse: normal = { family = "Font Name", style = "Style" }
+			// Handle UTF-8 characters and special characters in style names
 			if parts := strings.Split(line, "style"); len(parts) > 1 {
 				stylePart := parts[1]
-				if start := strings.Index(stylePart, "\""); start != -1 {
-					stylePart = stylePart[start+1:]
-					if end := strings.Index(stylePart, "\""); end != -1 {
-						return stylePart[:end]
+				// Look for the pattern = "stylename"
+				if equalIdx := strings.Index(stylePart, "="); equalIdx != -1 {
+					stylePart = stylePart[equalIdx+1:]
+					stylePart = strings.TrimSpace(stylePart)
+					if start := strings.Index(stylePart, "\""); start != -1 {
+						stylePart = stylePart[start+1:]
+						if end := strings.Index(stylePart, "\""); end != -1 {
+							styleName := stylePart[:end]
+							// Validate and clean the style name
+							if len(styleName) > 0 {
+								return styleName
+							}
+						}
 					}
 				}
 			}
@@ -275,27 +389,13 @@ func (m *Manager) updateFontProperty(property, value string) error {
 func (m *Manager) GetFontFamilies() []string {
 	var fonts []string
 
-	// Use fc-list to get all available fonts
-	cmd := exec.Command("fc-list", ":family", "family")
+	// Use fc-list to get monospace fonts specifically with proper UTF-8 handling
+	cmd := exec.Command("fc-list", ":family:spacing=mono", "family")
+	cmd.Env = append(os.Environ(), "LC_ALL=en_US.UTF-8")
 	output, err := cmd.Output()
 	if err != nil {
-		// Fallback to common fonts
-		return []string{
-			"JetBrains Mono",
-			"JetBrainsMonoNL Nerd Font",
-			"Fira Code",
-			"Source Code Pro",
-			"DejaVu Sans Mono",
-			"Liberation Mono",
-			"Consolas",
-			"Monaco",
-			"Menlo",
-			"Inconsolata",
-			"Ubuntu Mono",
-			"Noto Sans Mono",
-			"Test Söhne Mono",
-			"monospace",
-		}
+		// If fc-list fails, return empty list - no fallbacks
+		return []string{}
 	}
 
 	lines := strings.Split(string(output), "\n")
@@ -307,11 +407,13 @@ func (m *Manager) GetFontFamilies() []string {
 			continue
 		}
 
-		// fc-list may return comma-separated families
+		// fc-list returns comma-separated families, take the first (primary) name
 		families := strings.Split(line, ",")
-		for _, family := range families {
-			family = strings.TrimSpace(family)
-			if family != "" {
+		if len(families) > 0 {
+			family := strings.TrimSpace(families[0])
+			if family != "" && isValidTerminalFont(family) {
+				// Clean up any extra whitespace
+				family = strings.Join(strings.Fields(family), " ")
 				fontSet[family] = true
 			}
 		}
@@ -345,8 +447,9 @@ func (m *Manager) GetFontFamilies() []string {
 func (m *Manager) GetStylesForFont(family string) []string {
 	var styles []string
 
-	// Use fc-list to get styles for the specific font family
+	// Use fc-list to get styles for the specific font family with proper UTF-8 handling
 	cmd := exec.Command("fc-list", fmt.Sprintf(":family=%s", family), "style")
+	cmd.Env = append(os.Environ(), "LC_ALL=en_US.UTF-8")
 	output, err := cmd.Output()
 	if err != nil {
 		// Fallback to common styles
@@ -376,20 +479,25 @@ func (m *Manager) GetStylesForFont(family string) []string {
 		if strings.HasPrefix(line, ":style=") {
 			stylesPart := strings.TrimPrefix(line, ":style=")
 			stylesList := strings.Split(stylesPart, ",")
+			
+			// If multiple styles are present (localized,English), prefer the English one
+			var bestStyle string
 			for _, style := range stylesList {
 				style = strings.TrimSpace(style)
 				if style != "" {
-					styleSet[style] = true
+					if isValidEnglishFontStyle(style) {
+						// Found a valid English style, use it
+						bestStyle = style
+						break
+					} else if bestStyle == "" {
+						// Keep the first style as fallback if no English style found
+						bestStyle = style
+					}
 				}
 			}
-		} else {
-			// Handle direct style names
-			stylesList := strings.Split(line, ",")
-			for _, style := range stylesList {
-				style = strings.TrimSpace(style)
-				if style != "" {
-					styleSet[style] = true
-				}
+			
+			if bestStyle != "" {
+				styleSet[bestStyle] = true
 			}
 		}
 	}
@@ -398,21 +506,8 @@ func (m *Manager) GetStylesForFont(family string) []string {
 	for style := range styleSet {
 		styles = append(styles, style)
 	}
-
-	// If no styles found, add common ones
-	if len(styles) == 0 {
-		styles = []string{
-			"Regular",
-			"Bold",
-			"Italic",
-			"Bold Italic",
-			"Light",
-			"Medium",
-			"SemiBold",
-			"ExtraLight",
-			"Thin",
-		}
-	}
+	
+	// Only return actual detected styles, no fallbacks
 
 	return styles
 }
@@ -421,8 +516,9 @@ func (m *Manager) GetStylesForFont(family string) []string {
 func (m *Manager) GetAvailableMonoFonts() []string {
 	var fonts []string
 
-	// Use fc-list to get available fonts (Linux/Unix)
+	// Use fc-list to get available fonts (Linux/Unix) with proper UTF-8 handling
 	cmd := exec.Command("fc-list", ":family:spacing=mono", "family")
+	cmd.Env = append(os.Environ(), "LC_ALL=en_US.UTF-8")
 	output, err := cmd.Output()
 	if err != nil {
 		// Fallback to common monospace fonts
@@ -455,10 +551,21 @@ func (m *Manager) GetAvailableMonoFonts() []string {
 		families := strings.Split(line, ",")
 		for _, family := range families {
 			family = strings.TrimSpace(family)
-			if family != "" && (strings.Contains(strings.ToLower(family), "mono") ||
-				strings.Contains(strings.ToLower(family), "code") ||
-				strings.Contains(strings.ToLower(family), "nerd")) {
-				fontSet[family] = true
+			// Validate font name and check for monospace characteristics
+			if family != "" && len(family) > 0 && len(family) < 100 {
+				familyLower := strings.ToLower(family)
+				if strings.Contains(familyLower, "mono") ||
+					strings.Contains(familyLower, "code") ||
+					strings.Contains(familyLower, "nerd") ||
+					strings.Contains(familyLower, "console") ||
+					strings.Contains(familyLower, "terminal") {
+					// Clean up any extra whitespace and validate UTF-8
+					family = strings.Join(strings.Fields(family), " ")
+					// Only add fonts that are suitable for terminal use
+					if isValidTerminalFont(family) {
+						fontSet[family] = true
+					}
+				}
 			}
 		}
 	}

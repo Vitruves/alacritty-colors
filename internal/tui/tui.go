@@ -204,13 +204,13 @@ func (ce *ColorEditor) onThemeSelected(index int, themeName string, _ string, _ 
 		if err := ce.themeManager.ApplyTheme(theme); err != nil {
 			ce.app.QueueUpdateDraw(func() {
 				ce.setStatus(fmt.Sprintf("Failed to apply theme: %v", err))
-				ce.app.ForceDraw()
+				// Skip forced redraw
 			})
 		} else {
 			ce.app.QueueUpdateDraw(func() {
 				ce.appliedTheme = theme // Update the applied theme tracking
 				ce.setStatus(fmt.Sprintf("Applied theme: %s | e: edit copy | d: delete | p: parameters | f: font | q: quit", theme))
-				ce.app.ForceDraw()
+				// Skip forced redraw
 			})
 		}
 	}(themeName)
@@ -398,7 +398,7 @@ func (ce *ColorEditor) handleThemeListKeys(event *tcell.EventKey) *tcell.EventKe
 					themeName = strings.TrimPrefix(themeName, "★ ")
 					ce.onThemeSelected(index, themeName, "", 0)
 				}
-				ce.app.ForceDraw()
+				// Skip forced redraw
 			})
 		}()
 		return result
@@ -906,7 +906,7 @@ func (ce *ColorEditor) createThemeCopy() {
 			if err := ce.themeManager.ApplyTheme(themeName); err != nil {
 				ce.app.QueueUpdateDraw(func() {
 					ce.setStatus(fmt.Sprintf("Failed to apply copy: %v", err))
-					ce.app.ForceDraw()
+					// Skip forced redraw
 				})
 			} else {
 				ce.app.QueueUpdateDraw(func() {
@@ -914,13 +914,13 @@ func (ce *ColorEditor) createThemeCopy() {
 					ce.appliedTheme = themeName // Update the applied theme tracking
 					// Refresh theme list to show the new edited theme
 					ce.refreshThemeList()
-					ce.app.ForceDraw()
+					// Skip forced redraw
 				})
 			}
 		} else {
 			ce.app.QueueUpdateDraw(func() {
 				ce.setStatus(fmt.Sprintf("Failed to save copy: %v", err))
-				ce.app.ForceDraw()
+				// Skip forced redraw
 			})
 		}
 	}(copyName)
@@ -1063,9 +1063,9 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 				ce.appliedTheme = themeName
 			}
 		}
-		// Force a complete redraw to prevent text overlap
+		// Update the display
 		ce.app.QueueUpdateDraw(func() {
-			ce.app.ForceDraw()
+			// Just queue the update, don't force
 		})
 	}()
 }
@@ -1166,9 +1166,9 @@ func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
 				ce.appliedTheme = themeName
 			}
 		}
-		// Force a complete redraw to prevent text overlap
+		// Update the display
 		ce.app.QueueUpdateDraw(func() {
-			ce.app.ForceDraw()
+			// Just queue the update, don't force
 		})
 	}()
 }
@@ -1518,6 +1518,92 @@ func (ce *ColorEditor) showFontTUI() {
 	// Apply user theme to TUI first
 	ce.applyUserThemeToTUI()
 
+	// Show loading modal with spinner
+	loadingModal := tview.NewModal()
+	loadingModal.SetBackgroundColor(tcell.ColorBlack)
+	loadingModal.SetTextColor(tcell.ColorWhite)
+	
+	// Spinner animation
+	spinnerChars := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+	spinnerIndex := 0
+	loadingCancelled := false
+	
+	// Update spinner text
+	updateSpinner := func() {
+		if !loadingCancelled {
+			spinner := spinnerChars[spinnerIndex%len(spinnerChars)]
+			loadingModal.SetText(fmt.Sprintf("%s Loading fonts...\n\nScanning your system for available monospace fonts.\n\nPress 'q' or Escape to cancel.", spinner))
+			spinnerIndex++
+		}
+	}
+	
+	// Initial spinner text
+	updateSpinner()
+	
+	// Start spinner animation
+	spinnerTicker := time.NewTicker(100 * time.Millisecond)
+	go func() {
+		for {
+			select {
+			case <-spinnerTicker.C:
+				if loadingCancelled {
+					spinnerTicker.Stop()
+					return
+				}
+				ce.app.QueueUpdateDraw(func() {
+					updateSpinner()
+				})
+			}
+		}
+	}()
+	
+	// Add escape handler for loading modal
+	loadingModal.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEscape:
+			loadingCancelled = true
+			spinnerTicker.Stop()
+			ce.restoreMainUI()
+			return nil
+		case tcell.KeyRune:
+			if event.Rune() == 'q' || event.Rune() == 'Q' {
+				loadingCancelled = true
+				spinnerTicker.Stop()
+				ce.restoreMainUI()
+				return nil
+			}
+		}
+		return event
+	})
+	
+	// Set the loading modal as root
+	ce.app.SetRoot(loadingModal, true)
+	
+	// Load fonts in background and show actual TUI when done
+	go func() {
+		// Get current font info
+		currentFamily := ce.fontManager.GetCurrentFontFamily()
+		currentStyle := ce.fontManager.GetCurrentFontStyle()
+		currentSize := ce.fontManager.GetCurrentFontSize()
+		
+		// Load actual fonts (this may take time)
+		monoFonts := ce.fontManager.GetFontFamilies()
+		if len(monoFonts) == 0 {
+			monoFonts = []string{"monospace", "JetBrains Mono", "Fira Code", "Source Code Pro"}
+		}
+		
+		// Stop spinner and update UI on main thread only if not cancelled
+		ce.app.QueueUpdateDraw(func() {
+			if !loadingCancelled {
+				loadingCancelled = true // Stop the spinner
+				spinnerTicker.Stop()
+				ce.setupActualFontTUI(monoFonts, currentFamily, currentStyle, currentSize)
+			}
+		})
+	}()
+}
+
+func (ce *ColorEditor) setupActualFontTUI(monoFonts []string, currentFamily, currentStyle string, currentSize float64) {
 	// Font family list on the left
 	fontList := tview.NewList()
 	fontList.ShowSecondaryText(false)
@@ -1548,13 +1634,7 @@ func (ce *ColorEditor) showFontTUI() {
 	statusBar.SetText("Tab: switch panels | ↑↓: navigate fonts | Enter: apply | Left/Right: change size | q: quit")
 	statusBar.SetTextColor(tcell.ColorYellow)
 
-	// Get available mono fonts
-	monoFonts := ce.fontManager.GetFontFamilies()
-	currentFamily := ce.fontManager.GetCurrentFontFamily()
-	currentStyle := ce.fontManager.GetCurrentFontStyle()
-	currentSize := ce.fontManager.GetCurrentFontSize()
-
-	// Populate font list
+	// Populate font list with loaded fonts
 	currentFontIndex := -1
 	for i, fontFamily := range monoFonts {
 		displayName := fontFamily
@@ -1587,10 +1667,16 @@ func (ce *ColorEditor) showFontTUI() {
 
 	// Update font info panel
 	updateFontInfo := func(fontFamily, style string, size float64) {
+		// Ensure proper text wrapping and display for font names with special characters
+		displayFamily := fontFamily
+		if len(fontFamily) > 30 {
+			displayFamily = fontFamily[:27] + "..."
+		}
+		
 		info := fmt.Sprintf(`[yellow::b]Font Configuration[-]
 
 [white::b]Family:[-] %s
-[white::b]Style:[-]  %s
+[white::b]Style:[-]  %s  
 [white::b]Size:[-]   %.1f
 
 [white::b]Sample Text:[-]
@@ -1614,7 +1700,7 @@ func (ce *ColorEditor) showFontTUI() {
 
 [white]Note: Font changes apply instantly to Alacritty[-]
 [white]Use Left/Right arrows to adjust font size[-]`,
-			fontFamily, style, size)
+			displayFamily, style, size)
 		infoPanel.SetText(info)
 	}
 
@@ -1627,7 +1713,7 @@ func (ce *ColorEditor) showFontTUI() {
 			styleName = strings.TrimPrefix(styleName, "★ ")
 			updateFontInfo(fontFamily, styleName, currentSize)
 
-			// Apply font change instantly
+			// Apply font change instantly 
 			go func() {
 				if err := ce.fontManager.UpdateFontFamily(fontFamily); err == nil {
 					if err := ce.fontManager.UpdateFontStyle(styleName); err != nil {
@@ -1789,29 +1875,36 @@ func (ce *ColorEditor) showFontTUI() {
 
 	// Global key handler for quitting
 	globalKeyHandler := func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Rune() == 'q' || event.Rune() == 'Q' || event.Key() == tcell.KeyEscape {
+		switch event.Key() {
+		case tcell.KeyEscape:
 			ce.restoreMainUI()
 			return nil
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'q', 'Q':
+				ce.restoreMainUI()
+				return nil
+			}
 		}
 		return event
 	}
 
-	// Initialize with current font
+	// Initialize with current font or first available
 	if currentFontIndex >= 0 {
 		fontList.SetCurrentItem(currentFontIndex)
 		loadStylesForFont(currentFamily)
 		updateFontInfo(currentFamily, currentStyle, currentSize)
-	} else if len(monoFonts) > 0 {
+	} else {
 		fontList.SetCurrentItem(0)
 		loadStylesForFont(monoFonts[0])
 		updateFontInfo(monoFonts[0], "Regular", currentSize)
 	}
 
-	// Layout
+	// Layout with better proportions to prevent text overflow
 	mainFlex := tview.NewFlex()
-	mainFlex.AddItem(fontList, 0, 1, true)
-	mainFlex.AddItem(styleList, 0, 1, false)
-	mainFlex.AddItem(infoPanel, 0, 2, false)
+	mainFlex.AddItem(fontList, 0, 2, true)     // More space for font names
+	mainFlex.AddItem(styleList, 0, 1, false)  // Standard space for styles
+	mainFlex.AddItem(infoPanel, 0, 3, false)  // More space for preview text
 
 	rootFlex := tview.NewFlex()
 	rootFlex.SetDirection(tview.FlexRow)
