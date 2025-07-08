@@ -1,39 +1,39 @@
 # Alacritty Colors
 
-**Advanced Alacritty theme manager with generation, preview, and seamless management capabilities**
+**An interactive Alacritty theme manager with comprehensive theme editing, font management, and seamless configuration capabilities.**
 
-A powerful command-line tool for managing Alacritty terminal themes with automatic downloads, custom theme generation, and safe configuration management.
+A command-line tool for managing Alacritty terminal themes, offering automatic downloads, custom theme generation, font configuration, and configuration management features.
 
 ![image-10](https://github.com/user-attachments/assets/40163b06-ba60-4bb0-a961-074a55d32d3f)
 
-
 ## Features
 
-- **Theme Management** - Apply, preview, and switch between hundreds of themes
-- **Random Themes** - Instantly apply random themes for variety
-- **Theme Generation** - Create custom themes with 12+ color schemes
-- **Auto-Download** - Automatically download official Alacritty themes
-- **Search & Preview** - Find themes by name and preview before applying
-- **Backup & Restore** - Safe configuration management with automatic backups
-- **Cross-Platform** - Works on macOS, Linux, and Windows
-- **Fast & Safe** - Preserves your personal Alacritty settings
-- **User Friendly interactive terminal interface** - Theme creation made easy!
-
+- **Interactive TUI** - A terminal user interface for theme and font management.
+- **Theme Management** - Apply, preview, and switch between available themes.
+- **Theme Editing** - Edit theme colors directly within the TUI, with options for brightness and hue adjustments.
+- **Font Management** - Adjust font family, size, and style for your Alacritty configuration.
+- **Random Themes** - Apply random themes for variety.
+- **Theme Generation** - Create custom themes with various color schemes.
+- **Auto-Download** - Automatically download themes from the official Alacritty repository.
+- **Search & Preview** - Find themes by name and preview them.
+- **Backup & Restore** - Configuration management with automatic backups.
+- **Cross-Platform** - Compatible with macOS, Linux, and Windows.
+- **Efficient & Safe** - Designed to preserve your personal Alacritty settings.
 
 <img width="918" alt="image" src="https://github.com/user-attachments/assets/e8a82abd-bf34-408e-acf0-955d72a61fb1" />
-
 
 ## Quick Start
 
 ### Installation
 
+**Using Go (recommended) **
 
-**Using Go (recommanded) **
 ```bash
 go install github.com/vitruves/alacritty-colors/cmd/alacritty-colors@latest
 ```
 
 **From Source:**
+
 ```bash
 git clone https://github.com/vitruves/alacritty-colors.git
 cd alacritty-colors
@@ -42,7 +42,7 @@ make build && make install
 
 ## Usage
 
-Simply run `alacritty-colors` to launch the interactive theme editor:
+Simply run `alacritty-colors` to launch the interactive TUI:
 
 ```bash
 alacritty-colors
@@ -50,7 +50,7 @@ alacritty-colors
 
 ### Interactive TUI Keybindings
 
-The interactive terminal interface (TUI) provides the following keybindings for navigation and theme management:
+The interactive terminal interface (TUI) provides the following keybindings for navigation and management:
 
 - **Tab**: Switch between panels
 - **↑↓**: Navigate through lists
@@ -58,10 +58,10 @@ The interactive terminal interface (TUI) provides the following keybindings for 
 - **Shift+←→**: Adjust hue of selected color
 - **Enter/a**: Apply the selected theme
 - **e**: Edit a copy of the current theme
-- **d**: Delete the current theme
+- **d**: Delete an edited theme copy
 - **p**: Show parameters panel (backup, restore, clean themes)
 - **f**: Show font settings panel (change font family, size, style)
-- **c**: Cycle through color modes
+- **c**: Cycle through color preview modes
 - **q**: Quit the application
 - **s**: Save the current theme
 - **r**: Reset changes to the current theme
@@ -71,10 +71,12 @@ The interactive terminal interface (TUI) provides the following keybindings for 
 Alacritty Colors automatically detects your configuration location:
 
 **Default Locations:**
+
 - **macOS/Linux**: `~/.config/alacritty/`
 - **Windows**: `%APPDATA%/alacritty/`
 
 **Directory Structure:**
+
 ```
 ~/.config/alacritty/
 ├── alacritty.toml           # Main config (with import line)
@@ -97,11 +99,12 @@ The application automatically handles paths.
 Alacritty Colors uses a simple and safe approach:
 
 1. **Import Line**: Adds `import = ["themes/current.toml"]` to your main config
-2. **Theme Directory**: Stores all themes in a `themes/` subdirectory  
+2. **Theme Directory**: Stores all themes in a `themes/` subdirectory
 3. **Current Theme**: Copies selected theme to `themes/current.toml`
 4. **Preservation**: Your personal settings remain untouched in the main config
 
 **Benefits:**
+
 - Your personal settings are never modified
 - Easy to disable (just remove the import line)
 - Themes are portable and shareable
@@ -112,28 +115,18 @@ Alacritty Colors uses a simple and safe approach:
 
 The interactive TUI provides a real-time preview of the selected theme as you navigate and make changes.
 
-## Contributing
-
-Contributions are welcome! Here's how to get started:
-
-1. **Fork** the repository on GitHub
-2. **Clone** your fork locally
-3. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-4. **Make** your changes with tests
-5. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-6. **Push** to your branch (`git push origin feature/amazing-feature`)
-7. **Open** a Pull Request
-
 ## Troubleshooting
 
 ### Common Issues
 
 **Themes not applying properly:**
+
 - Reinitialize configuration (re-run `alacritty-colors` and ensure themes are downloaded).
 - Check current theme status within the TUI.
 - Verify import line exists in config (manual check of `~/.config/alacritty/alacritty.toml`).
 
 **Permission errors:**
+
 - Fix directory permissions:
   ```bash
   chmod 755 ~/.config/alacritty/
@@ -145,10 +138,12 @@ Contributions are welcome! Here's how to get started:
   ```
 
 **Missing themes after update:**
+
 - The application automatically handles theme updates during startup.
 - Check themes directory: `ls -la ~/.config/alacritty/themes/`
 
 **Configuration backup and restore:**
+
 - Backups are automatically created by the application. You can manually manage them in `~/.config/alacritty/backups/`.
 - To restore, you would typically replace your `alacritty.toml` with a backup.
 
@@ -163,21 +158,6 @@ If you encounter issues:
    - Alacritty version (`alacritty --version`)
    - Steps to reproduce the problem
    - Expected vs actual behavior
-
-## Performance
-
-Alacritty Colors is designed for speed:
-
-- **Fast theme switching**: Themes apply instantly by copying files
-- **Minimal overhead**: No complex parsing or processing during application
-- **Efficient downloads**: Themes are downloaded once and cached locally
-- **Small footprint**: Written in Go for fast startup and low memory usage
-
-Typical performance on modern systems:
-- Theme application: < 100ms
-- Theme listing: < 50ms
-- Theme generation: < 200ms
-- Initial setup: < 5 seconds (including downloads)
 
 ## License
 
