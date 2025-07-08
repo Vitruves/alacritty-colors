@@ -129,7 +129,33 @@ func (p *Parser) parseKeyValue(config *Config, section, line string) error {
 	}
 
 	key := strings.TrimSpace(parts[0])
-	value := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
+	rawValue := strings.TrimSpace(parts[1])
+	
+	// Handle inline comments - look for # that appears after the quoted value
+	// This handles cases like: black = '#5C5F77' # subtext1
+	if strings.Contains(rawValue, "'") || strings.Contains(rawValue, `"`) {
+		// Find the quoted value (either single or double quotes)
+		var quoteChar byte
+		var startQuote int
+		
+		if idx := strings.Index(rawValue, "'"); idx != -1 {
+			quoteChar = '\''
+			startQuote = idx
+		} else if idx := strings.Index(rawValue, `"`); idx != -1 {
+			quoteChar = '"'
+			startQuote = idx
+		}
+		
+		if quoteChar != 0 {
+			// Find the closing quote
+			if endQuote := strings.Index(rawValue[startQuote+1:], string(quoteChar)); endQuote != -1 {
+				// Extract only the quoted value
+				rawValue = rawValue[startQuote : startQuote+endQuote+2]
+			}
+		}
+	}
+	
+	value := strings.Trim(rawValue, `"'`)
 
 	switch section {
 	case "colors.primary":

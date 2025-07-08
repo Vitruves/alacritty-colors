@@ -30,10 +30,12 @@ type ColorEditor struct {
 	statusBar    *tview.TextView
 
 	// Color editing state
-	colorValues map[string]string
-	colorKeys   []string
+	colorValues        map[string]string
+	colorKeys          []string
 	listItemToColorKey map[int]string // Maps list item index to color key
-	isDirty     bool
+	isDirty            bool
+	colorMode          int // 0=hex colors, 1=named colors, 2=bright colors
+	isApplying         bool // Prevent concurrent theme applications
 }
 
 func NewColorEditor(cfg *config.Config) *ColorEditor {
@@ -41,13 +43,13 @@ func NewColorEditor(cfg *config.Config) *ColorEditor {
 	tm.SetSilent(true) // Suppress console output in TUI mode
 
 	editor := &ColorEditor{
-		app:          tview.NewApplication(),
-		config:       cfg,
-		themeManager: tm,
-		colorValues:  make(map[string]string),
-		colorKeys:    make([]string, 0),
+		app:                tview.NewApplication(),
+		config:             cfg,
+		themeManager:       tm,
+		colorValues:        make(map[string]string),
+		colorKeys:          make([]string, 0),
 		listItemToColorKey: make(map[int]string),
-		appliedTheme: tm.GetCurrentTheme(), // Get the currently applied theme
+		appliedTheme:       tm.GetCurrentTheme(), // Get the currently applied theme
 	}
 
 	// Theme will be applied in setupUI()
@@ -101,7 +103,7 @@ func (ce *ColorEditor) setupUI() {
 
 	// Status bar at bottom
 	ce.statusBar = tview.NewTextView()
-	ce.statusBar.SetText("Tab: switch panels | ↑↓: navigate | ←→: brightness | Shift+←→: hue/tint | Enter: apply theme | a: apply theme | q: quit | s: save | r: reset")
+	ce.statusBar.SetText("Tab: switch panels | ↑↓: navigate | ←→: brightness | Shift+←→: hue | Enter/a: apply | e: edit copy | d: delete | c: cycle colors | q: quit | s: save | r: reset")
 	ce.statusBar.SetTextColor(tcell.ColorYellow)
 
 	// Layout - just use theme list as left panel
@@ -123,6 +125,25 @@ func (ce *ColorEditor) setupUI() {
 	ce.app.SetRoot(rootFlex, true)
 	ce.app.SetFocus(ce.themeList)
 	ce.themeList.SetBorderColor(tcell.ColorYellow)
+}
+
+func (ce *ColorEditor) setupLayout() *tview.Flex {
+	// Layout - just use theme list as left panel
+	leftPanel := ce.themeList
+	centerPanel := ce.colorPanel
+	rightPanel := ce.previewPanel
+
+	mainFlex := tview.NewFlex()
+	mainFlex.AddItem(leftPanel, 0, 1, false)
+	mainFlex.AddItem(centerPanel, 0, 2, false)
+	mainFlex.AddItem(rightPanel, 0, 1, false)
+
+	rootFlex := tview.NewFlex()
+	rootFlex.SetDirection(tview.FlexRow)
+	rootFlex.AddItem(mainFlex, 0, 1, true)
+	rootFlex.AddItem(ce.statusBar, 1, 0, false)
+
+	return rootFlex
 }
 
 func (ce *ColorEditor) loadThemes() {
@@ -178,7 +199,7 @@ func (ce *ColorEditor) getThemeFiles() ([]string, error) {
 func (ce *ColorEditor) onThemeSelected(index int, themeName string, _ string, _ rune) {
 	// Remove star prefix if present
 	themeName = strings.TrimPrefix(themeName, "★ ")
-	
+
 	ce.themeName = themeName
 	ce.loadTheme(themeName)
 	ce.buildColorPanel()
@@ -187,21 +208,22 @@ func (ce *ColorEditor) onThemeSelected(index int, themeName string, _ string, _ 
 		ce.colorPanel.SetCurrentItem(0)
 		ce.updateColorStatus()
 	}
-	
+
 	// Apply theme in real-time
-	go func() {
-		if err := ce.themeManager.ApplyTheme(themeName); err != nil {
+	go func(theme string) {
+		if err := ce.themeManager.ApplyTheme(theme); err != nil {
 			ce.app.QueueUpdateDraw(func() {
 				ce.setStatus(fmt.Sprintf("Failed to apply theme: %v", err))
 				ce.app.ForceDraw()
 			})
 		} else {
 			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus(fmt.Sprintf("Applied theme: %s", themeName))
+				ce.appliedTheme = theme // Update the applied theme tracking
+				ce.setStatus(fmt.Sprintf("Applied theme: %s | e: edit copy | d: delete | Tab: switch panels | q: quit", theme))
 				ce.app.ForceDraw()
 			})
 		}
-	}()
+	}(themeName)
 }
 
 func (ce *ColorEditor) loadTheme(themeName string) {
@@ -345,7 +367,7 @@ func (ce *ColorEditor) buildColorPanel() {
 
 				// Map this list item index to the color key
 				ce.listItemToColorKey[itemIndex] = key
-				
+
 				ce.colorPanel.AddItem(text, "", 0, nil)
 				itemIndex++
 			}
@@ -398,7 +420,6 @@ func (ce *ColorEditor) onColorSelected(index int, text string, _ string, _ rune)
 	// Update color status when selecting
 	ce.updateColorStatus()
 }
-
 
 func (ce *ColorEditor) handleColorPanelKeys(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
@@ -457,52 +478,140 @@ func (ce *ColorEditor) updatePreview() {
 func (ce *ColorEditor) generatePreview() string {
 	var preview strings.Builder
 
-	preview.WriteString("[yellow::b]Terminal Preview[-]\n\n")
+	preview.WriteString("[yellow::b]Terminal Preview[-]\n")
+	preview.WriteString("[white]Note: Colors shown here are approximations.[-]\n")
+	preview.WriteString("[white]See actual colors in your terminal after applying.[-]\n\n")
 
-	// Color test
+	// Color palette display with names and hex values
 	colors := []string{"black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"}
 
-	preview.WriteString("[white::b]Normal colors:[-]\n")
+	preview.WriteString("[white::b]Normal Colors:[-]\n")
 	for _, color := range colors {
 		if colorVal, exists := ce.colorValues["normal."+color]; exists {
-			preview.WriteString(fmt.Sprintf("[%s]██[-] ", colorVal))
+			preview.WriteString(fmt.Sprintf("[%s]███[-] ", colorVal))
 		}
 	}
-	preview.WriteString("\n\n")
-
-	preview.WriteString("[white::b]Bright colors:[-]\n")
+	preview.WriteString("\n\n[white::b]Bright Colors:[-]\n")
 	for _, color := range colors {
 		if colorVal, exists := ce.colorValues["bright."+color]; exists {
-			preview.WriteString(fmt.Sprintf("[%s]██[-] ", colorVal))
+			preview.WriteString(fmt.Sprintf("[%s]███[-] ", colorVal))
 		}
 	}
-	preview.WriteString("\n\n")
+	preview.WriteString("\n")
 
-	// Sample terminal output
-	preview.WriteString("[white::b]Sample Output:[-]\n")
-	if greenColor, exists := ce.colorValues["normal.green"]; exists {
-		preview.WriteString(fmt.Sprintf("[%s]$ ls -la[-]\n", greenColor))
+	// Extract colors for the examples with fallbacks based on color mode
+	var blueColor, cyanColor, yellowColor, whiteColor, magentaColor, greenColor, redColor, blackColor string
+
+	switch ce.colorMode {
+	case 0: // Hex colors mode
+		blueColor = ce.getColorOrFallback("normal.blue", "#0000ff")
+		cyanColor = ce.getColorOrFallback("normal.cyan", "#00ffff")
+		yellowColor = ce.getColorOrFallback("normal.yellow", "#ffff00")
+		whiteColor = ce.getColorOrFallback("normal.white", "#ffffff")
+		magentaColor = ce.getColorOrFallback("normal.magenta", "#ff00ff")
+		greenColor = ce.getColorOrFallback("normal.green", "#00ff00")
+		redColor = ce.getColorOrFallback("normal.red", "#ff0000")
+		blackColor = ce.getColorOrFallback("normal.black", "#000000")
+	case 1: // Named colors mode
+		blueColor = "blue"
+		cyanColor = "cyan"
+		yellowColor = "yellow"
+		whiteColor = "white"
+		magentaColor = "magenta"
+		greenColor = "green"
+		redColor = "red"
+		blackColor = "black"
+	case 2: // Bright colors mode
+		blueColor = ce.getColorOrFallback("bright.blue", "blue")
+		cyanColor = ce.getColorOrFallback("bright.cyan", "cyan")
+		yellowColor = ce.getColorOrFallback("bright.yellow", "yellow")
+		whiteColor = ce.getColorOrFallback("bright.white", "white")
+		magentaColor = ce.getColorOrFallback("bright.magenta", "magenta")
+		greenColor = ce.getColorOrFallback("bright.green", "green")
+		redColor = ce.getColorOrFallback("bright.red", "red")
+		blackColor = ce.getColorOrFallback("bright.black", "black")
 	}
 
-	// Sample file listing
-	if blueColor, exists := ce.colorValues["normal.blue"]; exists {
-		if cyanColor, exists := ce.colorValues["normal.cyan"]; exists {
-			if yellowColor, exists := ce.colorValues["normal.yellow"]; exists {
-				if whiteColor, exists := ce.colorValues["normal.white"]; exists {
-					if magentaColor, exists := ce.colorValues["normal.magenta"]; exists {
-						preview.WriteString(fmt.Sprintf("[%s]drwxr-xr-x[-] [%s]5[-] [%s]user[-] [%s]group[-] [%s]4096[-] [%s]Jan 15 10:30[-] [%s].[-]\n",
-							blueColor, cyanColor, yellowColor, yellowColor, whiteColor, magentaColor, whiteColor))
-						if greenColor, exists := ce.colorValues["normal.green"]; exists {
-							preview.WriteString(fmt.Sprintf("[%s]-rw-r--r--[-] [%s]1[-] [%s]user[-] [%s]group[-] [%s]1234[-] [%s]Jan 15 10:25[-] [%s]file.txt[-]\n",
-								whiteColor, cyanColor, yellowColor, yellowColor, whiteColor, magentaColor, greenColor))
-						}
-					}
-				}
-			}
-		}
-	}
+	// Sample shell session
+	preview.WriteString("[white::b]Shell Session:[-]\n")
+	preview.WriteString(fmt.Sprintf("[%s]user@hostname[-]", greenColor))
+	preview.WriteString(fmt.Sprintf("[%s]:[-]", blueColor))
+	preview.WriteString(fmt.Sprintf("[%s]~/projects[-]", cyanColor))
+	preview.WriteString(fmt.Sprintf("[%s]$ [-]", whiteColor))
+	preview.WriteString(fmt.Sprintf("[%s]ls -la[-]\n", yellowColor))
+
+	// File listing with various types showing different colors
+	// Directory (blue)
+	preview.WriteString(fmt.Sprintf("[%s]drwxr-xr-x[-] [%s]5[-] [%s]user[-] [%s]staff[-] [%s]160[-] [%s]Jan 15 10:30[-] [%s]src/[-]\n",
+		blackColor, whiteColor, yellowColor, cyanColor, whiteColor, whiteColor, blueColor))
+
+	// Executable (green)
+	preview.WriteString(fmt.Sprintf("[%s]-rwxr-xr-x[-] [%s]1[-] [%s]user[-] [%s]staff[-] [%s]8192[-] [%s]Jan 15 10:25[-] [%s]alacritty-colors[-]\n",
+		greenColor, whiteColor, yellowColor, cyanColor, whiteColor, whiteColor, greenColor))
+
+	// Regular text file (white)
+	preview.WriteString(fmt.Sprintf("[%s]-rw-r--r--[-] [%s]1[-] [%s]user[-] [%s]staff[-] [%s]1234[-] [%s]Jan 15 10:20[-] [%s]README.md[-]\n",
+		blackColor, whiteColor, yellowColor, cyanColor, whiteColor, whiteColor, whiteColor))
+
+	// Config/dot file (cyan)
+	preview.WriteString(fmt.Sprintf("[%s]-rw-r--r--[-] [%s]1[-] [%s]user[-] [%s]staff[-] [%s]456[-] [%s]Jan 15 10:15[-] [%s].gitignore[-]\n",
+		blackColor, whiteColor, yellowColor, cyanColor, whiteColor, whiteColor, cyanColor))
+
+	// Archive file (magenta)
+	preview.WriteString(fmt.Sprintf("[%s]-rw-r--r--[-] [%s]1[-] [%s]user[-] [%s]staff[-] [%s]2048[-] [%s]Jan 15 10:12[-] [%s]backup.tar.gz[-]\n",
+		blackColor, whiteColor, yellowColor, cyanColor, whiteColor, whiteColor, magentaColor))
+
+	// Broken symlink (red)
+	preview.WriteString(fmt.Sprintf("[%s]lrwxrwxrwx[-] [%s]1[-] [%s]user[-] [%s]staff[-] [%s]10[-] [%s]Jan 15 10:10[-] [%s]broken[-] -> [%s]missing[-]\n",
+		blackColor, whiteColor, yellowColor, cyanColor, whiteColor, whiteColor, redColor, redColor))
+
+	preview.WriteString("\n")
+
+	// Git status output
+	preview.WriteString("[white::b]Git Status:[-]\n")
+	preview.WriteString(fmt.Sprintf("[%s]On branch[-] [%s]main[-]\n", whiteColor, greenColor))
+	preview.WriteString(fmt.Sprintf("[%s]Changes to be committed:[-]\n", greenColor))
+	preview.WriteString(fmt.Sprintf("  [%s]modified:   src/main.go[-]\n", greenColor))
+	preview.WriteString(fmt.Sprintf("[%s]Changes not staged:[-]\n", redColor))
+	preview.WriteString(fmt.Sprintf("  [%s]modified:   README.md[-]\n", redColor))
+	preview.WriteString(fmt.Sprintf("[%s]Untracked files:[-]\n", yellowColor))
+	preview.WriteString(fmt.Sprintf("  [%s]new_file.txt[-]\n", redColor))
+
+	preview.WriteString("\n")
+
+	// Code syntax highlighting simulation
+	preview.WriteString("[white::b]Code Preview:[-]\n")
+	preview.WriteString(fmt.Sprintf("[%s]func[-] [%s]main[-][%s]()[-] [%s]{[-]\n", blueColor, yellowColor, whiteColor, whiteColor))
+	preview.WriteString(fmt.Sprintf("    [%s]fmt[-][%s].[-][%s]Println[-][%s]([-][%s]\"Hello, World!\"[-][%s])[-]\n", cyanColor, whiteColor, yellowColor, whiteColor, greenColor, whiteColor))
+	preview.WriteString(fmt.Sprintf("    [%s]// This is a comment[-]\n", magentaColor))
+	preview.WriteString(fmt.Sprintf("[%s]}[-]\n", whiteColor))
+
+	preview.WriteString("\n")
+
+	// System monitoring output
+	preview.WriteString("[white::b]System Info:[-]\n")
+	preview.WriteString(fmt.Sprintf("[%s]CPU:[-] [%s]12.5%%[-] [%s]Memory:[-] [%s]2.1GB/8GB[-]\n", cyanColor, greenColor, cyanColor, yellowColor))
+	preview.WriteString(fmt.Sprintf("[%s]Load:[-] [%s]1.23[-] [%s]Uptime:[-] [%s]5 days[-]\n", cyanColor, greenColor, cyanColor, whiteColor))
+	preview.WriteString(fmt.Sprintf("[%s]Disk:[-] [%s]45GB[-][%s]/[-][%s]100GB[-] [%s](45%%)[-]\n", cyanColor, yellowColor, whiteColor, whiteColor, redColor))
 
 	return preview.String()
+}
+
+func (ce *ColorEditor) getColorOrFallback(colorKey, fallback string) string {
+	if color, exists := ce.colorValues[colorKey]; exists && color != "" {
+		return color
+	}
+	return fallback
+}
+
+func (ce *ColorEditor) cycleColorMode() {
+	ce.colorMode = (ce.colorMode + 1) % 3
+
+	var modeNames = []string{"Hex Colors", "Named Colors", "Bright Colors"}
+	ce.setStatus(fmt.Sprintf("Color mode: %s (press 'c' to cycle)", modeNames[ce.colorMode]))
+
+	// Force refresh preview
+	ce.updatePreview()
 }
 
 func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
@@ -527,6 +636,15 @@ func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
 			return nil
 		case 'a', 'A':
 			ce.applyCurrentTheme()
+			return nil
+		case 'c', 'C':
+			ce.cycleColorMode()
+			return nil
+		case 'e', 'E':
+			ce.createThemeCopy()
+			return nil
+		case 'd', 'D':
+			ce.deleteCurrentTheme()
 			return nil
 		}
 	}
@@ -757,7 +875,7 @@ func (ce *ColorEditor) applyCurrentTheme() {
 		ce.setStatus(fmt.Sprintf("Failed to apply theme: %v", err))
 	} else {
 		ce.appliedTheme = ce.themeName
-		ce.setStatus(fmt.Sprintf("Theme '%s' applied successfully", ce.themeName))
+		ce.setStatus(fmt.Sprintf("Theme '%s' applied successfully | e: edit copy | d: delete | Tab: switch panels | q: quit", ce.themeName))
 		// Refresh the theme list to update the star
 		ce.refreshThemeList()
 	}
@@ -767,44 +885,55 @@ func (ce *ColorEditor) createThemeCopy() {
 	if ce.themeName == "" {
 		return
 	}
-	
+
 	// Generate a unique name for the copy
 	originalName := ce.themeName
+	// Strip existing _edited_ suffixes to avoid cascading names
+	if strings.Contains(originalName, "_edited_") {
+		parts := strings.Split(originalName, "_edited_")
+		originalName = parts[0]
+	}
 	timestamp := time.Now().Format("150405") // HHMMSS format
 	copyName := fmt.Sprintf("%s_edited_%s", originalName, timestamp)
-	
+
 	// Update the theme name to the copy
 	ce.themeName = copyName
-	
+
 	// Update the color panel title to show it's a copy
 	ce.colorPanel.SetTitle(fmt.Sprintf(" Color Palette - %s (Copy) ", copyName))
-	
+
 	// Save the copy with current values and apply it immediately
-	go func() {
+	go func(themeName string) {
 		ce.updateThemeConfig()
 		if err := ce.saveThemeToFile(); err == nil {
 			// Apply the copied theme so we can see real-time changes
-			if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
+			if err := ce.themeManager.ApplyTheme(themeName); err != nil {
 				ce.app.QueueUpdateDraw(func() {
 					ce.setStatus(fmt.Sprintf("Failed to apply copy: %v", err))
+					ce.app.ForceDraw()
 				})
 			} else {
 				ce.app.QueueUpdateDraw(func() {
-					ce.setStatus(fmt.Sprintf("Created and applied copy: %s - Ready to edit", copyName))
-					ce.appliedTheme = copyName // Update the applied theme tracking
+					ce.setStatus(fmt.Sprintf("Created and applied copy: %s - Ready to edit | e: edit copy | d: delete | q: quit", themeName))
+					ce.appliedTheme = themeName // Update the applied theme tracking
+					// Refresh theme list to show the new edited theme
+					ce.refreshThemeList()
+					ce.app.ForceDraw()
 				})
 			}
+		} else {
+			ce.app.QueueUpdateDraw(func() {
+				ce.setStatus(fmt.Sprintf("Failed to save copy: %v", err))
+				ce.app.ForceDraw()
+			})
 		}
-		ce.app.QueueUpdateDraw(func() {
-			ce.app.ForceDraw()
-		})
-	}()
+	}(copyName)
 }
 
 func (ce *ColorEditor) refreshThemeList() {
 	currentItem := ce.themeList.GetCurrentItem()
 	ce.themeList.Clear()
-	
+
 	// Get theme files directly
 	themeFiles, err := ce.getThemeFiles()
 	if err != nil {
@@ -833,17 +962,17 @@ func (ce *ColorEditor) setStatus(message string) {
 
 func (ce *ColorEditor) updateColorStatus() {
 	index := ce.colorPanel.GetCurrentItem()
-	
+
 	// Check if this item has a corresponding color key
 	colorKey, exists := ce.listItemToColorKey[index]
 	if !exists {
 		ce.setStatus("Navigate to color items to edit | Tab: switch panels")
 		return
 	}
-	
+
 	colorValue := ce.colorValues[colorKey]
 	displayName := strings.Replace(colorKey, ".", " ", -1)
-	
+
 	// Convert hex to RGB and HSL for display in status
 	rgbDisplay := colorValue
 	hslDisplay := ""
@@ -862,12 +991,19 @@ func (ce *ColorEditor) updateColorStatus() {
 }
 
 func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
-	// Create a copy of the theme if this is the first edit
-	if !ce.isDirty {
-		ce.createThemeCopy()
+	// Safety check
+	if colorKey == "" {
+		return
 	}
 	
-	currentValue := ce.colorValues[colorKey]
+	// Mark theme as dirty when editing begins
+	ce.isDirty = true
+
+	currentValue, exists := ce.colorValues[colorKey]
+	if !exists || currentValue == "" {
+		return
+	}
+	
 	rgb, err := theme.HexToRGB(currentValue)
 	if err != nil {
 		return
@@ -875,12 +1011,13 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 
 	// Adjust RGB values directly with left/right arrows
 	adjustment := 10 // RGB step size
-	if key == tcell.KeyRight {
+	switch key {
+	case tcell.KeyRight:
 		// Increase RGB values (brighter)
 		rgb.R = min(255, rgb.R+adjustment)
 		rgb.G = min(255, rgb.G+adjustment)
 		rgb.B = min(255, rgb.B+adjustment)
-	} else if key == tcell.KeyLeft {
+	case tcell.KeyLeft:
 		// Decrease RGB values (darker)
 		rgb.R = max(0, rgb.R-adjustment)
 		rgb.G = max(0, rgb.G-adjustment)
@@ -913,20 +1050,21 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 
 	// Show that changes have been made (don't call updateColorStatus as it would overwrite this message)
 	ce.setStatus(fmt.Sprintf("Modified %s (%s) | Press 's' to save | ←→: adjust RGB", displayName, rgbDisplay))
-	
+
 	// Apply changes in real-time
 	go func() {
+		themeName := ce.themeName // Capture the current theme name
 		// Save the current state to disk temporarily
 		ce.updateThemeConfig()
 		if err := ce.saveThemeToFile(); err == nil {
 			// Apply the theme to see changes immediately
-			if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
+			if err := ce.themeManager.ApplyTheme(themeName); err != nil {
 				ce.app.QueueUpdateDraw(func() {
-					ce.setStatus(fmt.Sprintf("Failed to apply changes: %v", err))
+					ce.setStatus(fmt.Sprintf("Failed to apply changes to %s: %v", themeName, err))
 				})
 			} else {
 				// Update the applied theme tracking since we're applying the edited copy
-				ce.appliedTheme = ce.themeName
+				ce.appliedTheme = themeName
 			}
 		}
 		// Force a complete redraw to prevent text overlap
@@ -937,12 +1075,19 @@ func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
 }
 
 func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
-	// Create a copy of the theme if this is the first edit
-	if !ce.isDirty {
-		ce.createThemeCopy()
+	// Safety check
+	if colorKey == "" {
+		return
 	}
 	
-	currentValue := ce.colorValues[colorKey]
+	// Mark theme as dirty when editing begins
+	ce.isDirty = true
+
+	currentValue, exists := ce.colorValues[colorKey]
+	if !exists || currentValue == "" {
+		return
+	}
+	
 	rgb, err := theme.HexToRGB(currentValue)
 	if err != nil {
 		return
@@ -950,15 +1095,16 @@ func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
 
 	// Convert to HSL for hue adjustment
 	hsl := RGBToHSL(rgb.R, rgb.G, rgb.B)
-	
+
 	// Adjust hue - 15 degree steps around the color wheel
 	hueStep := 15.0
-	if key == tcell.KeyRight {
+	switch key {
+	case tcell.KeyRight:
 		hsl.H += hueStep
 		if hsl.H >= 360 {
 			hsl.H -= 360
 		}
-	} else if key == tcell.KeyLeft {
+	case tcell.KeyLeft:
 		hsl.H -= hueStep
 		if hsl.H < 0 {
 			hsl.H += 360
@@ -972,7 +1118,7 @@ func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
 
 	// Convert back to RGB
 	newR, newG, newB := HSLToRGB(hsl)
-	
+
 	// Ensure values are in valid range
 	newR = max(0, min(255, newR))
 	newG = max(0, min(255, newG))
@@ -1005,22 +1151,23 @@ func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
 	ce.updatePreview()
 
 	// Show hue adjustment info
-	ce.setStatus(fmt.Sprintf("Hue adjusted %s (H:%.0f° S:%.0f%% L:%.0f%%) | Shift+←→: hue | ←→: brightness", 
+	ce.setStatus(fmt.Sprintf("Hue adjusted %s (H:%.0f° S:%.0f%% L:%.0f%%) | Shift+←→: hue | ←→: brightness",
 		displayName, hsl.H, hsl.S*100, hsl.L*100))
-	
+
 	// Apply changes in real-time
 	go func() {
+		themeName := ce.themeName // Capture the current theme name
 		// Save the current state to disk temporarily
 		ce.updateThemeConfig()
 		if err := ce.saveThemeToFile(); err == nil {
 			// Apply the theme to see changes immediately
-			if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
+			if err := ce.themeManager.ApplyTheme(themeName); err != nil {
 				ce.app.QueueUpdateDraw(func() {
-					ce.setStatus(fmt.Sprintf("Failed to apply changes: %v", err))
+					ce.setStatus(fmt.Sprintf("Failed to apply changes to %s: %v", themeName, err))
 				})
 			} else {
 				// Update the applied theme tracking since we're applying the edited copy
-				ce.appliedTheme = ce.themeName
+				ce.appliedTheme = themeName
 			}
 		}
 		// Force a complete redraw to prevent text overlap
@@ -1212,6 +1359,81 @@ func (ce *ColorEditor) resetTUITheme() {
 	tview.Styles.SecondaryTextColor = tcell.ColorYellow
 	tview.Styles.TertiaryTextColor = tcell.ColorGreen
 	tview.Styles.InverseTextColor = tcell.ColorBlue
+}
+
+func (ce *ColorEditor) deleteCurrentTheme() {
+	if ce.themeName == "" {
+		ce.setStatus("No theme selected to delete")
+		return
+	}
+	
+	// Don't allow deleting the base theme if it's not an edited version
+	if !strings.Contains(ce.themeName, "_edited_") {
+		ce.setStatus("Cannot delete base theme. Only edited versions can be deleted.")
+		return
+	}
+	
+	// Create confirmation modal
+	ce.resetTUITheme()
+	
+	modal := tview.NewModal()
+	modal.SetText(fmt.Sprintf("Are you sure you want to delete theme '%s'?", ce.themeName))
+	modal.AddButtons([]string{"Delete", "Cancel"})
+	
+	// Style the modal with high contrast colors
+	modal.SetBackgroundColor(tcell.ColorBlack)
+	modal.SetTextColor(tcell.ColorWhite)
+	modal.SetButtonBackgroundColor(tcell.ColorRed)
+	modal.SetButtonTextColor(tcell.ColorWhite)
+	
+	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+		// Restore the main UI layout first
+		rootFlex := tview.NewFlex()
+		rootFlex.SetDirection(tview.FlexRow)
+		
+		mainFlex := tview.NewFlex()
+		mainFlex.AddItem(ce.themeList, 0, 1, false)
+		mainFlex.AddItem(ce.colorPanel, 0, 2, false)
+		mainFlex.AddItem(ce.previewPanel, 0, 1, false)
+		
+		rootFlex.AddItem(mainFlex, 0, 1, true)
+		rootFlex.AddItem(ce.statusBar, 1, 0, false)
+		
+		ce.app.SetRoot(rootFlex, true)
+		ce.applyUserThemeToTUI()
+		
+		if buttonIndex == 0 { // Delete
+			themeFile := ce.config.GetThemePath(ce.themeName)
+			if err := os.Remove(themeFile); err != nil {
+				ce.setStatus(fmt.Sprintf("Failed to delete theme: %v", err))
+				return
+			}
+			
+			// Remove tracking file if this was the applied theme
+			if ce.appliedTheme == ce.themeName {
+				trackingFile := ce.config.GetThemePath(".current-theme")
+				os.Remove(trackingFile) // Ignore errors
+				ce.appliedTheme = ""
+			}
+			
+			ce.setStatus(fmt.Sprintf("Theme '%s' deleted successfully", ce.themeName))
+			ce.refreshThemeList()
+			
+			// Select the first theme in the list
+			if ce.themeList.GetItemCount() > 0 {
+				ce.themeList.SetCurrentItem(0)
+				themeName, _ := ce.themeList.GetItemText(0)
+				themeName = strings.TrimPrefix(themeName, "★ ")
+				ce.onThemeSelected(0, themeName, "", 0)
+			}
+		}
+		
+		// Ensure proper focus restoration
+		ce.app.SetFocus(ce.themeList)
+		ce.themeList.SetBorderColor(tcell.ColorYellow)
+	})
+	
+	ce.app.SetRoot(modal, true)
 }
 
 // StartInteractive launches the interactive color editor

@@ -11,3 +11,4 @@
 .env.production
 .gitignore
 CLAUDE.md
+.claude/
