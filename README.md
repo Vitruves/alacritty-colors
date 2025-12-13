@@ -14,10 +14,11 @@ A command-line tool for managing Alacritty terminal themes, offering automatic d
 - **Interactive TUI** - A terminal user interface for theme and font management.
 - **Theme Management** - Apply, preview, and switch between available themes.
 - **Theme Editing** - Edit theme colors directly within the TUI, with options for brightness and hue adjustments.
+- **Theme Generation** - Create custom themes with color science-based harmonies (complementary, analogous, triadic, split-complementary, tetradic, monochromatic).
+- **Random Theme Generator** - Generate random themes with WCAG-compliant contrast ratios.
 - **Font Management** - Adjust font family, size, and style for your Alacritty configuration.
-- **Theme Generation** - Create custom themes with various color schemes.
 - **Auto-Download** - Automatically download themes from the official Alacritty repository.
-- **Search & Preview** - Find themes by name and preview them.
+- **Search & Favorites** - Find themes by name and mark favorites for quick access.
 - **Backup & Restore** - Configuration management with automatic backups.
 - **Cross-Platform** - Compatible with macOS, Linux, and Windows.
 - **Efficient & Safe** - Designed to preserve your personal Alacritty settings.
@@ -49,23 +50,56 @@ Simply run `alacritty-colors` to launch the interactive TUI:
 alacritty-colors
 ```
 
+### Command Line Options
+
+```bash
+alacritty-colors [options]
+
+Options:
+  -config string    Path to alacritty.toml config file
+  -themes string    Path to themes directory
+  -version          Show version information
+  -help             Show help message
+
+Examples:
+  alacritty-colors                                    # Use default paths
+  alacritty-colors -config /path/to/alacritty.toml   # Custom config
+  alacritty-colors -themes /path/to/themes           # Custom themes dir
+```
+
 ### Interactive TUI Keybindings
 
 The interactive terminal interface (TUI) provides the following keybindings for navigation and management:
 
+**Navigation**
 - **Tab**: Switch between panels
 - **↑↓**: Navigate through lists
+- **Enter/a**: Apply the selected theme
+
+**Color Editing**
 - **←→**: Adjust brightness of selected color
 - **Shift+←→**: Adjust hue of selected color
-- **Enter/a**: Apply the selected theme
+- **c**: Cycle through color preview modes
+
+**Theme Management**
+- **n**: Create a new theme from scratch
+- **g**: Generate a random theme (with color harmony options)
 - **e**: Edit a copy of the current theme
 - **d**: Delete an edited theme copy
-- **p**: Show parameters panel (backup, restore, clean themes)
-- **f**: Show font settings panel (change font family, size, style)
-- **c**: Cycle through color preview modes
-- **q**: Quit the application
 - **s**: Save the current theme
 - **r**: Reset changes to the current theme
+
+**Search & Favorites**
+- **/**: Search themes by name
+- **\***: Toggle favorite status for current theme
+
+**Panels & Settings**
+- **p**: Show parameters panel (backup, restore, clean themes)
+- **f**: Show font settings panel (change font family, size, style)
+- **?**: Show help overlay with all keybindings
+
+**General**
+- **q**: Quit the application
 
 ## Configuration
 
@@ -115,6 +149,26 @@ Alacritty Colors uses a simple and safe approach:
 ## Theme Preview
 
 The interactive TUI provides a real-time preview of the selected theme as you navigate and make changes.
+
+## Theme Generation
+
+Alacritty Colors includes a powerful theme generator that uses color theory to create harmonious color schemes:
+
+**Color Harmonies Available:**
+- **Complementary** - Opposite colors on the color wheel (180° apart)
+- **Analogous** - Adjacent colors (30° apart) for a cohesive look
+- **Triadic** - Three colors evenly spaced (120° apart)
+- **Split-Complementary** - Base color plus two colors adjacent to its complement
+- **Tetradic** - Four colors in a rectangle pattern (90° apart)
+- **Monochromatic** - Single hue with varying saturation and lightness
+
+**Theme Styles:**
+- **Dark Mode** - Dark backgrounds with light foreground colors
+- **Light Mode** - Light backgrounds with dark foreground colors
+
+All generated themes maintain WCAG-compliant contrast ratios (minimum 4.5:1 for normal text, targeting 7.0:1 for optimal readability).
+
+Press `n` to create a new theme or `g` to generate a random theme with harmony options.
 
 ## Troubleshooting
 
