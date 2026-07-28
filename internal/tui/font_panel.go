@@ -107,6 +107,21 @@ func (ce *ColorEditor) setupActualFontTUI(monoFonts []string, currentFamily, cur
 		return
 	}
 
+	// The configured family may not be one this system can resolve — a font
+	// removed since, or a name that was never right. The cursor then sits on
+	// the first row while the sample still describes the configured font, and
+	// the panel contradicts itself. Follow the cursor instead.
+	configuredIsInstalled := false
+	for _, family := range monoFonts {
+		if family == currentFamily {
+			configuredIsInstalled = true
+			break
+		}
+	}
+	if !configuredIsInstalled {
+		selectedFamily = monoFonts[0]
+	}
+
 	for i, family := range monoFonts {
 		marker := " "
 		if family == currentFamily {
@@ -296,7 +311,17 @@ il1I| oO0 rn m ,.;: '"`+"`"+`
 	})
 
 	loadStyles(selectedFamily)
+	if !configuredIsInstalled && styleList.GetItemCount() > 0 {
+		// The configured style belongs to a family that is not there, so it
+		// cannot be trusted either.
+		selectedStyle, _ = styleList.GetItemText(0)
+		styleList.SetCurrentItem(0)
+	}
 	updateInfo()
+
+	if !configuredIsInstalled {
+		ce.warn("%s is not installed — showing %s", currentFamily, selectedFamily)
+	}
 
 	body := tview.NewFlex()
 	body.AddItem(fontList, 0, 2, true)

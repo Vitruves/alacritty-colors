@@ -4,11 +4,9 @@
 
 A command-line tool for managing Alacritty terminal themes, offering automatic downloads, custom theme generation, font configuration, and configuration management features.
 
-<img width="952" height="507" alt="tui_1" src="https://github.com/user-attachments/assets/e829a86c-055b-4476-a66a-502998ae2cdf" />
+![The editor: theme list, palette with live contrast ratios, and a preview of real terminal output](images/tui_1.png)
 
-<img width="943" height="549" alt="tui_2" src="https://github.com/user-attachments/assets/a1d7bef7-c11b-49ce-9d35-419d9850bf86" />
-
-<img width="952" height="507" alt="tui_3" src="https://github.com/user-attachments/assets/5cc36382-3c0f-46a1-80aa-7dad4983f6cd" />
+*Browsing the library. Every theme applies to the terminal as the cursor rests on it, and each palette row carries its WCAG contrast ratio against the background.*
 
 
 ## Features
@@ -115,6 +113,11 @@ The browser lists families and styles taken from the same font database the term
 Family, style and size all apply live, and writes are debounced, so scrolling a long list of families costs one write rather than one per row.
 
 Press **d** for sixteen well-known monospace families — JetBrains Mono, Fira Code, Hack, Meslo, Iosevka, Victor Mono and others. They are fetched from the [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts) release archive, so the powerline and icon glyphs a prompt expects are already patched in. Everything lands in your user font directory (`~/Library/Fonts`, or `~/.local/share/fonts` on Linux) — no administrator rights, nothing installed system-wide, and the browser reopens on the new list.
+
+![The font browser: families, styles, sizes and a live sample](images/tui_2.png)
+
+*The font browser. Families and styles come from the same database the terminal resolves against, so nothing listed can fail to load.*
+
 
 ### How editing treats your files
 
