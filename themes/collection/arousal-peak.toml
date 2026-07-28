@@ -1,0 +1,45 @@
+# alacritty-colors collection · Arousal Peak
+# Affect · Saturation taken as far as it reads
+
+[colors.primary]
+background = "#120a0a"
+foreground = "#e2ccc8"
+
+[colors.cursor]
+text = "#120a0a"
+cursor = "#e04040"
+
+[colors.selection]
+text = "#e2ccc8"
+background = "#363260"
+
+[colors.normal]
+black = "#302c2c"
+red = "#e43a3a"
+green = "#57e43a"
+yellow = "#e4a63a"
+blue = "#7072eb"
+magenta = "#e43aae"
+cyan = "#3ad9e4"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#e77e7e"
+green = "#90e77e"
+yellow = "#e7c17e"
+blue = "#7e80e7"
+magenta = "#e77ec6"
+cyan = "#7ee0e7"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#b02727"
+green = "#3eb027"
+yellow = "#b07e27"
+blue = "#2729b0"
+magenta = "#b02784"
+cyan = "#27a7b0"
+white = "#a39999"
+

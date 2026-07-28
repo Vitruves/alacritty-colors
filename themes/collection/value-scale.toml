@@ -1,0 +1,45 @@
+# alacritty-colors collection · Value Scale
+# Colour Order · Nine steps from black to white
+
+[colors.primary]
+background = "#f7f7f7"
+foreground = "#242424"
+
+[colors.cursor]
+text = "#f7f7f7"
+cursor = "#4a4a4a"
+
+[colors.selection]
+text = "#242424"
+background = "#abacd9"
+
+[colors.normal]
+black = "#4b4444"
+red = "#a82f2f"
+green = "#338024"
+yellow = "#906a28"
+blue = "#2f31a8"
+magenta = "#a82f81"
+cyan = "#247980"
+white = "#a39999"
+
+[colors.bright]
+black = "#252222"
+red = "#792a2a"
+green = "#38792a"
+yellow = "#795c2a"
+blue = "#2a2c79"
+magenta = "#792a60"
+cyan = "#2a7479"
+white = "#7b6f6f"
+
+[colors.dim]
+black = "#605757"
+red = "#be5656"
+green = "#67be56"
+yellow = "#be9856"
+blue = "#5658be"
+magenta = "#be569d"
+cyan = "#56b7be"
+white = "#bbb4b4"
+

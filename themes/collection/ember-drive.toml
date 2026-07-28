@@ -1,0 +1,45 @@
+# alacritty-colors collection · Ember Drive
+# Energy · Red accent on near-black, for pushing through
+
+[colors.primary]
+background = "#170e0e"
+foreground = "#e4cfcc"
+
+[colors.cursor]
+text = "#170e0e"
+cursor = "#d64c4c"
+
+[colors.selection]
+text = "#e4cfcc"
+background = "#393462"
+
+[colors.normal]
+black = "#302c2c"
+red = "#e34545"
+green = "#58e23c"
+yellow = "#e2a63c"
+blue = "#7173ea"
+magenta = "#e23cae"
+cyan = "#3cd7e2"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#e58080"
+green = "#91e580"
+yellow = "#e5c080"
+blue = "#8082e5"
+magenta = "#e580c5"
+cyan = "#80dee5"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#ae2929"
+green = "#3fae29"
+yellow = "#ae7d29"
+blue = "#292bae"
+magenta = "#ae2984"
+cyan = "#29a5ae"
+white = "#a39999"
+

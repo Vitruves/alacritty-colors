@@ -1,0 +1,45 @@
+# alacritty-colors collection · Redshift
+# Energy · Crimson, urgent and cold-edged
+
+[colors.primary]
+background = "#14090c"
+foreground = "#e0c8cd"
+
+[colors.cursor]
+text = "#14090c"
+cursor = "#d34a68"
+
+[colors.selection]
+text = "#e0c8cd"
+background = "#373161"
+
+[colors.normal]
+black = "#302c2d"
+red = "#e33b5a"
+green = "#57e33b"
+yellow = "#e3a63b"
+blue = "#7173eb"
+magenta = "#e33bae"
+cyan = "#3bd8e3"
+white = "#cac4c6"
+
+[colors.bright]
+black = "#5b5255"
+red = "#e67f92"
+green = "#91e67f"
+yellow = "#e6c17f"
+blue = "#7f81e6"
+magenta = "#e67fc5"
+cyan = "#7fdfe6"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1e"
+red = "#ae2841"
+green = "#3fae28"
+yellow = "#ae7e28"
+blue = "#282aae"
+magenta = "#ae2884"
+cyan = "#28a5ae"
+white = "#a3999c"
+

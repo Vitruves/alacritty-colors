@@ -1,0 +1,45 @@
+# alacritty-colors collection · Plus Side
+# Goethe · The active pole, yellow through red
+
+[colors.primary]
+background = "#16130a"
+foreground = "#e6dcc2"
+
+[colors.cursor]
+text = "#16130a"
+cursor = "#e0b93a"
+
+[colors.selection]
+text = "#e6dcc2"
+background = "#2e3c5a"
+
+[colors.normal]
+black = "#302f2c"
+red = "#da6944"
+green = "#5dda44"
+yellow = "#dab744"
+blue = "#557edd"
+magenta = "#da44ab"
+cyan = "#44dac3"
+white = "#cac8c4"
+
+[colors.bright]
+black = "#5b5952"
+red = "#df9c86"
+green = "#95df86"
+yellow = "#dfca86"
+blue = "#86a1df"
+magenta = "#df86c3"
+cyan = "#86dfd2"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a64e30"
+green = "#44a630"
+yellow = "#a68a30"
+blue = "#3054a6"
+magenta = "#a63081"
+cyan = "#30a694"
+white = "#a3a199"
+

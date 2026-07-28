@@ -1,0 +1,45 @@
+# alacritty-colors collection · Spring Sphere
+# Itten · Light and warm, on paper
+
+[colors.primary]
+background = "#f6f8ee"
+foreground = "#232a1e"
+
+[colors.cursor]
+text = "#f6f8ee"
+cursor = "#487b2a"
+
+[colors.selection]
+text = "#232a1e"
+background = "#a7c7d6"
+
+[colors.normal]
+black = "#4a4b44"
+red = "#b04927"
+green = "#2c7e1c"
+yellow = "#76721a"
+blue = "#2776b0"
+magenta = "#b027ab"
+cyan = "#1c7e6f"
+white = "#a1a399"
+
+[colors.bright]
+black = "#252522"
+red = "#7f3b24"
+green = "#337f24"
+yellow = "#777422"
+blue = "#24597f"
+magenta = "#7f247c"
+cyan = "#22776b"
+white = "#797b6f"
+
+[colors.dim]
+black = "#5f6057"
+red = "#c76b4d"
+green = "#61c74d"
+yellow = "#c7c24d"
+blue = "#4d94c7"
+magenta = "#c74dc3"
+cyan = "#4dc7b4"
+white = "#babbb4"
+

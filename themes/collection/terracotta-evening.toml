@@ -1,0 +1,45 @@
+# alacritty-colors collection · Terracotta Evening
+# Warmth · Fired clay, warm and matte
+
+[colors.primary]
+background = "#1a1310"
+foreground = "#e4d3c8"
+
+[colors.cursor]
+text = "#1a1310"
+cursor = "#c8683f"
+
+[colors.selection]
+text = "#e4d3c8"
+background = "#313c5e"
+
+[colors.normal]
+black = "#302d2c"
+red = "#d86a46"
+green = "#5fd846"
+yellow = "#d8a346"
+blue = "#577fdc"
+magenta = "#d846aa"
+cyan = "#46ced8"
+white = "#cac6c4"
+
+[colors.bright]
+black = "#5b5552"
+red = "#de9d87"
+green = "#96de87"
+yellow = "#debf87"
+blue = "#87a1de"
+magenta = "#de87c3"
+cyan = "#87d8de"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#a44f32"
+green = "#45a432"
+yellow = "#a47b32"
+blue = "#3254a4"
+magenta = "#a43280"
+cyan = "#329ca4"
+white = "#a39c99"
+

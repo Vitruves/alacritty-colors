@@ -1,0 +1,45 @@
+# alacritty-colors collection · Hue Circle Ten
+# Colour Order · His ten principal hues, evenly spaced
+
+[colors.primary]
+background = "#0e1014"
+foreground = "#ced2d8"
+
+[colors.cursor]
+text = "#0e1014"
+cursor = "#5a8cc0"
+
+[colors.selection]
+text = "#ced2d8"
+background = "#243c5e"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d74b47"
+green = "#47d786"
+yellow = "#d7ba47"
+blue = "#4783d7"
+magenta = "#b64fd9"
+cyan = "#47b8d7"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#de8a87"
+green = "#87dead"
+yellow = "#decc87"
+blue = "#87acde"
+magenta = "#c887de"
+cyan = "#87cbde"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a33733"
+green = "#33a364"
+yellow = "#a38d33"
+blue = "#3362a3"
+magenta = "#8733a3"
+cyan = "#338ba3"
+white = "#999ca3"
+

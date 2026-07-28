@@ -1,0 +1,45 @@
+# alacritty-colors collection · Dawn Patrol
+# Contrast · Cool and bright, for starting early
+
+[colors.primary]
+background = "#f4f7fa"
+foreground = "#1c242c"
+
+[colors.cursor]
+text = "#f4f7fa"
+cursor = "#2b6ea8"
+
+[colors.selection]
+text = "#1c242c"
+background = "#a6bfde"
+
+[colors.normal]
+black = "#44474b"
+red = "#b02b27"
+green = "#1c7e46"
+yellow = "#7e6a1c"
+blue = "#2763b0"
+magenta = "#8e27b0"
+cyan = "#207a8f"
+white = "#999ea3"
+
+[colors.bright]
+black = "#222425"
+red = "#7f2724"
+green = "#247f4c"
+yellow = "#7f6d24"
+blue = "#244c7f"
+magenta = "#69247f"
+cyan = "#246e7f"
+white = "#6f757b"
+
+[colors.dim]
+black = "#575c60"
+red = "#c7514d"
+green = "#4dc782"
+yellow = "#c7ae4d"
+blue = "#4d83c7"
+magenta = "#a84dc7"
+cyan = "#4dafc7"
+white = "#b4b8bb"
+

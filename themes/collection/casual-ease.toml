@@ -1,0 +1,45 @@
+# alacritty-colors collection · Casual Ease
+# Image Scale · Mid-plane, nothing insisting
+
+[colors.primary]
+background = "#f7f7f2"
+foreground = "#2a2b26"
+
+[colors.cursor]
+text = "#f7f7f2"
+cursor = "#477a54"
+
+[colors.selection]
+text = "#2a2b26"
+background = "#a8c6d8"
+
+[colors.normal]
+black = "#4b4b44"
+red = "#ae4928"
+green = "#1d7c34"
+yellow = "#74711b"
+blue = "#2876ae"
+magenta = "#ae28aa"
+cyan = "#1d7c6e"
+white = "#a3a399"
+
+[colors.bright]
+black = "#252522"
+red = "#7e3b25"
+green = "#257e3b"
+yellow = "#767323"
+blue = "#25597e"
+magenta = "#7e257b"
+cyan = "#257e71"
+white = "#7b7b6f"
+
+[colors.dim]
+black = "#606057"
+red = "#c56c4e"
+green = "#4ec56c"
+yellow = "#c5c14e"
+blue = "#4e93c5"
+magenta = "#c54ec1"
+cyan = "#4ec5b3"
+white = "#bbbbb4"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Visual Rest
+# Birren · The colour to look at between tasks
+
+[colors.primary]
+background = "#0e1512"
+foreground = "#cad6d0"
+
+[colors.cursor]
+text = "#0e1512"
+cursor = "#5a9c84"
+
+[colors.selection]
+text = "#cad6d0"
+background = "#26485b"
+
+[colors.normal]
+black = "#2c302e"
+red = "#d35955"
+green = "#4dd186"
+yellow = "#d1cc4d"
+blue = "#4d9ad1"
+magenta = "#b455d3"
+cyan = "#4dd1bd"
+white = "#c4cac7"
+
+[colors.bright]
+black = "#525b57"
+red = "#d98e8c"
+green = "#8cd9ae"
+yellow = "#d9d68c"
+blue = "#8cb9d9"
+magenta = "#c68cd9"
+cyan = "#8cd9ce"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d201f"
+red = "#9d3c39"
+green = "#399d65"
+yellow = "#9d9939"
+blue = "#39739d"
+magenta = "#84399d"
+cyan = "#399d8e"
+white = "#99a39f"
+

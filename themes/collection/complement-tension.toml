@@ -1,0 +1,45 @@
+# alacritty-colors collection · Complement Tension
+# Itten · Opposites held apart
+
+[colors.primary]
+background = "#0e1410"
+foreground = "#ccd6cc"
+
+[colors.cursor]
+text = "#0e1410"
+cursor = "#c8617d"
+
+[colors.selection]
+text = "#ccd6cc"
+background = "#353961"
+
+[colors.normal]
+black = "#2c302d"
+red = "#df4964"
+green = "#5bdd40"
+yellow = "#dda440"
+blue = "#7476e6"
+magenta = "#dd40ac"
+cyan = "#40d3dd"
+white = "#c4cac6"
+
+[colors.bright]
+black = "#525b55"
+red = "#e28394"
+green = "#93e283"
+yellow = "#e2c083"
+blue = "#8385e2"
+magenta = "#e283c4"
+cyan = "#83dce2"
+white = "#eff0ef"
+
+[colors.dim]
+black = "#1d201e"
+red = "#a92d44"
+green = "#42a92d"
+yellow = "#a97c2d"
+blue = "#2d2fa9"
+magenta = "#a92d82"
+cyan = "#2da1a9"
+white = "#99a39c"
+

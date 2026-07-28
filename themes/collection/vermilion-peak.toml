@@ -1,0 +1,45 @@
+# alacritty-colors collection · Vermilion Peak
+# Goethe · The hue he thought most energetic
+
+[colors.primary]
+background = "#180d0a"
+foreground = "#e6cec4"
+
+[colors.cursor]
+text = "#180d0a"
+cursor = "#d4522a"
+
+[colors.selection]
+text = "#e6cec4"
+background = "#2d375d"
+
+[colors.normal]
+black = "#302d2c"
+red = "#e1633d"
+green = "#59e13d"
+yellow = "#e1a53d"
+blue = "#4f7be4"
+magenta = "#e13dad"
+cyan = "#3dd6e1"
+white = "#cac5c4"
+
+[colors.bright]
+black = "#5b5452"
+red = "#e49881"
+green = "#92e481"
+yellow = "#e4c081"
+blue = "#819fe4"
+magenta = "#e481c5"
+cyan = "#81dee4"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#ad482a"
+green = "#40ad2a"
+yellow = "#ad7d2a"
+blue = "#2a51ad"
+magenta = "#ad2a83"
+cyan = "#2aa4ad"
+white = "#a39b99"
+

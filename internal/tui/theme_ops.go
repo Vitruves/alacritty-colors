@@ -3,11 +3,20 @@ package tui
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/vitruves/alacritty-colors/pkg/alacritty"
 )
+
+// ThemeHeader marks the theme files this tool wrote for the user. Files
+// carrying it can be overwritten in place; anything else — a downloaded theme
+// or one from the curated collection — is only ever forked, never clobbered.
+const ThemeHeader = "# alacritty-colors ·"
+
+// validThemeName keeps generated file names to something a shell can handle.
+var validThemeName = regexp.MustCompile(`[^a-zA-Z0-9._-]+`)
 
 // loadTheme loads a theme by name and extracts its colors
 func (ce *ColorEditor) loadTheme(themeName string) {
@@ -16,390 +25,444 @@ func (ce *ColorEditor) loadTheme(themeName string) {
 
 	config, err := parser.ParseFile(themeFile)
 	if err != nil {
-		ce.setStatus(fmt.Sprintf("Error loading theme %s: %v", themeName, err))
+		ce.fail("Error loading theme %s: %v", themeName, err)
 		return
 	}
 
 	ce.currentTheme = config
 	ce.extractColors()
 	ce.isDirty = false
+	ce.discardArmed = false
+	ce.themeOwned = ce.fileIsOwned(themeFile)
+}
+
+// fileIsOwned reports whether a theme file was written by this tool.
+func (ce *ColorEditor) fileIsOwned(path string) bool {
+	file, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+
+	buf := make([]byte, len(ThemeHeader))
+	n, _ := file.Read(buf)
+	return string(buf[:n]) == ThemeHeader
 }
 
 // extractColors extracts colors from current theme into the color values map
 func (ce *ColorEditor) extractColors() {
 	ce.colorValues = make(map[string]string)
-	ce.colorKeys = make([]string, 0)
+	ce.originalValues = make(map[string]string)
 
 	if ce.currentTheme == nil {
 		return
 	}
 
-	// Primary colors
 	ce.addColor("primary.background", ce.currentTheme.Colors.Primary.Background)
 	ce.addColor("primary.foreground", ce.currentTheme.Colors.Primary.Foreground)
+	ce.addColor("cursor.text", ce.currentTheme.Colors.Cursor.Text)
+	ce.addColor("cursor.cursor", ce.currentTheme.Colors.Cursor.Cursor)
+	ce.addColor("selection.text", ce.currentTheme.Colors.Selection.Text)
+	ce.addColor("selection.background", ce.currentTheme.Colors.Selection.Background)
 
-	// Cursor colors
-	if ce.currentTheme.Colors.Cursor.Text != "" {
-		ce.addColor("cursor.text", ce.currentTheme.Colors.Cursor.Text)
-	}
-	if ce.currentTheme.Colors.Cursor.Cursor != "" {
-		ce.addColor("cursor.cursor", ce.currentTheme.Colors.Cursor.Cursor)
-	}
-
-	// Selection colors
-	if ce.currentTheme.Colors.Selection.Text != "" {
-		ce.addColor("selection.text", ce.currentTheme.Colors.Selection.Text)
-	}
-	if ce.currentTheme.Colors.Selection.Background != "" {
-		ce.addColor("selection.background", ce.currentTheme.Colors.Selection.Background)
-	}
-
-	// Normal colors
 	for name, color := range ce.currentTheme.Colors.Normal {
 		ce.addColor("normal."+name, color)
 	}
-
-	// Bright colors
 	for name, color := range ce.currentTheme.Colors.Bright {
 		ce.addColor("bright."+name, color)
 	}
-
-	// Dim colors
 	for name, color := range ce.currentTheme.Colors.Dim {
 		ce.addColor("dim."+name, color)
+	}
+
+	// Snapshot for undo: 'u' and 'r' restore from here instead of re-reading
+	// the file, so a revert costs nothing and never races a pending write.
+	for key, value := range ce.colorValues {
+		ce.originalValues[key] = value
 	}
 }
 
 // addColor adds a color to the color values map if non-empty
 func (ce *ColorEditor) addColor(key, value string) {
-	if value != "" {
-		ce.colorValues[key] = value
-		ce.colorKeys = append(ce.colorKeys, key)
+	if value == "" {
+		return
 	}
+	ce.colorValues[key] = normalizeHex(value, value)
 }
 
-// saveTheme saves the current theme to file
+// saveTheme writes the working colours to disk. Downloaded themes are never
+// overwritten: editing one forks it under a new name instead.
 func (ce *ColorEditor) saveTheme() {
 	if ce.currentTheme == nil || ce.themeName == "" {
-		ce.setStatus("No theme selected to save")
+		ce.warn("No theme selected to save")
+		return
+	}
+	if !ce.isDirty {
+		ce.info("Nothing to save — %s is unchanged", ce.themeName)
 		return
 	}
 
-	ce.updateThemeConfig()
-
-	err := ce.saveThemeToFile()
-	if err != nil {
-		ce.setStatus(fmt.Sprintf("Error saving theme: %v", err))
+	if !ce.themeOwned {
+		ce.showSaveAsDialog()
 		return
 	}
 
-	ce.isDirty = false
-	ce.setStatus(fmt.Sprintf("Theme '%s' saved successfully", ce.themeName))
+	if err := ce.writeTheme(ce.themeName); err != nil {
+		ce.fail("Error saving theme: %v", err)
+		return
+	}
+
+	ce.commitSave(ce.themeName)
+	ce.info("Saved %s", ce.themeName)
 }
 
-// saveThemeToFile writes the theme to disk
-func (ce *ColorEditor) saveThemeToFile() error {
-	themeFile := ce.config.GetThemePath(ce.themeName)
-	content := ce.generateTOMLContent()
+// saveThemeAs writes the working colours under a new name and switches to it.
+func (ce *ColorEditor) saveThemeAs(name string) {
+	name = sanitizeThemeName(name)
+	if name == "" {
+		ce.warn("Theme name cannot be empty")
+		return
+	}
 
-	err := os.WriteFile(themeFile, []byte(content), 0644)
-	if err != nil {
+	// Set the name first: it is stamped into the file header.
+	ce.themeName = name
+	if err := ce.writeTheme(name); err != nil {
+		ce.fail("Error saving theme: %v", err)
+		return
+	}
+	ce.themeOwned = true
+	ce.commitSave(name)
+	ce.refreshThemeList()
+	if idx := ce.indexOfVisible(name); idx >= 0 {
+		ce.themeList.SetCurrentItem(idx)
+	}
+	ce.applyThemeNow(name)
+	ce.info("Saved as %s", name)
+}
+
+// commitSave clears the dirty state and re-snapshots the on-disk values.
+func (ce *ColorEditor) commitSave(name string) {
+	ce.isDirty = false
+	ce.discardArmed = false
+	ce.originalValues = make(map[string]string, len(ce.colorValues))
+	for key, value := range ce.colorValues {
+		ce.originalValues[key] = value
+	}
+	ce.colorPanel.SetTitle(ce.colorPanelTitle())
+	ce.markApplied(name)
+}
+
+// writeTheme serialises the working colours to a theme file.
+func (ce *ColorEditor) writeTheme(name string) error {
+	themeFile := ce.config.GetThemePath(name)
+	if err := os.WriteFile(themeFile, []byte(ce.generateTOMLContent()), 0644); err != nil {
 		return fmt.Errorf("failed to write theme file %s: %w", themeFile, err)
 	}
+	return nil
+}
 
-	// Force sync to disk
-	file, err := os.OpenFile(themeFile, os.O_RDONLY, 0)
-	if err == nil {
-		file.Sync()
-		file.Close()
+// sanitizeThemeName reduces user input to a safe file stem.
+func sanitizeThemeName(name string) string {
+	name = strings.TrimSpace(name)
+	name = strings.ReplaceAll(name, " ", "-")
+	name = validThemeName.ReplaceAllString(name, "")
+	name = strings.Trim(name, ".-")
+	return strings.TrimSuffix(name, ".toml")
+}
+
+// suggestThemeName proposes a free name derived from the current theme.
+func (ce *ColorEditor) suggestThemeName() string {
+	base := ce.themeName
+	if base == "" {
+		base = "custom"
+	}
+	if i := strings.Index(base, EditedThemeSuffix); i > 0 {
+		base = base[:i]
 	}
 
-	return nil
+	// A generated draft already has a name of its own and no file behind it.
+	if !ce.themeExists(base) {
+		return base
+	}
+
+	candidate := base + "-custom"
+	if !ce.themeExists(candidate) {
+		return candidate
+	}
+	for n := 2; n < 100; n++ {
+		candidate = fmt.Sprintf("%s-custom-%d", base, n)
+		if !ce.themeExists(candidate) {
+			return candidate
+		}
+	}
+	return fmt.Sprintf("%s%s%s", base, EditedThemeSuffix, time.Now().Format("150405"))
+}
+
+func (ce *ColorEditor) themeExists(name string) bool {
+	_, err := os.Stat(ce.config.GetThemePath(name))
+	return err == nil
 }
 
 // generateTOMLContent generates TOML content from current color values
 func (ce *ColorEditor) generateTOMLContent() string {
 	var content strings.Builder
 
-	content.WriteString("# Alacritty theme - edited with alacritty-colors TUI\n\n")
+	content.WriteString(ThemeHeader)
+	content.WriteString(fmt.Sprintf(" %s\n\n", ce.themeName))
 
-	// Primary colors
 	content.WriteString("[colors.primary]\n")
 	content.WriteString(fmt.Sprintf("background = \"%s\"\n", ce.colorValues["primary.background"]))
-	content.WriteString(fmt.Sprintf("foreground = \"%s\"\n", ce.colorValues["primary.foreground"]))
-	content.WriteString("\n")
+	content.WriteString(fmt.Sprintf("foreground = \"%s\"\n\n", ce.colorValues["primary.foreground"]))
 
-	// Cursor colors
-	if ce.colorValues["cursor.text"] != "" || ce.colorValues["cursor.cursor"] != "" {
-		content.WriteString("[colors.cursor]\n")
-		if ce.colorValues["cursor.text"] != "" {
-			content.WriteString(fmt.Sprintf("text = \"%s\"\n", ce.colorValues["cursor.text"]))
+	writePair := func(section, keyA, keyB, nameA, nameB string) {
+		a, b := ce.colorValues[keyA], ce.colorValues[keyB]
+		if a == "" && b == "" {
+			return
 		}
-		if ce.colorValues["cursor.cursor"] != "" {
-			content.WriteString(fmt.Sprintf("cursor = \"%s\"\n", ce.colorValues["cursor.cursor"]))
+		content.WriteString(fmt.Sprintf("[colors.%s]\n", section))
+		if a != "" {
+			content.WriteString(fmt.Sprintf("%s = \"%s\"\n", nameA, a))
+		}
+		if b != "" {
+			content.WriteString(fmt.Sprintf("%s = \"%s\"\n", nameB, b))
 		}
 		content.WriteString("\n")
 	}
+	writePair("cursor", "cursor.text", "cursor.cursor", "text", "cursor")
+	writePair("selection", "selection.text", "selection.background", "text", "background")
 
-	// Selection colors
-	if ce.colorValues["selection.text"] != "" || ce.colorValues["selection.background"] != "" {
-		content.WriteString("[colors.selection]\n")
-		if ce.colorValues["selection.text"] != "" {
-			content.WriteString(fmt.Sprintf("text = \"%s\"\n", ce.colorValues["selection.text"]))
-		}
-		if ce.colorValues["selection.background"] != "" {
-			content.WriteString(fmt.Sprintf("background = \"%s\"\n", ce.colorValues["selection.background"]))
-		}
-		content.WriteString("\n")
-	}
-
-	// Normal colors
-	content.WriteString("[colors.normal]\n")
-	for _, color := range BaseColorNames {
-		if value, exists := ce.colorValues["normal."+color]; exists {
-			content.WriteString(fmt.Sprintf("%s = \"%s\"\n", color, value))
-		}
-	}
-	content.WriteString("\n")
-
-	// Bright colors
-	content.WriteString("[colors.bright]\n")
-	for _, color := range BaseColorNames {
-		if value, exists := ce.colorValues["bright."+color]; exists {
-			content.WriteString(fmt.Sprintf("%s = \"%s\"\n", color, value))
-		}
-	}
-	content.WriteString("\n")
-
-	// Dim colors (if any)
-	hasDimColors := false
-	for _, color := range BaseColorNames {
-		if _, exists := ce.colorValues["dim."+color]; exists {
-			hasDimColors = true
-			break
-		}
-	}
-
-	if hasDimColors {
-		content.WriteString("[colors.dim]\n")
+	for _, group := range []string{"normal", "bright", "dim"} {
+		var body strings.Builder
 		for _, color := range BaseColorNames {
-			if value, exists := ce.colorValues["dim."+color]; exists {
-				content.WriteString(fmt.Sprintf("%s = \"%s\"\n", color, value))
+			if value, exists := ce.colorValues[group+"."+color]; exists && value != "" {
+				body.WriteString(fmt.Sprintf("%s = \"%s\"\n", color, value))
 			}
 		}
+		if body.Len() == 0 {
+			continue
+		}
+		content.WriteString(fmt.Sprintf("[colors.%s]\n", group))
+		content.WriteString(body.String())
 		content.WriteString("\n")
 	}
 
 	return content.String()
 }
 
-// updateThemeConfig updates the current theme config from color values
-func (ce *ColorEditor) updateThemeConfig() {
-	ce.currentTheme.Colors.Primary.Background = ce.colorValues["primary.background"]
-	ce.currentTheme.Colors.Primary.Foreground = ce.colorValues["primary.foreground"]
-
-	if ce.colorValues["cursor.text"] != "" {
-		ce.currentTheme.Colors.Cursor.Text = ce.colorValues["cursor.text"]
-	}
-	if ce.colorValues["cursor.cursor"] != "" {
-		ce.currentTheme.Colors.Cursor.Cursor = ce.colorValues["cursor.cursor"]
-	}
-
-	if ce.colorValues["selection.text"] != "" {
-		ce.currentTheme.Colors.Selection.Text = ce.colorValues["selection.text"]
-	}
-	if ce.colorValues["selection.background"] != "" {
-		ce.currentTheme.Colors.Selection.Background = ce.colorValues["selection.background"]
-	}
-
-	for name := range ce.currentTheme.Colors.Normal {
-		if value, exists := ce.colorValues["normal."+name]; exists {
-			ce.currentTheme.Colors.Normal[name] = value
-		}
-	}
-
-	for name := range ce.currentTheme.Colors.Bright {
-		if value, exists := ce.colorValues["bright."+name]; exists {
-			ce.currentTheme.Colors.Bright[name] = value
-		}
-	}
-
-	for name := range ce.currentTheme.Colors.Dim {
-		if value, exists := ce.colorValues["dim."+name]; exists {
-			ce.currentTheme.Colors.Dim[name] = value
-		}
-	}
-}
-
-// resetTheme resets the theme to its original values
+// resetTheme restores every colour to the values last read from disk.
 func (ce *ColorEditor) resetTheme() {
+	if len(ce.originalValues) == 0 {
+		// A generated draft has no saved version; go back to what is applied.
+		if ce.appliedTheme != "" {
+			ce.selectTheme(ce.appliedTheme, true)
+			if idx := ce.indexOfVisible(ce.appliedTheme); idx >= 0 {
+				ce.themeList.SetCurrentItem(idx)
+			}
+			ce.info("Discarded the draft, back to %s", ce.appliedTheme)
+		}
+		return
+	}
 	if ce.themeName == "" {
 		return
 	}
 
-	ce.loadTheme(ce.themeName)
-	ce.buildColorPanel()
-	ce.updatePreview()
-	if len(ce.colorKeys) > 0 {
-		ce.colorPanel.SetCurrentItem(0)
+	ce.colorValues = make(map[string]string, len(ce.originalValues))
+	for key, value := range ce.originalValues {
+		ce.colorValues[key] = value
 	}
-	ce.setStatus("Theme reset to original values")
+	ce.isDirty = false
+	ce.discardArmed = false
+
+	ce.buildColorPanel()
+	ce.colorPanel.SetTitle(ce.colorPanelTitle())
+	ce.updatePreview()
+	ce.scheduleLivePreview()
+	ce.info("Reverted %s to the saved version", ce.themeName)
 }
 
-// applyCurrentTheme applies the currently selected theme
+// persistCurrent writes the working colours to a theme file and applies that
+// file, so the edit survives both the session and the next launch. Downloaded
+// themes are forked rather than overwritten. It reports the name it landed on.
+func (ce *ColorEditor) persistCurrent() (string, bool) {
+	name := ce.themeName
+	if !ce.themeOwned {
+		name = ce.suggestThemeName()
+		ce.themeName = name
+	}
+
+	// Cancel any debounced write still in flight so it cannot land on top.
+	ce.applySeq.Add(1)
+
+	if err := ce.writeTheme(name); err != nil {
+		ce.fail("Could not save %s: %v", name, err)
+		return "", false
+	}
+	if err := ce.themeManager.ApplyTheme(name); err != nil {
+		ce.fail("Saved %s but could not apply it: %v", name, err)
+		return "", false
+	}
+
+	ce.themeOwned = true
+	ce.commitSave(name)
+	ce.refreshThemeList()
+	if idx := ce.indexOfVisible(name); idx >= 0 {
+		ce.themeList.SetCurrentItem(idx)
+	}
+	return name, true
+}
+
+// applyCurrentTheme makes what is on screen the theme, for good.
+//
+// On an untouched theme it is just an immediate apply, skipping the debounce
+// browsing relies on. With unsaved edits it also writes them out: an apply that
+// only reached the live preview would be lost the moment you moved the cursor,
+// which is not what pressing apply should mean.
 func (ce *ColorEditor) applyCurrentTheme() {
 	if ce.themeName == "" {
-		ce.setStatus("No theme selected to apply")
+		ce.warn("No theme selected to apply")
 		return
 	}
 
-	if ce.isDirty {
-		ce.saveTheme()
+	if !ce.isDirty {
+		ce.applyThemeNow(ce.themeName)
+		return
 	}
 
-	if err := ce.themeManager.ApplyTheme(ce.themeName); err != nil {
-		ce.setStatus(fmt.Sprintf("Failed to apply theme: %v", err))
-	} else {
-		ce.appliedTheme = ce.themeName
-		ce.setStatus(fmt.Sprintf("Theme '%s' applied successfully | e: edit copy | d: delete | p: parameters | f: font | q: quit", ce.themeName))
-		ce.refreshThemeList()
+	if name, ok := ce.persistCurrent(); ok {
+		ce.info("Saved and applied %s", name)
 	}
 }
 
-// createThemeCopy creates an editable copy of the current theme
+// quitAndKeep leaves the editor with whatever is on screen already applied,
+// committing unsaved edits on the way out rather than throwing them away.
+func (ce *ColorEditor) quitAndKeep() {
+	if !ce.isDirty || ce.themeName == "" {
+		ce.applySeq.Add(1)
+		ce.app.Stop()
+		return
+	}
+
+	name, ok := ce.persistCurrent()
+	if !ok {
+		// The failure is on screen; a second q leaves without retrying.
+		ce.isDirty = false
+		return
+	}
+
+	ce.exitNote = fmt.Sprintf("Saved and applied %s", name)
+	ce.app.Stop()
+}
+
+// createThemeCopy forks the current theme so it can be edited freely.
 func (ce *ColorEditor) createThemeCopy() {
 	if ce.themeName == "" {
 		return
 	}
 
-	originalName := ce.themeName
-	if strings.Contains(originalName, EditedThemeSuffix) {
-		parts := strings.Split(originalName, EditedThemeSuffix)
-		originalName = parts[0]
+	copyName := ce.suggestThemeName()
+	if err := ce.writeTheme(copyName); err != nil {
+		ce.fail("Failed to create copy: %v", err)
+		return
 	}
-	timestamp := time.Now().Format("150405")
-	copyName := fmt.Sprintf("%s%s%s", originalName, EditedThemeSuffix, timestamp)
 
 	ce.themeName = copyName
-	ce.colorPanel.SetTitle(fmt.Sprintf(" Color Palette - %s (Copy) ", copyName))
-
-	go func(themeName string) {
-		ce.updateThemeConfig()
-		if err := ce.saveThemeToFile(); err == nil {
-			if err := ce.themeManager.ApplyTheme(themeName); err != nil {
-				ce.app.QueueUpdateDraw(func() {
-					ce.setStatus(fmt.Sprintf("Failed to apply copy: %v", err))
-				})
-			} else {
-				ce.app.QueueUpdateDraw(func() {
-					ce.setStatus(fmt.Sprintf("Created and applied copy: %s - Ready to edit", themeName))
-					ce.appliedTheme = themeName
-					ce.refreshThemeList()
-				})
-			}
-		} else {
-			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus(fmt.Sprintf("Failed to save copy: %v", err))
-			})
-		}
-	}(copyName)
+	ce.themeOwned = true
+	ce.commitSave(copyName)
+	ce.refreshThemeList()
+	if idx := ce.indexOfVisible(copyName); idx >= 0 {
+		ce.themeList.SetCurrentItem(idx)
+	}
+	ce.applyThemeNow(copyName)
+	ce.info("Editing copy %s — the original is untouched", copyName)
 }
 
-// deleteCurrentTheme deletes the currently selected edited theme
+// deleteCurrentTheme deletes a theme this tool created.
 func (ce *ColorEditor) deleteCurrentTheme() {
-	if ce.themeName == "" {
-		ce.setStatus("No theme selected to delete")
+	// Prefer the theme actually loaded in the editor; fall back to the list
+	// cursor when that theme is an unsaved draft with no file yet.
+	name := ce.themeName
+	if name == "" || !ce.themeExists(name) {
+		name = ce.currentVisibleName()
+	}
+	if name == "" {
+		ce.warn("No theme selected to delete")
+		return
+	}
+	if !ce.fileIsOwned(ce.config.GetThemePath(name)) {
+		ce.warn("%s is a downloaded theme — press e to fork it instead", name)
 		return
 	}
 
-	if !strings.Contains(ce.themeName, EditedThemeSuffix) {
-		ce.setStatus("Cannot delete base theme. Only edited versions can be deleted.")
-		return
-	}
-
-	ce.showDeleteConfirmation()
+	ce.showDeleteConfirmation(name)
 }
 
 // performThemeDelete actually deletes the theme file
-func (ce *ColorEditor) performThemeDelete() {
-	themeFile := ce.config.GetThemePath(ce.themeName)
-	if err := os.Remove(themeFile); err != nil {
-		ce.setStatus(fmt.Sprintf("Failed to delete theme: %v", err))
+func (ce *ColorEditor) performThemeDelete(name string) {
+	if err := os.Remove(ce.config.GetThemePath(name)); err != nil {
+		ce.fail("Failed to delete theme: %v", err)
 		return
 	}
 
-	if ce.appliedTheme == ce.themeName {
-		trackingFile := ce.config.GetThemePath(".current-theme")
-		os.Remove(trackingFile)
+	delete(ce.favorites, name)
+	_ = ce.saveFavorites()
+
+	if ce.appliedTheme == name {
+		os.Remove(ce.config.GetThemePath(".current-theme"))
 		ce.appliedTheme = ""
 	}
 
-	ce.setStatus(fmt.Sprintf("Theme '%s' deleted successfully", ce.themeName))
 	ce.refreshThemeList()
-
-	if ce.themeList.GetItemCount() > 0 {
-		ce.themeList.SetCurrentItem(0)
-		themeName, _ := ce.themeList.GetItemText(0)
-		themeName = strings.TrimPrefix(themeName, CurrentThemeMarker)
-		themeName = strings.TrimPrefix(themeName, "♥ ")
-		ce.onThemeSelected(0, themeName, "", 0)
+	if next := ce.currentVisibleName(); next != "" {
+		ce.selectTheme(next, true)
 	}
+	ce.info("Deleted %s", name)
 }
 
 // cleanAndRedownloadThemes cleans and redownloads all themes
 func (ce *ColorEditor) cleanAndRedownloadThemes() {
-	go func() {
-		ce.app.QueueUpdateDraw(func() {
-			ce.setStatus("Cleaning and redownloading themes...")
-		})
+	ce.info("Cleaning and redownloading themes…")
 
-		if err := ce.parametersManager.CleanAndRedownloadThemes(); err != nil {
-			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus(fmt.Sprintf("Failed to clean and redownload themes: %v", err))
-			})
-		} else {
-			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus("Themes cleaned and redownloaded successfully")
-				ce.loadThemes()
-			})
-		}
+	go func() {
+		err := ce.parametersManager.CleanAndRedownloadThemes()
+		ce.app.QueueUpdateDraw(func() {
+			if err != nil {
+				ce.fail("Failed to redownload themes: %v", err)
+				return
+			}
+			ce.loadThemes()
+			ce.info("Themes redownloaded (%d)", len(ce.allThemes))
+		})
 	}()
 }
 
 // backupCurrentConfig creates a backup of the current config
 func (ce *ColorEditor) backupCurrentConfig() {
-	go func() {
-		ce.app.QueueUpdateDraw(func() {
-			ce.setStatus("Creating backup of current configuration...")
-		})
+	ce.info("Backing up your configuration…")
 
-		if err := ce.parametersManager.BackupConfig(); err != nil {
-			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus(fmt.Sprintf("Failed to backup config: %v", err))
-			})
-		} else {
-			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus("Configuration backed up successfully")
-			})
-		}
+	go func() {
+		err := ce.parametersManager.BackupConfig()
+		ce.app.QueueUpdateDraw(func() {
+			if err != nil {
+				ce.fail("Failed to back up config: %v", err)
+				return
+			}
+			ce.info("Configuration backed up")
+		})
 	}()
 }
 
 // resetToDefaults resets to default configuration
 func (ce *ColorEditor) resetToDefaults() {
-	go func() {
-		ce.app.QueueUpdateDraw(func() {
-			ce.setStatus("Resetting to default configuration...")
-		})
+	ce.info("Resetting configuration…")
 
-		if err := ce.parametersManager.ResetToDefaults(); err != nil {
-			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus(fmt.Sprintf("Failed to reset to defaults: %v", err))
-			})
-		} else {
-			ce.app.QueueUpdateDraw(func() {
-				ce.setStatus("Configuration reset to defaults successfully")
-			})
-		}
+	go func() {
+		err := ce.parametersManager.ResetToDefaults()
+		ce.app.QueueUpdateDraw(func() {
+			if err != nil {
+				ce.fail("Failed to reset configuration: %v", err)
+				return
+			}
+			ce.info("Configuration reset to defaults")
+		})
 	}()
 }

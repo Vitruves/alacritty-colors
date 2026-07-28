@@ -4,87 +4,84 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"sort"
 )
 
 // FavoritesFile is the name of the favorites storage file
 const FavoritesFile = "favorites.json"
 
-// loadFavorites loads the favorites list from disk
-func (ce *ColorEditor) loadFavorites() []string {
-	favPath := filepath.Join(filepath.Dir(ce.config.ConfigFile), FavoritesFile)
+func (ce *ColorEditor) favoritesPath() string {
+	return filepath.Join(filepath.Dir(ce.config.ConfigFile), FavoritesFile)
+}
 
-	data, err := os.ReadFile(favPath)
+// loadFavorites reads favorites.json once at startup. The result is cached in
+// memory: the list is redrawn on every keystroke and must not hit the disk.
+func (ce *ColorEditor) loadFavorites() map[string]bool {
+	favorites := make(map[string]bool)
+
+	data, err := os.ReadFile(ce.favoritesPath())
 	if err != nil {
-		return []string{}
+		return favorites
 	}
 
-	var favorites []string
-	if err := json.Unmarshal(data, &favorites); err != nil {
-		return []string{}
+	var names []string
+	if err := json.Unmarshal(data, &names); err != nil {
+		return favorites
+	}
+	for _, name := range names {
+		favorites[name] = true
 	}
 
 	return favorites
 }
 
-// saveFavorites saves the favorites list to disk
-func (ce *ColorEditor) saveFavorites(favorites []string) error {
-	favPath := filepath.Join(filepath.Dir(ce.config.ConfigFile), FavoritesFile)
+// saveFavorites persists the in-memory set, sorted for a stable diff.
+func (ce *ColorEditor) saveFavorites() error {
+	names := make([]string, 0, len(ce.favorites))
+	for name := range ce.favorites {
+		names = append(names, name)
+	}
+	sort.Strings(names)
 
-	data, err := json.MarshalIndent(favorites, "", "  ")
+	data, err := json.MarshalIndent(names, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(favPath, data, 0644)
-}
-
-// isFavorite checks if a theme is in the favorites list
-func (ce *ColorEditor) isFavorite(themeName string) bool {
-	favorites := ce.loadFavorites()
-	for _, fav := range favorites {
-		if fav == themeName {
-			return true
-		}
-	}
-	return false
+	return os.WriteFile(ce.favoritesPath(), data, 0644)
 }
 
 // toggleFavorite adds or removes the current theme from favorites
 func (ce *ColorEditor) toggleFavorite() {
-	if ce.themeName == "" {
-		ce.setStatus("No theme selected")
+	name := ce.currentVisibleName()
+	if name == "" {
+		name = ce.themeName
+	}
+	if name == "" {
+		ce.warn("No theme selected")
 		return
 	}
 
-	favorites := ce.loadFavorites()
-
-	// Check if already favorite
-	found := -1
-	for i, fav := range favorites {
-		if fav == ce.themeName {
-			found = i
-			break
-		}
-	}
-
-	if found >= 0 {
-		// Remove from favorites
-		favorites = append(favorites[:found], favorites[found+1:]...)
-		if err := ce.saveFavorites(favorites); err != nil {
-			ce.setStatus("Failed to update favorites: " + err.Error())
-			return
-		}
-		ce.setStatus("Removed from favorites: " + ce.themeName)
+	if ce.favorites[name] {
+		delete(ce.favorites, name)
 	} else {
-		// Add to favorites
-		favorites = append(favorites, ce.themeName)
-		if err := ce.saveFavorites(favorites); err != nil {
-			ce.setStatus("Failed to update favorites: " + err.Error())
-			return
-		}
-		ce.setStatus("Added to favorites: " + ce.themeName)
+		ce.favorites[name] = true
 	}
 
-	// Refresh the theme list to show the heart icon
-	ce.refreshThemeList()
+	if err := ce.saveFavorites(); err != nil {
+		ce.fail("Failed to update favourites: %v", err)
+		return
+	}
+
+	if ce.favOnly {
+		ce.rebuildThemeList()
+	} else if idx := ce.indexOfVisible(name); idx >= 0 {
+		ce.themeList.SetItemText(idx, ce.formatThemeItem(name), "")
+	}
+
+	if ce.favorites[name] {
+		ce.info("♥ %s added to favourites", name)
+	} else {
+		ce.info("%s removed from favourites", name)
+	}
 }

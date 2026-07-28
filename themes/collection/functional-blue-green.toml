@@ -1,0 +1,45 @@
+# alacritty-colors collection · Functional Blue Green
+# Birren · The hue he prescribed for sustained work
+
+[colors.primary]
+background = "#08161a"
+foreground = "#c8dcdc"
+
+[colors.cursor]
+text = "#08161a"
+cursor = "#2e9aa0"
+
+[colors.selection]
+text = "#c8dcdc"
+background = "#204861"
+
+[colors.normal]
+black = "#2c2f30"
+red = "#d75550"
+green = "#48d586"
+yellow = "#d5d048"
+blue = "#489ad5"
+magenta = "#b959d9"
+cyan = "#48ced5"
+white = "#c4c8ca"
+
+[colors.bright]
+black = "#52595b"
+red = "#dc8b89"
+green = "#89dcad"
+yellow = "#dcd989"
+blue = "#89b9dc"
+magenta = "#c889dc"
+cyan = "#89d8dc"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#a23835"
+green = "#35a264"
+yellow = "#a29d35"
+blue = "#3574a2"
+magenta = "#8635a2"
+cyan = "#359ca2"
+white = "#99a1a3"
+

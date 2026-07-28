@@ -1,0 +1,45 @@
+# alacritty-colors collection · Yellow Aspiration
+# Luscher · Bright yellow, the fourth
+
+[colors.primary]
+background = "#16150a"
+foreground = "#e2dfc0"
+
+[colors.cursor]
+text = "#16150a"
+cursor = "#d4c22e"
+
+[colors.selection]
+text = "#e2dfc0"
+background = "#2d3d5b"
+
+[colors.normal]
+black = "#30302c"
+red = "#dc6842"
+green = "#5cdc42"
+yellow = "#dccb42"
+blue = "#537ddf"
+magenta = "#dc42ab"
+cyan = "#42dcc5"
+white = "#cac9c4"
+
+[colors.bright]
+black = "#5b5a52"
+red = "#e19b84"
+green = "#94e184"
+yellow = "#e1d784"
+blue = "#84a0e1"
+magenta = "#e184c4"
+cyan = "#84e1d3"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#20201d"
+red = "#a84d2f"
+green = "#43a82f"
+yellow = "#a89a2f"
+blue = "#2f53a8"
+magenta = "#a82f81"
+cyan = "#2fa895"
+white = "#a3a299"
+

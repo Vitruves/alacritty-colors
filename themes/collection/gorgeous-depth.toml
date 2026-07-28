@@ -1,0 +1,45 @@
+# alacritty-colors collection · Gorgeous Depth
+# Image Scale · Saturated and dark, the rich corner
+
+[colors.primary]
+background = "#120a14"
+foreground = "#ddccdc"
+
+[colors.cursor]
+text = "#120a14"
+cursor = "#bf4fab"
+
+[colors.selection]
+text = "#ddccdc"
+background = "#343063"
+
+[colors.normal]
+black = "#2f2c30"
+red = "#de3f5c"
+green = "#3fde55"
+yellow = "#dea53f"
+blue = "#6b6de5"
+magenta = "#de3fc2"
+cyan = "#3fb1de"
+white = "#c9c4ca"
+
+[colors.bright]
+black = "#59525b"
+red = "#e38294"
+green = "#82e38f"
+yellow = "#e3c082"
+blue = "#8284e3"
+magenta = "#e382d1"
+cyan = "#82c7e3"
+white = "#f0eff0"
+
+[colors.dim]
+black = "#201d20"
+red = "#aa2c43"
+green = "#2caa3d"
+yellow = "#aa7c2c"
+blue = "#2c2eaa"
+magenta = "#aa2c94"
+cyan = "#2c86aa"
+white = "#a199a3"
+

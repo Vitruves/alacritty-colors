@@ -1,0 +1,45 @@
+# alacritty-colors collection · Violet Identity
+# Luscher · Violet, between red and blue
+
+[colors.primary]
+background = "#100c18"
+foreground = "#d4cee0"
+
+[colors.cursor]
+text = "#100c18"
+cursor = "#8f65cd"
+
+[colors.selection]
+text = "#d4cee0"
+background = "#333266"
+
+[colors.normal]
+black = "#2d2c30"
+red = "#dc425e"
+green = "#42dc85"
+yellow = "#dca442"
+blue = "#6d6fe4"
+magenta = "#b84bde"
+cyan = "#42b0dc"
+white = "#c6c4ca"
+
+[colors.bright]
+black = "#55525b"
+red = "#e18495"
+green = "#84e1ad"
+yellow = "#e1bf84"
+blue = "#8486e1"
+magenta = "#ca84e1"
+cyan = "#84c7e1"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1e1d20"
+red = "#a82f45"
+green = "#2fa863"
+yellow = "#a87c2f"
+blue = "#2f31a8"
+magenta = "#8a2fa8"
+cyan = "#2f85a8"
+white = "#9c99a3"
+

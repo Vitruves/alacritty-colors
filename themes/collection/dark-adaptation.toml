@@ -1,0 +1,45 @@
+# alacritty-colors collection · Dark Adaptation
+# Scotopic · Twenty minutes to full sensitivity
+
+[colors.primary]
+background = "#060606"
+foreground = "#c8c8c8"
+
+[colors.cursor]
+text = "#060606"
+cursor = "#7a7a7a"
+
+[colors.selection]
+text = "#c8c8c8"
+background = "#2c2d53"
+
+[colors.normal]
+black = "#302c2c"
+red = "#ca5353"
+green = "#67ca53"
+yellow = "#ca9f53"
+blue = "#6a6cd1"
+magenta = "#ca53a5"
+cyan = "#53c3ca"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#d59090"
+green = "#9cd590"
+yellow = "#d5bc90"
+blue = "#9091d5"
+magenta = "#d590bf"
+cyan = "#90d0d5"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#973f3f"
+green = "#4e973f"
+yellow = "#97773f"
+blue = "#3f4197"
+magenta = "#973f7b"
+cyan = "#3f9197"
+white = "#a39999"
+

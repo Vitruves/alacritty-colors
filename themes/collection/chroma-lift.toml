@@ -1,0 +1,45 @@
+# alacritty-colors collection · Chroma Lift
+# Affect · Saturation raised, brightness held
+
+[colors.primary]
+background = "#0e0c14"
+foreground = "#d4cee0"
+
+[colors.cursor]
+text = "#0e0c14"
+cursor = "#9062da"
+
+[colors.selection]
+text = "#d4cee0"
+background = "#313064"
+
+[colors.normal]
+black = "#2d2c30"
+red = "#df3e5c"
+green = "#3edf85"
+yellow = "#dfa53e"
+blue = "#6a6ce6"
+magenta = "#ba47e0"
+cyan = "#3eb2df"
+white = "#c5c4ca"
+
+[colors.bright]
+black = "#55525b"
+red = "#e38294"
+green = "#82e3ac"
+yellow = "#e3c082"
+blue = "#8284e3"
+magenta = "#cb82e3"
+cyan = "#82c8e3"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1e1d20"
+red = "#ab2b43"
+green = "#2bab63"
+yellow = "#ab7d2b"
+blue = "#2b2eab"
+magenta = "#8b2bab"
+cyan = "#2b87ab"
+white = "#9c99a3"
+

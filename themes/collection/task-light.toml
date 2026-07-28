@@ -1,0 +1,45 @@
+# alacritty-colors collection · Task Light
+# Birren · Warm light over the work surface
+
+[colors.primary]
+background = "#fbfbf7"
+foreground = "#26261f"
+
+[colors.cursor]
+text = "#fbfbf7"
+cursor = "#8a6a20"
+
+[colors.selection]
+text = "#26261f"
+background = "#abbadb"
+
+[colors.normal]
+black = "#4b4b44"
+red = "#ae4a29"
+green = "#2d7c1d"
+yellow = "#8d6c21"
+blue = "#2951ae"
+magenta = "#ae2984"
+cyan = "#1d7c6e"
+white = "#a3a399"
+
+[colors.bright]
+black = "#252522"
+red = "#7e3c26"
+green = "#357e26"
+yellow = "#7e6326"
+blue = "#26407e"
+magenta = "#7e2662"
+cyan = "#267e70"
+white = "#7b7b6f"
+
+[colors.dim]
+black = "#606057"
+red = "#c46c4f"
+green = "#63c44f"
+yellow = "#c4a14f"
+blue = "#4f72c4"
+magenta = "#c44f9f"
+cyan = "#4fc4b3"
+white = "#bbbbb4"
+

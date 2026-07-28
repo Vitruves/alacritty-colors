@@ -1,0 +1,45 @@
+# alacritty-colors collection · Aloe
+# Calm · Mint on white, clean and cool
+
+[colors.primary]
+background = "#f1f9f4"
+foreground = "#1d2a24"
+
+[colors.cursor]
+text = "#f1f9f4"
+cursor = "#2a7d5d"
+
+[colors.selection]
+text = "#1d2a24"
+background = "#a5c7d9"
+
+[colors.normal]
+black = "#444b47"
+red = "#ae2d29"
+green = "#1d7c47"
+yellow = "#74711b"
+blue = "#2976ae"
+magenta = "#8d29ae"
+cyan = "#1d7c6e"
+white = "#99a39d"
+
+[colors.bright]
+black = "#222523"
+red = "#7e2826"
+green = "#267e4c"
+yellow = "#767224"
+blue = "#26597e"
+magenta = "#68267e"
+cyan = "#267e70"
+white = "#6f7b74"
+
+[colors.dim]
+black = "#57605b"
+red = "#c4534f"
+green = "#4fc482"
+yellow = "#c4c04f"
+blue = "#4f93c4"
+magenta = "#a74fc4"
+cyan = "#4fc4b3"
+white = "#b4bbb7"
+

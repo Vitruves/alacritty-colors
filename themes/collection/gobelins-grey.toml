@@ -1,0 +1,45 @@
+# alacritty-colors collection · Gobelins Grey
+# Colour Order · Where he found the effect, in the dye works
+
+[colors.primary]
+background = "#141414"
+foreground = "#d4d4d4"
+
+[colors.cursor]
+text = "#141414"
+cursor = "#8a8a92"
+
+[colors.selection]
+text = "#d4d4d4"
+background = "#3a3b5e"
+
+[colors.normal]
+black = "#302c2c"
+red = "#cd5a6f"
+green = "#52cb87"
+yellow = "#cbb352"
+blue = "#797bd7"
+magenta = "#b15acd"
+cyan = "#52a9cb"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#d68f9c"
+green = "#8fd6ae"
+yellow = "#d6c88f"
+blue = "#8f91d6"
+magenta = "#c48fd6"
+cyan = "#8fc2d6"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#983e4f"
+green = "#3e9865"
+yellow = "#98863e"
+blue = "#3e4098"
+magenta = "#823e98"
+cyan = "#3e7f98"
+white = "#a39999"
+

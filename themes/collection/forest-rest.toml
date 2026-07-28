@@ -1,0 +1,45 @@
+# alacritty-colors collection · Forest Rest
+# Calm · Green depth, easy on a long afternoon
+
+[colors.primary]
+background = "#0b1610"
+foreground = "#c9d8cc"
+
+[colors.cursor]
+text = "#0b1610"
+cursor = "#46a35e"
+
+[colors.selection]
+text = "#c9d8cc"
+background = "#23485a"
+
+[colors.normal]
+black = "#2c302e"
+red = "#d36c4a"
+green = "#4ad36e"
+yellow = "#d3ce4a"
+blue = "#4a9ad3"
+magenta = "#d34acf"
+cyan = "#4ad3bf"
+white = "#c4cac7"
+
+[colors.bright]
+black = "#525b56"
+red = "#db9e8a"
+green = "#8adb9f"
+yellow = "#dbd88a"
+blue = "#8ab9db"
+magenta = "#db8ad8"
+cyan = "#8adbcf"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d201e"
+red = "#a05136"
+green = "#36a052"
+yellow = "#a09c36"
+blue = "#3674a0"
+magenta = "#a0369c"
+cyan = "#36a090"
+white = "#99a39e"
+

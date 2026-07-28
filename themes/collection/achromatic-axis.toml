@@ -1,0 +1,45 @@
+# alacritty-colors collection · Achromatic Axis
+# Opponent · Only the black-white channel left
+
+[colors.primary]
+background = "#101010"
+foreground = "#dcdcdc"
+
+[colors.cursor]
+text = "#101010"
+cursor = "#9a9a9a"
+
+[colors.selection]
+text = "#dcdcdc"
+background = "#35365a"
+
+[colors.normal]
+black = "#302c2c"
+red = "#cd5a5a"
+green = "#67cb52"
+yellow = "#cb9f52"
+blue = "#7173d4"
+magenta = "#cb52a5"
+cyan = "#52c3cb"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#d68f8f"
+green = "#9bd68f"
+yellow = "#d6bc8f"
+blue = "#8f91d6"
+magenta = "#d68fc0"
+cyan = "#8fd1d6"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#983e3e"
+green = "#4d983e"
+yellow = "#98773e"
+blue = "#3e4098"
+magenta = "#983e7c"
+cyan = "#3e9298"
+white = "#a39999"
+

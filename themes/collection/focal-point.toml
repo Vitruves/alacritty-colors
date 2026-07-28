@@ -1,0 +1,45 @@
+# alacritty-colors collection · Focal Point
+# Birren · One warm accent to hold the eye
+
+[colors.primary]
+background = "#0c1014"
+foreground = "#ccd4dc"
+
+[colors.cursor]
+text = "#0c1014"
+cursor = "#d8a030"
+
+[colors.selection]
+text = "#ccd4dc"
+background = "#253760"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d96a45"
+green = "#5ed945"
+yellow = "#d9a745"
+blue = "#4d77db"
+magenta = "#d945aa"
+cyan = "#45d9c3"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#df9c86"
+green = "#95df86"
+yellow = "#dfc186"
+blue = "#86a1df"
+magenta = "#df86c3"
+cyan = "#86dfd2"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#a54e31"
+green = "#45a531"
+yellow = "#a57e31"
+blue = "#3154a5"
+magenta = "#a53180"
+cyan = "#31a594"
+white = "#999ea3"
+

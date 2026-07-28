@@ -1,0 +1,45 @@
+# alacritty-colors collection · Muted Submission
+# Affect · Low brightness, low chroma
+
+[colors.primary]
+background = "#141618"
+foreground = "#ccced2"
+
+[colors.cursor]
+text = "#141618"
+cursor = "#808c94"
+
+[colors.selection]
+text = "#ccced2"
+background = "#2c425c"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#cc605c"
+green = "#54ca87"
+yellow = "#cab254"
+blue = "#548bca"
+magenta = "#b05ccc"
+cyan = "#54b6ca"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d49391"
+green = "#91d4ae"
+yellow = "#d4c791"
+blue = "#91b0d4"
+magenta = "#c491d4"
+cyan = "#91c9d4"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#964340"
+green = "#409666"
+yellow = "#968540"
+blue = "#406896"
+magenta = "#814096"
+cyan = "#408896"
+white = "#999ea3"
+

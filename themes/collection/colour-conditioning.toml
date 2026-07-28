@@ -1,0 +1,45 @@
+# alacritty-colors collection · Colour Conditioning
+# Birren · His term for designing a room by its use
+
+[colors.primary]
+background = "#101418"
+foreground = "#ccd4da"
+
+[colors.cursor]
+text = "#101418"
+cursor = "#5f8fb4"
+
+[colors.selection]
+text = "#ccd4da"
+background = "#26405f"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d45853"
+green = "#4bd286"
+yellow = "#d2b74b"
+blue = "#4b89d2"
+magenta = "#b553d4"
+cyan = "#4bbad2"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#da8d8b"
+green = "#8bdaad"
+yellow = "#daca8b"
+blue = "#8bafda"
+magenta = "#c78bda"
+cyan = "#8bccda"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#9f3b38"
+green = "#389f65"
+yellow = "#9f8a38"
+blue = "#38679f"
+magenta = "#85389f"
+cyan = "#388c9f"
+white = "#999ea3"
+

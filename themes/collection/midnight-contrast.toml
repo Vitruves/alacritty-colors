@@ -1,0 +1,45 @@
+# alacritty-colors collection · Midnight Contrast
+# Contrast · True black, maximum separation
+
+[colors.primary]
+background = "#000000"
+foreground = "#f2f2f2"
+
+[colors.cursor]
+text = "#000000"
+cursor = "#4d8ef0"
+
+[colors.selection]
+text = "#f2f2f2"
+background = "#1a2f53"
+
+[colors.normal]
+black = "#302c2c"
+red = "#da445f"
+green = "#44da85"
+yellow = "#dabc44"
+blue = "#447cda"
+magenta = "#b544da"
+cyan = "#44b3da"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#df8696"
+green = "#86dfad"
+yellow = "#dfcd86"
+blue = "#86a7df"
+magenta = "#c986df"
+cyan = "#86c8df"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#a63046"
+green = "#30a664"
+yellow = "#a68e30"
+blue = "#305ca6"
+magenta = "#8930a6"
+cyan = "#3087a6"
+white = "#a39999"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Evening Filter
+# Circadian · The last working hours, filtered
+
+[colors.primary]
+background = "#16110a"
+foreground = "#e2d4bc"
+
+[colors.cursor]
+text = "#16110a"
+cursor = "#d8a344"
+
+[colors.selection]
+text = "#e2d4bc"
+background = "#2e3a5a"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d96a45"
+green = "#5ed945"
+yellow = "#d9a445"
+blue = "#567edc"
+magenta = "#d945aa"
+cyan = "#45d9c3"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5752"
+red = "#df9c86"
+green = "#95df86"
+yellow = "#dfbf86"
+blue = "#86a1df"
+magenta = "#df86c3"
+cyan = "#86dfd2"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a54e31"
+green = "#45a531"
+yellow = "#a57c31"
+blue = "#3154a5"
+magenta = "#a53180"
+cyan = "#31a594"
+white = "#a39f99"
+

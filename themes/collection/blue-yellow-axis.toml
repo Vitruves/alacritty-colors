@@ -1,0 +1,45 @@
+# alacritty-colors collection · Blue Yellow Axis
+# Opponent · The second axis takes the lead
+
+[colors.primary]
+background = "#0c0f18"
+foreground = "#ccd2e0"
+
+[colors.cursor]
+text = "#0c0f18"
+cursor = "#d0b040"
+
+[colors.selection]
+text = "#ccd2e0"
+background = "#253762"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d86a46"
+green = "#5fd846"
+yellow = "#d8b746"
+blue = "#4e78da"
+magenta = "#d846aa"
+cyan = "#46d8c2"
+white = "#c4c5ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#de9d87"
+green = "#96de87"
+yellow = "#decb87"
+blue = "#87a1de"
+magenta = "#de87c3"
+cyan = "#87ded1"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a44f32"
+green = "#45a432"
+yellow = "#a48b32"
+blue = "#3254a4"
+magenta = "#a43280"
+cyan = "#32a493"
+white = "#999ca3"
+

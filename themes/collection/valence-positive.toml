@@ -1,0 +1,45 @@
+# alacritty-colors collection · Valence Positive
+# Affect · Bright and green-leaning
+
+[colors.primary]
+background = "#0c1410"
+foreground = "#ccd8ce"
+
+[colors.cursor]
+text = "#0c1410"
+cursor = "#4aa868"
+
+[colors.selection]
+text = "#ccd8ce"
+background = "#22475c"
+
+[colors.normal]
+black = "#2c302e"
+red = "#d86a46"
+green = "#46d874"
+yellow = "#d8d246"
+blue = "#469bd8"
+magenta = "#d846d3"
+cyan = "#46d8c2"
+white = "#c4cac7"
+
+[colors.bright]
+black = "#525b57"
+red = "#de9d87"
+green = "#87dea3"
+yellow = "#dedb87"
+blue = "#87bade"
+magenta = "#de87db"
+cyan = "#87ded1"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d201f"
+red = "#a44f32"
+green = "#32a456"
+yellow = "#a4a032"
+blue = "#3274a4"
+magenta = "#a432a0"
+cyan = "#32a493"
+white = "#99a39e"
+

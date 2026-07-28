@@ -1,0 +1,45 @@
+# alacritty-colors collection · Red Green Axis
+# Opponent · One axis pushed, the other quiet
+
+[colors.primary]
+background = "#101210"
+foreground = "#d4d8d2"
+
+[colors.cursor]
+text = "#101210"
+cursor = "#46a05a"
+
+[colors.selection]
+text = "#d4d8d2"
+background = "#24465d"
+
+[colors.normal]
+black = "#2c302c"
+red = "#da6944"
+green = "#44da65"
+yellow = "#dad444"
+blue = "#449bda"
+magenta = "#da44d5"
+cyan = "#44dac3"
+white = "#c4cac4"
+
+[colors.bright]
+black = "#525b52"
+red = "#df9c86"
+green = "#86df9a"
+yellow = "#dfdc86"
+blue = "#86badf"
+magenta = "#df86dc"
+cyan = "#86dfd2"
+white = "#eff0ef"
+
+[colors.dim]
+black = "#1d201d"
+red = "#a64e30"
+green = "#30a64a"
+yellow = "#a6a130"
+blue = "#3075a6"
+magenta = "#a630a2"
+cyan = "#30a694"
+white = "#99a399"
+

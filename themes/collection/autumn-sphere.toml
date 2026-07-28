@@ -1,0 +1,45 @@
+# alacritty-colors collection · Autumn Sphere
+# Itten · The warm, muted quarter of his sphere
+
+[colors.primary]
+background = "#16110c"
+foreground = "#e0d2c0"
+
+[colors.cursor]
+text = "#16110c"
+cursor = "#b8763a"
+
+[colors.selection]
+text = "#e0d2c0"
+background = "#2f3b5b"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d76b47"
+green = "#5fd747"
+yellow = "#d7a347"
+blue = "#587fdb"
+magenta = "#d747a9"
+cyan = "#47cdd7"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5752"
+red = "#dd9d88"
+green = "#96dd88"
+yellow = "#ddbe88"
+blue = "#88a1dd"
+magenta = "#dd88c2"
+cyan = "#88d8dd"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a34f33"
+green = "#46a333"
+yellow = "#a37a33"
+blue = "#3355a3"
+magenta = "#a33380"
+cyan = "#339ba3"
+white = "#a39e99"
+

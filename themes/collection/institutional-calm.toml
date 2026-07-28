@@ -1,0 +1,45 @@
+# alacritty-colors collection · Institutional Calm
+# Birren · The green of a room meant to settle you
+
+[colors.primary]
+background = "#f4f7f6"
+foreground = "#212a28"
+
+[colors.cursor]
+text = "#f4f7f6"
+cursor = "#34786e"
+
+[colors.selection]
+text = "#212a28"
+background = "#a7c6da"
+
+[colors.normal]
+black = "#444b49"
+red = "#ad2e2a"
+green = "#1e7c47"
+yellow = "#74701c"
+blue = "#2a76ad"
+magenta = "#8c2aad"
+cyan = "#1e7c6d"
+white = "#99a3a0"
+
+[colors.bright]
+black = "#222524"
+red = "#7d2926"
+green = "#267d4c"
+yellow = "#757224"
+blue = "#26597d"
+magenta = "#67267d"
+cyan = "#267d70"
+white = "#6f7b77"
+
+[colors.dim]
+black = "#57605d"
+red = "#c35450"
+green = "#50c382"
+yellow = "#c3bf50"
+blue = "#5093c3"
+magenta = "#a750c3"
+cyan = "#50c3b2"
+white = "#b4bbb9"
+

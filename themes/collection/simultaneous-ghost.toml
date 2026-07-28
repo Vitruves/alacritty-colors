@@ -1,0 +1,45 @@
+# alacritty-colors collection · Simultaneous Ghost
+# Itten · The colour an eye invents beside another
+
+[colors.primary]
+background = "#14120f"
+foreground = "#dcd6cc"
+
+[colors.cursor]
+text = "#14120f"
+cursor = "#7ea87e"
+
+[colors.selection]
+text = "#dcd6cc"
+background = "#294659"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d26d4b"
+green = "#4bd24b"
+yellow = "#d2cd4b"
+blue = "#4b9ad2"
+magenta = "#d24bce"
+cyan = "#4bd2be"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5852"
+red = "#da9f8b"
+green = "#8bda8b"
+yellow = "#dad78b"
+blue = "#8bb9da"
+magenta = "#da8bd8"
+cyan = "#8bdace"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#9f5138"
+green = "#389f38"
+yellow = "#9f9b38"
+blue = "#38739f"
+magenta = "#9f389b"
+cyan = "#389f8f"
+white = "#a39f99"
+

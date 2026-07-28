@@ -1,0 +1,45 @@
+# alacritty-colors collection · Orchid Hour
+# Imagination · Orchid, soft and strange
+
+[colors.primary]
+background = "#170f1a"
+foreground = "#dfcfe2"
+
+[colors.cursor]
+text = "#170f1a"
+cursor = "#b064c4"
+
+[colors.selection]
+text = "#dfcfe2"
+background = "#3b3768"
+
+[colors.normal]
+black = "#2f2c30"
+red = "#de4a65"
+green = "#41dc56"
+yellow = "#dca441"
+blue = "#7577e6"
+magenta = "#bf4ade"
+cyan = "#41b0dc"
+white = "#c8c4ca"
+
+[colors.bright]
+black = "#59525b"
+red = "#e18495"
+green = "#84e190"
+yellow = "#e1bf84"
+blue = "#8485e1"
+magenta = "#ce84e1"
+cyan = "#84c7e1"
+white = "#f0eff0"
+
+[colors.dim]
+black = "#1f1d20"
+red = "#a82e44"
+green = "#2ea83e"
+yellow = "#a87c2e"
+blue = "#2e30a8"
+magenta = "#8f2ea8"
+cyan = "#2e86a8"
+white = "#a099a3"
+

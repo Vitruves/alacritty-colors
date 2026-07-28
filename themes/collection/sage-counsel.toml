@@ -1,0 +1,45 @@
+# alacritty-colors collection · Sage Counsel
+# Calm · Muted sage, nothing insistent
+
+[colors.primary]
+background = "#141a16"
+foreground = "#ccd4cc"
+
+[colors.cursor]
+text = "#141a16"
+cursor = "#86a68c"
+
+[colors.selection]
+text = "#ccd4cc"
+background = "#2b4a5c"
+
+[colors.normal]
+black = "#2c302d"
+red = "#ce6f50"
+green = "#50ce68"
+yellow = "#cec950"
+blue = "#5099ce"
+magenta = "#ce50c9"
+cyan = "#50cebb"
+white = "#c4cac6"
+
+[colors.bright]
+black = "#525b55"
+red = "#d7a08e"
+green = "#8ed79c"
+yellow = "#d7d48e"
+blue = "#8eb8d7"
+magenta = "#d78ed5"
+cyan = "#8ed7cc"
+white = "#eff0ef"
+
+[colors.dim]
+black = "#1d201e"
+red = "#9a543c"
+green = "#3c9a4e"
+yellow = "#9a973c"
+blue = "#3c739a"
+magenta = "#9a3c97"
+cyan = "#3c9a8c"
+white = "#99a39c"
+

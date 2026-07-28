@@ -1,0 +1,45 @@
+# alacritty-colors collection · Paper Mind
+# Neutral · White page, black ink
+
+[colors.primary]
+background = "#fafafa"
+foreground = "#232323"
+
+[colors.cursor]
+text = "#fafafa"
+cursor = "#555555"
+
+[colors.selection]
+text = "#232323"
+background = "#acaddb"
+
+[colors.normal]
+black = "#4b4444"
+red = "#a92d2d"
+green = "#328122"
+yellow = "#916a27"
+blue = "#2d2fa9"
+magenta = "#a92d82"
+cyan = "#227b81"
+white = "#a39999"
+
+[colors.bright]
+black = "#252222"
+red = "#7a2929"
+green = "#377a29"
+yellow = "#7a5d29"
+blue = "#292a7a"
+magenta = "#7a2961"
+cyan = "#29757a"
+white = "#7b6f6f"
+
+[colors.dim]
+black = "#605757"
+red = "#c05454"
+green = "#66c054"
+yellow = "#c09954"
+blue = "#5456c0"
+magenta = "#c0549e"
+cyan = "#54b8c0"
+white = "#bbb4b4"
+

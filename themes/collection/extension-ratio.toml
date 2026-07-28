@@ -1,0 +1,45 @@
+# alacritty-colors collection · Extension Ratio
+# Itten · Contrast of proportion, after Goethe
+
+[colors.primary]
+background = "#12100c"
+foreground = "#dcd6c8"
+
+[colors.cursor]
+text = "#12100c"
+cursor = "#c8a038"
+
+[colors.selection]
+text = "#dcd6c8"
+background = "#29385a"
+
+[colors.normal]
+black = "#302f2c"
+red = "#d86a46"
+green = "#5fd846"
+yellow = "#d8af46"
+blue = "#4e78da"
+magenta = "#d846aa"
+cyan = "#46d8c2"
+white = "#cac8c4"
+
+[colors.bright]
+black = "#5b5852"
+red = "#de9d87"
+green = "#96de87"
+yellow = "#dec687"
+blue = "#87a1de"
+magenta = "#de87c3"
+cyan = "#87ded1"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a44f32"
+green = "#45a432"
+yellow = "#a48432"
+blue = "#3254a4"
+magenta = "#a43280"
+cyan = "#32a493"
+white = "#a3a099"
+

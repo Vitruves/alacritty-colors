@@ -1,0 +1,45 @@
+# alacritty-colors collection · Ash Study
+# Neutral · Warm ash, restrained
+
+[colors.primary]
+background = "#16181a"
+foreground = "#d0d4d6"
+
+[colors.cursor]
+text = "#16181a"
+cursor = "#93999e"
+
+[colors.selection]
+text = "#d0d4d6"
+background = "#2c435e"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d05c58"
+green = "#50ce87"
+yellow = "#ceb550"
+blue = "#5088ce"
+magenta = "#b660d2"
+cyan = "#50b7ce"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d8908d"
+green = "#8dd8ae"
+yellow = "#d8c98d"
+blue = "#8dafd8"
+magenta = "#c58dd8"
+cyan = "#8dcad8"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#9b3f3c"
+green = "#3c9b65"
+yellow = "#9b883c"
+blue = "#3c669b"
+magenta = "#833c9b"
+cyan = "#3c899b"
+white = "#999ea3"
+

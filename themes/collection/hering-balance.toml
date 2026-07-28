@@ -1,0 +1,45 @@
+# alacritty-colors collection · Hering Balance
+# Opponent · Neither axis allowed to win
+
+[colors.primary]
+background = "#101418"
+foreground = "#cfd6dc"
+
+[colors.cursor]
+text = "#101418"
+cursor = "#5f96b8"
+
+[colors.selection]
+text = "#cfd6dc"
+background = "#26415f"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d55752"
+green = "#4ad386"
+yellow = "#d3b84a"
+blue = "#4a8ad3"
+magenta = "#b552d5"
+cyan = "#4abcd3"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#db8d8a"
+green = "#8adbad"
+yellow = "#dbcb8a"
+blue = "#8ab0db"
+magenta = "#c78adb"
+cyan = "#8acedb"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#a03a36"
+green = "#36a064"
+yellow = "#a08b36"
+blue = "#3667a0"
+magenta = "#8636a0"
+cyan = "#368ea0"
+white = "#999ea3"
+

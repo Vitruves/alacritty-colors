@@ -1,0 +1,45 @@
+# alacritty-colors collection · Red Preserve
+# Scotopic · Red light, because rods barely see it
+
+[colors.primary]
+background = "#0c0505"
+foreground = "#dcc2c0"
+
+[colors.cursor]
+text = "#0c0505"
+cursor = "#d14848"
+
+[colors.selection]
+text = "#dcc2c0"
+background = "#302d5a"
+
+[colors.normal]
+black = "#302c2c"
+red = "#dd4040"
+green = "#5bdd40"
+yellow = "#dda440"
+blue = "#6b6ee5"
+magenta = "#dd40ac"
+cyan = "#40d3dd"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#e28383"
+green = "#93e283"
+yellow = "#e2c083"
+blue = "#8385e2"
+magenta = "#e283c4"
+cyan = "#83dce2"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#a92d2d"
+green = "#42a92d"
+yellow = "#a97c2d"
+blue = "#2d2fa9"
+magenta = "#a92d82"
+cyan = "#2da1a9"
+white = "#a39999"
+

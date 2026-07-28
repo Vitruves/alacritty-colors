@@ -1,0 +1,45 @@
+# alacritty-colors collection · Blue Suppressed
+# Circadian · Amber throughout, by design
+
+[colors.primary]
+background = "#171208"
+foreground = "#e4d6b8"
+
+[colors.cursor]
+text = "#171208"
+cursor = "#dcae3a"
+
+[colors.selection]
+text = "#e4d6b8"
+background = "#2f3b59"
+
+[colors.normal]
+black = "#302f2c"
+red = "#da6944"
+green = "#5dda44"
+yellow = "#daaf44"
+blue = "#557edd"
+magenta = "#da44ab"
+cyan = "#44dac3"
+white = "#cac8c4"
+
+[colors.bright]
+black = "#5b5852"
+red = "#df9c86"
+green = "#95df86"
+yellow = "#dfc686"
+blue = "#86a1df"
+magenta = "#df86c3"
+cyan = "#86dfd2"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a64e30"
+green = "#44a630"
+yellow = "#a68430"
+blue = "#3054a6"
+magenta = "#a63081"
+cyan = "#30a694"
+white = "#a3a099"
+

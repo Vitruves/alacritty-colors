@@ -1,0 +1,45 @@
+# alacritty-colors collection · Afterimage
+# Opponent · What the eye supplies when you look away
+
+[colors.primary]
+background = "#12100e"
+foreground = "#d8d2ca"
+
+[colors.cursor]
+text = "#12100e"
+cursor = "#56b0a0"
+
+[colors.selection]
+text = "#d8d2ca"
+background = "#26455a"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d74c47"
+green = "#47d786"
+yellow = "#d7d147"
+blue = "#479bd7"
+magenta = "#b64fd9"
+cyan = "#47d7c1"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5752"
+red = "#dd8b88"
+green = "#88ddad"
+yellow = "#ddda88"
+blue = "#88b9dd"
+magenta = "#c888dd"
+cyan = "#88ddd0"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a33733"
+green = "#33a364"
+yellow = "#a39f33"
+blue = "#3374a3"
+magenta = "#8733a3"
+cyan = "#33a392"
+white = "#a39e99"
+

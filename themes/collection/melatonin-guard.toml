@@ -1,0 +1,45 @@
+# alacritty-colors collection · Melatonin Guard
+# Circadian · Warm enough to leave the night alone
+
+[colors.primary]
+background = "#140e08"
+foreground = "#ded0ba"
+
+[colors.cursor]
+text = "#140e08"
+cursor = "#c88a30"
+
+[colors.selection]
+text = "#ded0ba"
+background = "#2a3658"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d86a46"
+green = "#5fd846"
+yellow = "#d8a346"
+blue = "#4e78da"
+magenta = "#d846aa"
+cyan = "#46d8c2"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5752"
+red = "#de9d87"
+green = "#96de87"
+yellow = "#debf87"
+blue = "#87a1de"
+magenta = "#de87c3"
+cyan = "#87ded1"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a44f32"
+green = "#45a432"
+yellow = "#a47b32"
+blue = "#3254a4"
+magenta = "#a43280"
+cyan = "#32a493"
+white = "#a39e99"
+

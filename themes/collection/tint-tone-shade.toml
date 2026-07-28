@@ -1,0 +1,45 @@
+# alacritty-colors collection · Tint Tone Shade
+# Birren · His triangle, walked from tint to shade
+
+[colors.primary]
+background = "#121212"
+foreground = "#d4d4d4"
+
+[colors.cursor]
+text = "#121212"
+cursor = "#9a8a7a"
+
+[colors.selection]
+text = "#d4d4d4"
+background = "#2d3a5a"
+
+[colors.normal]
+black = "#302c2c"
+red = "#ce6f50"
+green = "#65ce50"
+yellow = "#cea050"
+blue = "#587cd0"
+magenta = "#ce50a6"
+cyan = "#50c5ce"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#d7a08e"
+green = "#9ad78e"
+yellow = "#d7bd8e"
+blue = "#8ea4d7"
+magenta = "#d78ec0"
+cyan = "#8ed2d7"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#9a543c"
+green = "#4c9a3c"
+yellow = "#9a783c"
+blue = "#3c589a"
+magenta = "#9a3c7d"
+cyan = "#3c949a"
+white = "#a39999"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Linen Morning
+# Warmth · Warm neutral, kind at 8am
+
+[colors.primary]
+background = "#faf7f2"
+foreground = "#2a2622"
+
+[colors.cursor]
+text = "#faf7f2"
+cursor = "#936637"
+
+[colors.selection]
+text = "#2a2622"
+background = "#abb8d8"
+
+[colors.normal]
+black = "#4b4844"
+red = "#ad4a2a"
+green = "#2e7c1e"
+yellow = "#8c6522"
+blue = "#2a51ad"
+magenta = "#ad2a83"
+cyan = "#207d84"
+white = "#a39f99"
+
+[colors.bright]
+black = "#252422"
+red = "#7d3c26"
+green = "#357d26"
+yellow = "#7d5e26"
+blue = "#26407d"
+magenta = "#7d2662"
+cyan = "#26777d"
+white = "#7b776f"
+
+[colors.dim]
+black = "#605d57"
+red = "#c36d50"
+green = "#64c350"
+yellow = "#c39a50"
+blue = "#5073c3"
+magenta = "#c3509f"
+cyan = "#50bcc3"
+white = "#bbb8b4"
+

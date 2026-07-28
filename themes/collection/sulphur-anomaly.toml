@@ -1,0 +1,45 @@
+# alacritty-colors collection · Sulphur Anomaly
+# Goethe · Yellow tipped just past pleasantness
+
+[colors.primary]
+background = "#14160a"
+foreground = "#dbdfc2"
+
+[colors.cursor]
+text = "#14160a"
+cursor = "#b8bc2e"
+
+[colors.selection]
+text = "#dbdfc2"
+background = "#2c3d5b"
+
+[colors.normal]
+black = "#2f302c"
+red = "#db6943"
+green = "#5cdb43"
+yellow = "#dbd543"
+blue = "#547dde"
+magenta = "#db43ab"
+cyan = "#43dbc4"
+white = "#c9cac4"
+
+[colors.bright]
+black = "#5a5b52"
+red = "#e09c85"
+green = "#94e085"
+yellow = "#e0dd85"
+blue = "#85a0e0"
+magenta = "#e085c3"
+cyan = "#85e0d3"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#20201d"
+red = "#a74d2f"
+green = "#44a72f"
+yellow = "#a7a32f"
+blue = "#2f53a7"
+magenta = "#a72f81"
+cyan = "#2fa795"
+white = "#a1a399"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Cedar Quiet
+# Calm · Green over brown, wooden and low
+
+[colors.primary]
+background = "#121611"
+foreground = "#ced3c6"
+
+[colors.cursor]
+text = "#121611"
+cursor = "#6f8f4e"
+
+[colors.selection]
+text = "#ced3c6"
+background = "#28485a"
+
+[colors.normal]
+black = "#2d302c"
+red = "#d16e4d"
+green = "#63d14d"
+yellow = "#d1cc4d"
+blue = "#4d9ad1"
+magenta = "#d14da7"
+cyan = "#4dd1bd"
+white = "#c5cac4"
+
+[colors.bright]
+black = "#545b52"
+red = "#d99f8c"
+green = "#99d98c"
+yellow = "#d9d68c"
+blue = "#8cb9d9"
+magenta = "#d98cc1"
+cyan = "#8cd9ce"
+white = "#eff0ef"
+
+[colors.dim]
+black = "#1e201d"
+red = "#9d5239"
+green = "#4a9d39"
+yellow = "#9d9939"
+blue = "#39739d"
+magenta = "#9d397e"
+cyan = "#399d8e"
+white = "#9ba399"
+

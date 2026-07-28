@@ -1,0 +1,45 @@
+# alacritty-colors collection · Neon Reverie
+# Imagination · Magenta turned up
+
+[colors.primary]
+background = "#0f0a16"
+foreground = "#ded0ea"
+
+[colors.cursor]
+text = "#0f0a16"
+cursor = "#c04ce0"
+
+[colors.selection]
+text = "#ded0ea"
+background = "#312f66"
+
+[colors.normal]
+black = "#2e2c30"
+red = "#e23c5a"
+green = "#3ce252"
+yellow = "#e2a63c"
+blue = "#686be9"
+magenta = "#be3ce2"
+cyan = "#3cb3e2"
+white = "#c6c4ca"
+
+[colors.bright]
+black = "#56525b"
+red = "#e58093"
+green = "#80e58d"
+yellow = "#e5c080"
+blue = "#8082e5"
+magenta = "#cf80e5"
+cyan = "#80c8e5"
+white = "#f0eff0"
+
+[colors.dim]
+black = "#1e1d20"
+red = "#ae2941"
+green = "#29ae3a"
+yellow = "#ae7d29"
+blue = "#292bae"
+magenta = "#9129ae"
+cyan = "#2988ae"
+white = "#9d99a3"
+

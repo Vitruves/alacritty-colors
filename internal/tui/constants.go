@@ -5,10 +5,11 @@ import "time"
 // UI adjustment constants
 const (
 	// Color adjustment steps
-	BrightnessStep    = 10   // RGB value adjustment per keystroke
-	HueStep           = 15.0 // Degrees of hue adjustment per keystroke
-	MinSaturation     = 0.2  // Minimum saturation for visible hue changes
-	SaturationStep    = 0.05 // Saturation adjustment per keystroke
+	BrightnessStep = 8    // RGB value adjustment per keystroke
+	HueStep        = 8.0  // Degrees of hue adjustment per keystroke
+	MinSaturation  = 0.15 // Minimum saturation for visible hue changes
+	SaturationStep = 0.04 // Saturation adjustment per keystroke
+	LightnessStep  = 0.03 // HSL lightness adjustment per keystroke
 
 	// Font size limits
 	FontSizeMin  = 6.0
@@ -16,11 +17,17 @@ const (
 	FontSizeStep = 0.5
 
 	// Timing
-	KeyDebounceDelay = 10 * time.Millisecond
-	SpinnerInterval  = 100 * time.Millisecond
+	SpinnerInterval = 100 * time.Millisecond
+	// ApplyDebounce is how long the cursor must rest on a theme before it is
+	// written to disk and pushed to Alacritty. Without it, scrolling a list of
+	// 150+ themes triggers one file write and one config reload per keystroke.
+	ApplyDebounce = 180 * time.Millisecond
+	// EditApplyDebounce coalesces rapid colour tweaks (held arrow key).
+	EditApplyDebounce = 90 * time.Millisecond
 
 	// Display limits
 	MaxFontNameDisplay = 30
+	ColorNameWidth     = 16
 )
 
 // Color mode constants
@@ -33,21 +40,32 @@ const (
 
 // ColorModeNames maps color mode constants to display names
 var ColorModeNames = []string{
-	"Hex Colors",
-	"Named Colors",
-	"Bright Colors",
+	"Normal colors",
+	"Terminal defaults",
+	"Bright colors",
 }
 
 // Panel focus states
 const (
-	FocusThemeList  = 0
-	FocusColorPanel = 1
+	FocusThemeList = iota
+	FocusColorPanel
+	FocusPreview
+	FocusCount
 )
 
 // Theme markers
 const (
-	CurrentThemeMarker = "★ "
+	CurrentThemeMarker = "●"
+	FavoriteMarker     = "♥"
 	EditedThemeSuffix  = "_edited_"
+)
+
+// WCAG contrast thresholds
+const (
+	ContrastAA  = 4.5
+	ContrastAAA = 7.0
+	// ContrastLow flags pairs that are hard to read at all.
+	ContrastLow = 3.0
 )
 
 // Default fallback colors
@@ -84,13 +102,37 @@ var BaseColorNames = []string{
 	"white",
 }
 
-// Keybinding help text
-const (
-	StatusBarDefault     = "Tab: switch | ↑↓: navigate | ←→: brightness | n: new theme | g: random | /: search | ?: help | q: quit"
-	StatusBarThemeList   = "Focus: Theme List | ↑↓: navigate | Enter: select | n: new | g: random | /: search | q: quit"
-	StatusBarColorPanel  = "Focus: Color Panel | ↑↓: navigate | ←→: brightness | Shift+←→: hue | s: save | r: reset"
-	StatusBarFontPanel   = "Tab: switch panels | ↑↓: navigate | ←→: size | Enter: apply | q: quit"
-)
+// Contextual key hints, one per focused panel. Tab and a lead every line: they
+// are the two keys used constantly and in every panel, so they hold the same
+// position wherever you are. The rest is what that panel is for.
+var FocusKeyHints = []string{
+	FocusThemeList:  "Tab next column · a apply · ↑↓ browse · / search · * favourite · F favourites · n create · g random · ? keys · q quit",
+	FocusColorPanel: "Tab next column · a apply · ←→ lighter · Shift+←→ hue · -/+ saturation · [ ] lightness · Enter exact hex · s save · ? keys",
+	FocusPreview:    "Tab next column · a apply · ↑↓ scroll · c colour mode · ? keys · q quit",
+}
+
+// WelcomeWidth is the width of the opening screen, chosen so the widest
+// feature line sits comfortably inside it without wrapping.
+const WelcomeWidth = 66
+
+// StatusBarFontPanel is the hint line of the font browser.
+const StatusBarFontPanel = "Tab next column · ↑↓ navigate · ←→ size · d download more · Esc back"
+
+// fontSizes are the sizes offered in the font browser's size column. The step
+// is half a point through the range people actually read at, then whole points
+// once the exact value stops mattering.
+var fontSizes = buildFontSizes()
+
+func buildFontSizes() []float64 {
+	var sizes []float64
+	for size := FontSizeMin; size <= 20.0; size += FontSizeStep {
+		sizes = append(sizes, size)
+	}
+	for size := 21.0; size <= FontSizeMax; size += 1.0 {
+		sizes = append(sizes, size)
+	}
+	return sizes
+}
 
 // Spinner characters for loading animation
 var SpinnerChars = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}

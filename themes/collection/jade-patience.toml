@@ -1,0 +1,45 @@
+# alacritty-colors collection · Jade Patience
+# Calm · Jade, cool and slow
+
+[colors.primary]
+background = "#06181a"
+foreground = "#c4d9d8"
+
+[colors.cursor]
+text = "#06181a"
+cursor = "#23a396"
+
+[colors.selection]
+text = "#c4d9d8"
+background = "#1f4961"
+
+[colors.normal]
+black = "#2c3030"
+red = "#d65651"
+green = "#49d486"
+yellow = "#d4cf49"
+blue = "#499ad4"
+magenta = "#b95ad8"
+cyan = "#49d4c6"
+white = "#c4c9ca"
+
+[colors.bright]
+black = "#525a5b"
+red = "#dc8c89"
+green = "#89dcad"
+yellow = "#dcd989"
+blue = "#89b9dc"
+magenta = "#c789dc"
+cyan = "#89dcd3"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d2020"
+red = "#a13936"
+green = "#36a164"
+yellow = "#a19d36"
+blue = "#3674a1"
+magenta = "#8636a1"
+cyan = "#36a196"
+white = "#99a2a3"
+

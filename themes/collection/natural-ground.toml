@@ -1,0 +1,45 @@
+# alacritty-colors collection · Natural Ground
+# Image Scale · Warm and soft, undyed
+
+[colors.primary]
+background = "#f8f5ec"
+foreground = "#2a2820"
+
+[colors.cursor]
+text = "#f8f5ec"
+cursor = "#677431"
+
+[colors.selection]
+text = "#2a2820"
+background = "#a9c2d1"
+
+[colors.normal]
+black = "#4b4944"
+red = "#ad4a2a"
+green = "#2e7c1e"
+yellow = "#74701c"
+blue = "#2870a5"
+magenta = "#ad2a83"
+cyan = "#1e7c6d"
+white = "#a3a199"
+
+[colors.bright]
+black = "#252522"
+red = "#7d3c26"
+green = "#357d26"
+yellow = "#757224"
+blue = "#26597d"
+magenta = "#7d2662"
+cyan = "#267d70"
+white = "#7b786f"
+
+[colors.dim]
+black = "#605e57"
+red = "#c36d50"
+green = "#64c350"
+yellow = "#c3bf50"
+blue = "#5093c3"
+magenta = "#c3509f"
+cyan = "#50c3b2"
+white = "#bbb9b4"
+

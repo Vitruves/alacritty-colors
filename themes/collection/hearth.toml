@@ -1,0 +1,45 @@
+# alacritty-colors collection · Hearth
+# Warmth · Warm brown, close and settled
+
+[colors.primary]
+background = "#1a120e"
+foreground = "#e2d2c6"
+
+[colors.cursor]
+text = "#1a120e"
+cursor = "#c07a4a"
+
+[colors.selection]
+text = "#e2d2c6"
+background = "#323b5c"
+
+[colors.normal]
+black = "#302d2c"
+red = "#d76b47"
+green = "#5fd747"
+yellow = "#d7a347"
+blue = "#587fdb"
+magenta = "#d747a9"
+cyan = "#47cdd7"
+white = "#cac6c4"
+
+[colors.bright]
+black = "#5b5552"
+red = "#dd9d88"
+green = "#96dd88"
+yellow = "#ddbe88"
+blue = "#88a1dd"
+magenta = "#dd88c2"
+cyan = "#88d8dd"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#a34f33"
+green = "#46a333"
+yellow = "#a37a33"
+blue = "#3355a3"
+magenta = "#a33380"
+cyan = "#339ba3"
+white = "#a39c99"
+

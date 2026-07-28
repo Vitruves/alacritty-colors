@@ -1,0 +1,45 @@
+# alacritty-colors collection · Iris Bloom
+# Imagination · Violet on white paper
+
+[colors.primary]
+background = "#f7f4fc"
+foreground = "#262233"
+
+[colors.cursor]
+text = "#f7f4fc"
+cursor = "#6a4bb8"
+
+[colors.selection]
+text = "#262233"
+background = "#a7a6e0"
+
+[colors.normal]
+black = "#47444b"
+red = "#b3243e"
+green = "#1a8046"
+yellow = "#806b1a"
+blue = "#2426b3"
+magenta = "#8f24b3"
+cyan = "#1f769a"
+white = "#9d99a3"
+
+[colors.bright]
+black = "#232225"
+red = "#822233"
+green = "#207a47"
+yellow = "#826e22"
+blue = "#222382"
+magenta = "#6a2282"
+cyan = "#226682"
+white = "#746f7b"
+
+[colors.dim]
+black = "#5b5760"
+red = "#ca4961"
+green = "#49ca82"
+yellow = "#cab049"
+blue = "#494cca"
+magenta = "#aa49ca"
+cyan = "#49a6ca"
+white = "#b7b4bb"
+

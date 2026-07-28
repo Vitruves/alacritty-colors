@@ -1,0 +1,45 @@
+# alacritty-colors collection · Evergreen Watch
+# Calm · Pine at dusk
+
+[colors.primary]
+background = "#08120e"
+foreground = "#c2d2c6"
+
+[colors.cursor]
+text = "#08120e"
+cursor = "#358c5f"
+
+[colors.selection]
+text = "#c2d2c6"
+background = "#214659"
+
+[colors.normal]
+black = "#2c302e"
+red = "#d46c49"
+green = "#49d486"
+yellow = "#d4cf49"
+blue = "#499ad4"
+magenta = "#d449d0"
+cyan = "#49d4bf"
+white = "#c4cac7"
+
+[colors.bright]
+black = "#525b58"
+red = "#dc9e89"
+green = "#89dcad"
+yellow = "#dcd989"
+blue = "#89b9dc"
+magenta = "#dc89d9"
+cyan = "#89dccf"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d201f"
+red = "#a15036"
+green = "#36a164"
+yellow = "#a19d36"
+blue = "#3674a1"
+magenta = "#a1369d"
+cyan = "#36a191"
+white = "#99a39f"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Black Renunciation
+# Luscher · Black, the refusal
+
+[colors.primary]
+background = "#050505"
+foreground = "#d0d0d0"
+
+[colors.cursor]
+text = "#050505"
+cursor = "#808080"
+
+[colors.selection]
+text = "#d0d0d0"
+background = "#2c2d53"
+
+[colors.normal]
+black = "#302c2c"
+red = "#ca5454"
+green = "#68ca54"
+yellow = "#ca9f54"
+blue = "#6b6dd1"
+magenta = "#ca54a5"
+cyan = "#54c2ca"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#d49191"
+green = "#9cd491"
+yellow = "#d4bc91"
+blue = "#9192d4"
+magenta = "#d491bf"
+cyan = "#91d0d4"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#964040"
+green = "#4f9640"
+yellow = "#967740"
+blue = "#404196"
+magenta = "#96407b"
+cyan = "#409196"
+white = "#a39999"
+

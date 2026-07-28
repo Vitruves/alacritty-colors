@@ -1,0 +1,45 @@
+# alacritty-colors collection · Twilight Threshold
+# Scotopic · The minutes the shift happens in
+
+[colors.primary]
+background = "#090b14"
+foreground = "#c4cadc"
+
+[colors.cursor]
+text = "#090b14"
+cursor = "#697bc6"
+
+[colors.selection]
+text = "#c4cadc"
+background = "#27325f"
+
+[colors.normal]
+black = "#2c2c30"
+red = "#d54862"
+green = "#48d586"
+yellow = "#d5b948"
+blue = "#5972d9"
+magenta = "#b550d7"
+cyan = "#48add5"
+white = "#c4c5ca"
+
+[colors.bright]
+black = "#52545b"
+red = "#dc8998"
+green = "#89dcad"
+yellow = "#dccc89"
+blue = "#8999dc"
+magenta = "#c889dc"
+cyan = "#89c5dc"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a23549"
+green = "#35a264"
+yellow = "#a28c35"
+blue = "#354aa2"
+magenta = "#8635a2"
+cyan = "#3583a2"
+white = "#999ba3"
+

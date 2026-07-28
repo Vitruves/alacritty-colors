@@ -1,0 +1,45 @@
+# alacritty-colors collection · Minus Side
+# Goethe · The passive pole, blue and unhurried
+
+[colors.primary]
+background = "#0b1020"
+foreground = "#c6cee6"
+
+[colors.cursor]
+text = "#0b1020"
+cursor = "#617ccf"
+
+[colors.selection]
+text = "#c6cee6"
+background = "#293866"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d75069"
+green = "#48d586"
+yellow = "#d5b948"
+blue = "#5978d9"
+magenta = "#b550d7"
+cyan = "#48add5"
+white = "#c4c5ca"
+
+[colors.bright]
+black = "#52545b"
+red = "#dc8998"
+green = "#89dcad"
+yellow = "#dccc89"
+blue = "#899ddc"
+magenta = "#c889dc"
+cyan = "#89c5dc"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a23549"
+green = "#35a264"
+yellow = "#a28c35"
+blue = "#354fa2"
+magenta = "#8635a2"
+cyan = "#3583a2"
+white = "#999ca3"
+

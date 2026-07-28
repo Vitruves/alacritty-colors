@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -11,24 +10,44 @@ import (
 
 // handleGlobalKeys handles application-wide key events
 func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
-	switch event.Key() {
-	case tcell.KeyCtrlC:
+	if event.Key() == tcell.KeyCtrlC {
 		ce.app.Stop()
 		return nil
+	}
+
+	// Dialogs and the filter line own every other key while they are open.
+	if ce.overlayOpen() || ce.filterFocus {
+		return event
+	}
+
+	switch event.Key() {
+	case tcell.KeyTab:
+		ce.setFocus(ce.focus + 1)
+		return nil
+	case tcell.KeyBacktab:
+		ce.setFocus(ce.focus - 1)
+		return nil
+	case tcell.KeyEscape:
+		if ce.filter != "" || ce.favOnly {
+			ce.clearFilter()
+			return nil
+		}
 	case tcell.KeyRune:
 		switch event.Rune() {
 		case 'q', 'Q':
-			if ce.isDirty {
-				ce.confirmQuit()
-			} else {
-				ce.app.Stop()
-			}
+			ce.quitAndKeep()
 			return nil
-		case 's', 'S':
+		case 's':
 			ce.saveTheme()
+			return nil
+		case 'S':
+			ce.showSaveAsDialog()
 			return nil
 		case 'r', 'R':
 			ce.resetTheme()
+			return nil
+		case 'u', 'U':
+			ce.undoCurrentColor()
 			return nil
 		case 'a', 'A':
 			ce.applyCurrentTheme()
@@ -45,8 +64,11 @@ func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
 		case 'p', 'P':
 			ce.showParametersPanel()
 			return nil
-		case 'f', 'F':
+		case 'f':
 			ce.showFontPanel()
+			return nil
+		case 'F':
+			ce.toggleFavoritesOnly()
 			return nil
 		case 'n', 'N':
 			ce.showThemeCreator()
@@ -55,7 +77,7 @@ func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
 			ce.generateAndApplyRandomTheme(true)
 			return nil
 		case '/':
-			ce.showSearchDialog()
+			ce.openFilter()
 			return nil
 		case '?':
 			ce.showHelpOverlay()
@@ -68,239 +90,379 @@ func (ce *ColorEditor) handleGlobalKeys(event *tcell.EventKey) *tcell.EventKey {
 	return event
 }
 
-// handleThemeListKeys handles key events for the theme list panel
+// handleThemeListKeys owns navigation in the theme list. Movement is handled
+// here rather than delegated so that selection, preview and the debounced apply
+// stay in lockstep.
 func (ce *ColorEditor) handleThemeListKeys(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
-	case tcell.KeyTab:
-		ce.app.SetFocus(ce.colorPanel)
-		ce.colorPanel.SetBorderColor(tcell.ColorYellow)
-		ce.themeList.SetBorderColor(tcell.ColorDefault)
-		ce.setStatus(StatusBarColorPanel)
+	case tcell.KeyUp:
+		ce.moveThemeSelection(-1)
+		return nil
+	case tcell.KeyDown:
+		ce.moveThemeSelection(1)
+		return nil
+	case tcell.KeyPgUp:
+		ce.moveThemeSelection(-10)
+		return nil
+	case tcell.KeyPgDn:
+		ce.moveThemeSelection(10)
+		return nil
+	case tcell.KeyHome:
+		ce.setThemeIndex(0)
+		return nil
+	case tcell.KeyEnd:
+		ce.setThemeIndex(len(ce.visible) - 1)
 		return nil
 	case tcell.KeyEnter:
-		index := ce.themeList.GetCurrentItem()
-		if index >= 0 && index < ce.themeList.GetItemCount() {
-			themeName, _ := ce.themeList.GetItemText(index)
-			themeName = strings.TrimPrefix(themeName, CurrentThemeMarker)
-			themeName = strings.TrimPrefix(themeName, "♥ ")
-			ce.onThemeSelected(index, themeName, "", 0)
-			ce.app.SetFocus(ce.colorPanel)
-			ce.colorPanel.SetBorderColor(tcell.ColorYellow)
-			ce.themeList.SetBorderColor(tcell.ColorDefault)
+		if name := ce.currentVisibleName(); name != "" {
+			ce.applyThemeNow(name)
+			ce.setFocus(FocusColorPanel)
 		}
 		return nil
-	case tcell.KeyUp, tcell.KeyDown:
-		result := event
-		go func() {
-			time.Sleep(KeyDebounceDelay)
-			ce.app.QueueUpdateDraw(func() {
-				index := ce.themeList.GetCurrentItem()
-				if index >= 0 && index < ce.themeList.GetItemCount() {
-					themeName, _ := ce.themeList.GetItemText(index)
-					themeName = strings.TrimPrefix(themeName, CurrentThemeMarker)
-					themeName = strings.TrimPrefix(themeName, "♥ ")
-					ce.onThemeSelected(index, themeName, "", 0)
-				}
-			})
-		}()
-		return result
 	case tcell.KeyRune:
-		// Quick jump with letter keys
-		if event.Rune() >= 'a' && event.Rune() <= 'z' {
-			ce.jumpToThemeStartingWith(string(event.Rune()))
+		switch event.Rune() {
+		case 'j':
+			ce.moveThemeSelection(1)
+			return nil
+		case 'k':
+			ce.moveThemeSelection(-1)
 			return nil
 		}
 	}
 	return event
 }
 
+// moveThemeSelection moves the cursor by delta rows and loads what it lands on.
+func (ce *ColorEditor) moveThemeSelection(delta int) {
+	if len(ce.visible) == 0 {
+		return
+	}
+	idx := ce.themeList.GetCurrentItem() + delta
+	if idx < 0 {
+		idx = 0
+	}
+	if idx >= len(ce.visible) {
+		idx = len(ce.visible) - 1
+	}
+	ce.setThemeIndex(idx)
+}
+
+func (ce *ColorEditor) setThemeIndex(idx int) {
+	if idx < 0 || idx >= len(ce.visible) {
+		return
+	}
+	if ce.visible[idx] == ce.themeName {
+		ce.themeList.SetCurrentItem(idx)
+		return
+	}
+
+	// Loading another theme drops the working colours. Say so once instead of
+	// discarding someone's edits without a word; the next press goes through.
+	if ce.isDirty && !ce.discardArmed {
+		ce.discardArmed = true
+		ce.warn("%s has unsaved edits — a keeps them, r discards, ↑↓ again leaves them behind", ce.themeName)
+		return
+	}
+	ce.discardArmed = false
+
+	ce.themeList.SetCurrentItem(idx)
+	ce.selectTheme(ce.visible[idx], true)
+}
+
 // handleColorPanelKeys handles key events for the color panel
 func (ce *ColorEditor) handleColorPanelKeys(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
-	case tcell.KeyTab:
-		ce.app.SetFocus(ce.themeList)
-		ce.themeList.SetBorderColor(tcell.ColorYellow)
-		ce.colorPanel.SetBorderColor(tcell.ColorDefault)
-		ce.setStatus(StatusBarThemeList)
+	case tcell.KeyUp:
+		ce.moveColorSelection(-1)
+		return nil
+	case tcell.KeyDown:
+		ce.moveColorSelection(1)
+		return nil
+	case tcell.KeyHome:
+		if i := ce.firstColorIndex(); i >= 0 {
+			ce.colorPanel.SetCurrentItem(i)
+			ce.renderStatus()
+		}
+		return nil
+	case tcell.KeyEnd:
+		ce.colorPanel.SetCurrentItem(ce.colorPanel.GetItemCount() - 1)
+		ce.moveColorSelection(0)
+		ce.renderStatus()
 		return nil
 	case tcell.KeyEnter:
-		index := ce.colorPanel.GetCurrentItem()
-		ce.onColorSelected(index, "", "", 0)
+		ce.showHexInput()
 		return nil
-	case tcell.KeyUp, tcell.KeyDown:
-		result := event
-		go func() {
-			time.Sleep(KeyDebounceDelay)
-			ce.app.QueueUpdateDraw(func() {
-				ce.updateColorStatus()
-			})
-		}()
-		return result
 	case tcell.KeyLeft, tcell.KeyRight:
-		index := ce.colorPanel.GetCurrentItem()
-		colorKey, exists := ce.listItemToColorKey[index]
-
-		if !exists {
-			return event
-		}
-
+		up := event.Key() == tcell.KeyRight
 		if event.Modifiers()&tcell.ModShift != 0 {
-			ce.adjustColorHue(colorKey, event.Key())
+			ce.editColor(hueEdit, up)
 		} else {
-			ce.adjustColorWithArrows(colorKey, event.Key())
+			ce.editColor(brightnessEdit, up)
 		}
 		return nil
+	case tcell.KeyRune:
+		switch event.Rune() {
+		case 'j':
+			ce.moveColorSelection(1)
+			return nil
+		case 'k':
+			ce.moveColorSelection(-1)
+			return nil
+		case '-', '_':
+			ce.editColor(saturationEdit, false)
+			return nil
+		case '+', '=':
+			ce.editColor(saturationEdit, true)
+			return nil
+		case '[':
+			ce.editColor(lightnessEdit, false)
+			return nil
+		case ']':
+			ce.editColor(lightnessEdit, true)
+			return nil
+		case '#':
+			ce.showHexInput()
+			return nil
+		}
 	}
 	return event
 }
 
-// adjustColorWithArrows adjusts color brightness with arrow keys
-func (ce *ColorEditor) adjustColorWithArrows(colorKey string, key tcell.Key) {
-	if colorKey == "" {
-		return
-	}
-
-	ce.isDirty = true
-
-	currentValue, exists := ce.colorValues[colorKey]
-	if !exists || currentValue == "" {
-		return
-	}
-
-	rgb, err := theme.HexToRGB(currentValue)
-	if err != nil {
-		return
-	}
-
-	newRGB := AdjustBrightness(rgb, key == tcell.KeyRight)
-	newHex := newRGB.ToHex()
-	ce.colorValues[colorKey] = newHex
-
-	ce.updateColorItemDisplay(colorKey, &newRGB)
-	ce.updatePreview()
-
-	displayName := strings.Replace(colorKey, ".", " ", -1)
-	rgbDisplay := fmt.Sprintf("R:%d G:%d B:%d", newRGB.R, newRGB.G, newRGB.B)
-	ce.setStatus(fmt.Sprintf("Modified %s (%s) | Press 's' to save | ←→: adjust RGB", displayName, rgbDisplay))
-
-	ce.applyColorChangeRealtime()
-}
-
-// adjustColorHue adjusts color hue with shift+arrow keys
-func (ce *ColorEditor) adjustColorHue(colorKey string, key tcell.Key) {
-	if colorKey == "" {
-		return
-	}
-
-	ce.isDirty = true
-
-	currentValue, exists := ce.colorValues[colorKey]
-	if !exists || currentValue == "" {
-		return
-	}
-
-	rgb, err := theme.HexToRGB(currentValue)
-	if err != nil {
-		return
-	}
-
-	newRGB := AdjustHue(rgb, key == tcell.KeyRight)
-	newHex := newRGB.ToHex()
-	ce.colorValues[colorKey] = newHex
-
-	ce.updateColorItemDisplay(colorKey, &newRGB)
-	ce.updatePreview()
-
-	hsl := RGBToHSL(newRGB.R, newRGB.G, newRGB.B)
-	displayName := strings.Replace(colorKey, ".", " ", -1)
-	ce.setStatus(fmt.Sprintf("Hue adjusted %s (H:%.0f° S:%.0f%% L:%.0f%%) | Shift+←→: hue",
-		displayName, hsl.H, hsl.S*100, hsl.L*100))
-
-	ce.applyColorChangeRealtime()
-}
-
-// updateColorItemDisplay updates a single color item in the panel
-func (ce *ColorEditor) updateColorItemDisplay(colorKey string, rgb *theme.RGB) {
-	currentIndex := ce.colorPanel.GetCurrentItem()
-
-	colorValue := rgb.ToHex()
-	if !strings.HasPrefix(colorValue, "#") && len(colorValue) == 6 {
-		colorValue = "#" + colorValue
-	}
-
-	rgbDisplay := fmt.Sprintf("R:%d G:%d B:%d", rgb.R, rgb.G, rgb.B)
-	displayName := strings.Replace(colorKey, ".", " ", -1)
-	text := fmt.Sprintf("  [%s]██[-] %-20s %s", colorValue, displayName, rgbDisplay)
-
-	ce.colorPanel.SetItemText(currentIndex, text, "")
-}
-
-// applyColorChangeRealtime applies color changes in real-time
-func (ce *ColorEditor) applyColorChangeRealtime() {
-	go func() {
-		themeName := ce.themeName
-		ce.updateThemeConfig()
-		if err := ce.saveThemeToFile(); err == nil {
-			if err := ce.themeManager.ApplyTheme(themeName); err != nil {
-				ce.app.QueueUpdateDraw(func() {
-					ce.setStatus(fmt.Sprintf("Failed to apply changes to %s: %v", themeName, err))
-				})
-			} else {
-				ce.appliedTheme = themeName
-			}
+// handlePreviewKeys keeps the preview scrollable without swallowing globals.
+func (ce *ColorEditor) handlePreviewKeys(event *tcell.EventKey) *tcell.EventKey {
+	if event.Key() == tcell.KeyRune {
+		switch event.Rune() {
+		case 'j':
+			row, col := ce.previewPanel.GetScrollOffset()
+			ce.previewPanel.ScrollTo(row+1, col)
+			return nil
+		case 'k':
+			row, col := ce.previewPanel.GetScrollOffset()
+			ce.previewPanel.ScrollTo(row-1, col)
+			return nil
 		}
-		ce.app.QueueUpdateDraw(func() {})
+	}
+	return event
+}
+
+// --- colour editing -------------------------------------------------------
+
+type editKind int
+
+const (
+	brightnessEdit editKind = iota
+	hueEdit
+	saturationEdit
+	lightnessEdit
+)
+
+// editColor applies one adjustment to the selected colour. Nothing is written
+// to the theme file here: only the live preview (themes/current.toml) is
+// refreshed, so the source theme is untouched until an explicit save.
+func (ce *ColorEditor) editColor(kind editKind, increase bool) {
+	key := ce.selectedColorKey()
+	if key == "" {
+		ce.warn("Move to a colour row first")
+		return
+	}
+
+	current, ok := ce.colorValues[key]
+	if !ok || current == "" {
+		// An unset slot materialises on first touch rather than blocking.
+		ce.setColorValue(key, ce.derivedDefault(key))
+		ce.info("Added %s — adjust it or press Enter for an exact value", strings.ReplaceAll(key, ".", " "))
+		return
+	}
+	rgb, err := theme.HexToRGB(normalizeHex(current, "#000000"))
+	if err != nil {
+		return
+	}
+
+	var next theme.RGB
+	switch kind {
+	case brightnessEdit:
+		next = AdjustBrightness(rgb, increase)
+	case hueEdit:
+		next = AdjustHue(rgb, increase)
+	case saturationEdit:
+		next = AdjustSaturation(rgb, increase)
+	case lightnessEdit:
+		next = AdjustLightness(rgb, increase)
+	}
+
+	ce.setColorValue(key, next.ToHex())
+}
+
+// setColorValue is the single funnel for every colour change: hex entry,
+// arrow-key nudges and generated themes all land here.
+func (ce *ColorEditor) setColorValue(key, hex string) {
+	hex = normalizeHex(hex, ce.colorValues[key])
+	if hex == ce.colorValues[key] {
+		return
+	}
+
+	ce.colorValues[key] = hex
+	ce.isDirty = true
+	ce.discardArmed = false // a fresh edit re-arms the leave-behind warning
+
+	if idx, ok := ce.colorKeyToListItem[key]; ok {
+		ce.colorPanel.SetItemText(idx, ce.formatColorItem(key), "")
+	}
+
+	// The background changes every contrast reading on screen.
+	if key == "primary.background" {
+		ce.refreshContrastColumn()
+	}
+
+	ce.colorPanel.SetTitle(ce.colorPanelTitle())
+	ce.updatePreview()
+	ce.renderStatus()
+	ce.scheduleLivePreview()
+}
+
+// refreshContrastColumn re-renders every row after the background moved.
+func (ce *ColorEditor) refreshContrastColumn() {
+	for key, idx := range ce.colorKeyToListItem {
+		ce.colorPanel.SetItemText(idx, ce.formatColorItem(key), "")
+	}
+}
+
+// undoCurrentColor restores the selected colour to the value on disk.
+func (ce *ColorEditor) undoCurrentColor() {
+	key := ce.selectedColorKey()
+	if key == "" {
+		return
+	}
+	original, ok := ce.originalValues[key]
+	if !ok {
+		return
+	}
+	ce.setColorValue(key, original)
+	ce.isDirty = ce.hasUnsavedChanges()
+	ce.colorPanel.SetTitle(ce.colorPanelTitle())
+	ce.info("Reverted %s to %s", shortColorLabel(key), original)
+}
+
+// hasUnsavedChanges compares the working set against the on-disk snapshot.
+func (ce *ColorEditor) hasUnsavedChanges() bool {
+	if len(ce.colorValues) != len(ce.originalValues) {
+		return true
+	}
+	for key, value := range ce.colorValues {
+		if ce.originalValues[key] != value {
+			return true
+		}
+	}
+	return false
+}
+
+// --- debounced writes -----------------------------------------------------
+
+// scheduleApply applies the theme under the cursor once the cursor rests.
+// Browsing 150 themes with the arrow keys must not mean 150 config writes.
+func (ce *ColorEditor) scheduleApply(themeName string) {
+	seq := ce.applySeq.Add(1)
+
+	go func() {
+		time.Sleep(ApplyDebounce)
+		if ce.applySeq.Load() != seq {
+			return
+		}
+		err := ce.themeManager.ApplyTheme(themeName)
+		ce.app.QueueUpdateDraw(func() {
+			if ce.applySeq.Load() != seq {
+				return
+			}
+			if err != nil {
+				ce.fail("Could not apply %s: %v", themeName, err)
+				return
+			}
+			ce.markApplied(themeName)
+		})
 	}()
 }
 
-// jumpToThemeStartingWith jumps to the first theme starting with a letter
-func (ce *ColorEditor) jumpToThemeStartingWith(letter string) {
-	letter = strings.ToLower(letter)
-	count := ce.themeList.GetItemCount()
-
-	for i := 0; i < count; i++ {
-		name, _ := ce.themeList.GetItemText(i)
-		name = strings.TrimPrefix(name, CurrentThemeMarker)
-		name = strings.TrimPrefix(name, "♥ ")
-		if strings.HasPrefix(strings.ToLower(name), letter) {
-			ce.themeList.SetCurrentItem(i)
-			ce.onThemeSelected(i, name, "", 0)
-			break
-		}
+// applyThemeNow skips the debounce for an explicit user action.
+func (ce *ColorEditor) applyThemeNow(themeName string) {
+	ce.applySeq.Add(1)
+	if err := ce.themeManager.ApplyTheme(themeName); err != nil {
+		ce.fail("Could not apply %s: %v", themeName, err)
+		return
 	}
+	ce.markApplied(themeName)
+	ce.info("Applied %s", themeName)
 }
 
-// updateColorStatus updates the status bar with current color info
-func (ce *ColorEditor) updateColorStatus() {
-	index := ce.colorPanel.GetCurrentItem()
+// markApplied records the newly live theme and restyles the UI to match it.
+func (ce *ColorEditor) markApplied(themeName string) {
+	previous := ce.appliedTheme
+	ce.appliedTheme = themeName
 
-	colorKey, exists := ce.listItemToColorKey[index]
-	if !exists {
-		ce.setStatus("Navigate to color items to edit | Tab: switch panels")
+	// Repaint only the two rows whose marker changed.
+	if idx := ce.indexOfVisible(previous); idx >= 0 {
+		ce.themeList.SetItemText(idx, ce.formatThemeItem(previous), "")
+	}
+	if idx := ce.indexOfVisible(themeName); idx >= 0 {
+		ce.themeList.SetItemText(idx, ce.formatThemeItem(themeName), "")
+	}
+
+	ce.syncPaletteWithColors()
+}
+
+// scheduleLivePreview writes the working colours to themes/current.toml so the
+// terminal repaints with the real colours, coalescing bursts of keystrokes.
+func (ce *ColorEditor) scheduleLivePreview() {
+	seq := ce.applySeq.Add(1)
+	content := ce.generateTOMLContent()
+
+	go func() {
+		time.Sleep(EditApplyDebounce)
+		if ce.applySeq.Load() != seq {
+			return
+		}
+		err := ce.themeManager.WritePreview(content)
+		ce.app.QueueUpdateDraw(func() {
+			if err != nil {
+				ce.fail("Live preview failed: %v", err)
+				return
+			}
+			ce.syncPaletteWithColors()
+		})
+	}()
+}
+
+// syncPaletteWithColors keeps the editor chrome in step with the colours that
+// are actually live in the terminal.
+func (ce *ColorEditor) syncPaletteWithColors() {
+	if len(ce.colorValues) == 0 {
+		return
+	}
+	next := buildPalette(map[string]string{
+		"background": ce.colorValues["primary.background"],
+		"foreground": ce.colorValues["primary.foreground"],
+		"blue":       firstNonEmpty(ce.colorValues["bright.blue"], ce.colorValues["normal.blue"]),
+		"cyan":       firstNonEmpty(ce.colorValues["bright.cyan"], ce.colorValues["normal.cyan"]),
+		"yellow":     firstNonEmpty(ce.colorValues["bright.yellow"], ce.colorValues["normal.yellow"]),
+		"red":        firstNonEmpty(ce.colorValues["bright.red"], ce.colorValues["normal.red"]),
+		"green":      firstNonEmpty(ce.colorValues["bright.green"], ce.colorValues["normal.green"]),
+	})
+	if next == ce.palette {
 		return
 	}
 
-	colorValue := ce.colorValues[colorKey]
-	displayName := strings.Replace(colorKey, ".", " ", -1)
-
-	rgbDisplay := colorValue
-	hslDisplay := ""
-	if rgb, err := theme.HexToRGB(colorValue); err == nil {
-		rgbDisplay = fmt.Sprintf("R:%d G:%d B:%d", rgb.R, rgb.G, rgb.B)
-		hsl := RGBToHSL(rgb.R, rgb.G, rgb.B)
-		hslDisplay = fmt.Sprintf("H:%.0f° S:%.0f%% L:%.0f%%", hsl.H, hsl.S*100, hsl.L*100)
-	}
-
-	dirtyIndicator := ""
-	if ce.isDirty {
-		dirtyIndicator = " [UNSAVED] "
-	}
-
-	ce.setStatus(fmt.Sprintf("Selected: %s (%s | %s)%s | ←→: brightness | Shift+←→: hue | s: save",
-		displayName, rgbDisplay, hslDisplay, dirtyIndicator))
+	ce.palette = next
+	ce.palette.applyPaletteToStyles()
+	ce.applyPaletteToWidgets()
+	ce.rebuildThemeList()
+	ce.refreshContrastColumn()
+	ce.renderStatus()
 }
 
-// onColorSelected handles color selection in the panel
-func (ce *ColorEditor) onColorSelected(index int, text string, _ string, _ rune) {
-	ce.updateColorStatus()
+func firstNonEmpty(values ...string) string {
+	for _, v := range values {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }

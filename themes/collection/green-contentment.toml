@@ -1,0 +1,45 @@
+# alacritty-colors collection · Green Contentment
+# Goethe · Blue and yellow met, a real satisfaction
+
+[colors.primary]
+background = "#0c150e"
+foreground = "#cbd8c8"
+
+[colors.cursor]
+text = "#0c150e"
+cursor = "#4c9e56"
+
+[colors.selection]
+text = "#cbd8c8"
+background = "#234859"
+
+[colors.normal]
+black = "#2c302d"
+red = "#d46c49"
+green = "#49d45a"
+yellow = "#d4cf49"
+blue = "#499ad4"
+magenta = "#d449d0"
+cyan = "#49d4bf"
+white = "#c4cac5"
+
+[colors.bright]
+black = "#525b54"
+red = "#dc9e89"
+green = "#89dc93"
+yellow = "#dcd989"
+blue = "#89b9dc"
+magenta = "#dc89d9"
+cyan = "#89dccf"
+white = "#eff0ef"
+
+[colors.dim]
+black = "#1d201e"
+red = "#a15036"
+green = "#36a143"
+yellow = "#a19d36"
+blue = "#3674a1"
+magenta = "#a1369d"
+cyan = "#36a191"
+white = "#99a39b"
+

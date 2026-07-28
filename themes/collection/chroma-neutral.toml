@@ -1,0 +1,45 @@
+# alacritty-colors collection · Chroma Neutral
+# Colour Order · Value and hue held, chroma near zero
+
+[colors.primary]
+background = "#121314"
+foreground = "#d2d4d6"
+
+[colors.cursor]
+text = "#121314"
+cursor = "#7f888e"
+
+[colors.selection]
+text = "#d2d4d6"
+background = "#2a415a"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#ce5d59"
+green = "#51cc87"
+yellow = "#ccb451"
+blue = "#518bcc"
+magenta = "#b259ce"
+cyan = "#51b8cc"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d6918f"
+green = "#8fd6ae"
+yellow = "#d6c88f"
+blue = "#8fb0d6"
+magenta = "#c58fd6"
+cyan = "#8fcad6"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#99403d"
+green = "#3d9965"
+yellow = "#99873d"
+blue = "#3d6899"
+magenta = "#823d99"
+cyan = "#3d8a99"
+white = "#999ea3"
+

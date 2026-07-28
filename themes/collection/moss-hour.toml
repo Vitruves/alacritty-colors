@@ -1,0 +1,45 @@
+# alacritty-colors collection · Moss Hour
+# Calm · Olive and earth, softly lit
+
+[colors.primary]
+background = "#12150e"
+foreground = "#d0d4c4"
+
+[colors.cursor]
+text = "#12150e"
+cursor = "#8a9a4a"
+
+[colors.selection]
+text = "#d0d4c4"
+background = "#284858"
+
+[colors.normal]
+black = "#2e302c"
+red = "#d26d4b"
+green = "#62d24b"
+yellow = "#d2cd4b"
+blue = "#4b9ad2"
+magenta = "#d24ba8"
+cyan = "#4bd2be"
+white = "#c7cac4"
+
+[colors.bright]
+black = "#575b52"
+red = "#da9f8b"
+green = "#98da8b"
+yellow = "#dad78b"
+blue = "#8bb9da"
+magenta = "#da8bc1"
+cyan = "#8bdace"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#1f201d"
+red = "#9f5138"
+green = "#499f38"
+yellow = "#9f9b38"
+blue = "#38739f"
+magenta = "#9f387e"
+cyan = "#389f8f"
+white = "#9fa399"
+

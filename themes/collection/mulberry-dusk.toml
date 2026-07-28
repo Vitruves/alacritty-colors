@@ -1,0 +1,45 @@
+# alacritty-colors collection · Mulberry Dusk
+# Imagination · Deep berry, quieter than it looks
+
+[colors.primary]
+background = "#150c14"
+foreground = "#ddcbd8"
+
+[colors.cursor]
+text = "#150c14"
+cursor = "#bc5992"
+
+[colors.selection]
+text = "#ddcbd8"
+background = "#373262"
+
+[colors.normal]
+black = "#302c30"
+red = "#da445f"
+green = "#44da58"
+yellow = "#daa344"
+blue = "#6f71e2"
+magenta = "#da44ab"
+cyan = "#44afda"
+white = "#cac4c9"
+
+[colors.bright]
+black = "#5b525a"
+red = "#df8696"
+green = "#86df92"
+yellow = "#dfbf86"
+blue = "#8687df"
+magenta = "#df86c3"
+cyan = "#86c6df"
+white = "#f0eff0"
+
+[colors.dim]
+black = "#201d20"
+red = "#a63046"
+green = "#30a640"
+yellow = "#a67b30"
+blue = "#3033a6"
+magenta = "#a63081"
+cyan = "#3085a6"
+white = "#a399a2"
+

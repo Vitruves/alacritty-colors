@@ -1,0 +1,45 @@
+# alacritty-colors collection · Parchment
+# Warmth · Aged paper, warm light theme
+
+[colors.primary]
+background = "#faf5e9"
+foreground = "#2b2419"
+
+[colors.cursor]
+text = "#faf5e9"
+cursor = "#97641c"
+
+[colors.selection]
+text = "#2b2419"
+background = "#aab6d3"
+
+[colors.normal]
+black = "#4b4944"
+red = "#b04927"
+green = "#2c7e1c"
+yellow = "#8f6620"
+blue = "#2750b0"
+magenta = "#b02784"
+cyan = "#1c7e6f"
+white = "#a3a099"
+
+[colors.bright]
+black = "#252422"
+red = "#7f3b24"
+green = "#337f24"
+yellow = "#7f5e24"
+blue = "#243f7f"
+magenta = "#7f2463"
+cyan = "#22776b"
+white = "#7b786f"
+
+[colors.dim]
+black = "#605e57"
+red = "#c76b4d"
+green = "#61c74d"
+yellow = "#c79a4d"
+blue = "#4d71c7"
+magenta = "#c74da0"
+cyan = "#4dc7b4"
+white = "#bbb9b4"
+

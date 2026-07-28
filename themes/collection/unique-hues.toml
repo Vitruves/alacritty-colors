@@ -1,0 +1,45 @@
+# alacritty-colors collection · Unique Hues
+# Opponent · The four hues that look mixed with nothing
+
+[colors.primary]
+background = "#0e1014"
+foreground = "#d0d4dc"
+
+[colors.cursor]
+text = "#0e1014"
+cursor = "#c85a4a"
+
+[colors.selection]
+text = "#d0d4dc"
+background = "#323463"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#db5643"
+green = "#5cdb43"
+yellow = "#dba443"
+blue = "#6e6fe3"
+magenta = "#db43ab"
+cyan = "#43d1db"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#e09085"
+green = "#94e085"
+yellow = "#e0bf85"
+blue = "#8586e0"
+magenta = "#e085c3"
+cyan = "#85dae0"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a73e2f"
+green = "#44a72f"
+yellow = "#a77c2f"
+blue = "#2f31a7"
+magenta = "#a72f81"
+cyan = "#2f9fa7"
+white = "#999ca3"
+

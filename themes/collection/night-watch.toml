@@ -1,0 +1,45 @@
+# alacritty-colors collection · Night Watch
+# Scotopic · Dim, cool, and steady for hours
+
+[colors.primary]
+background = "#070a0c"
+foreground = "#c2cccf"
+
+[colors.cursor]
+text = "#070a0c"
+cursor = "#4f8a92"
+
+[colors.selection]
+text = "#c2cccf"
+background = "#213f58"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d3504b"
+green = "#4bd386"
+yellow = "#d3cd4b"
+blue = "#4b95d3"
+magenta = "#b14bd3"
+cyan = "#4bc7d3"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52585b"
+red = "#db8d8a"
+green = "#8adbad"
+yellow = "#dbd88a"
+blue = "#8ab6db"
+magenta = "#c78adb"
+cyan = "#8ad4db"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#9f3b37"
+green = "#379f65"
+yellow = "#9f9b37"
+blue = "#37709f"
+magenta = "#85379f"
+cyan = "#37969f"
+white = "#999fa3"
+

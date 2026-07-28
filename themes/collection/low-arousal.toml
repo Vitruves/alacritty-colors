@@ -1,0 +1,45 @@
+# alacritty-colors collection · Low Arousal
+# Affect · Chroma pulled down to almost nothing
+
+[colors.primary]
+background = "#12161a"
+foreground = "#ccd2d8"
+
+[colors.cursor]
+text = "#12161a"
+cursor = "#7d94a4"
+
+[colors.selection]
+text = "#ccd2d8"
+background = "#2a425d"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#cd5e5a"
+green = "#52cb87"
+yellow = "#cbb352"
+blue = "#528bcb"
+magenta = "#b15acd"
+cyan = "#52b7cb"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d6928f"
+green = "#8fd6ae"
+yellow = "#d6c88f"
+blue = "#8fb0d6"
+magenta = "#c48fd6"
+cyan = "#8fcad6"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#98413e"
+green = "#3e9865"
+yellow = "#98863e"
+blue = "#3e6898"
+magenta = "#823e98"
+cyan = "#3e8998"
+white = "#999ea3"
+

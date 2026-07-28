@@ -1,0 +1,45 @@
+# alacritty-colors collection · Pleasure Curve
+# Affect · Bright and moderately saturated
+
+[colors.primary]
+background = "#0e1218"
+foreground = "#d2d8e0"
+
+[colors.cursor]
+text = "#0e1218"
+cursor = "#52a0d0"
+
+[colors.selection]
+text = "#d2d8e0"
+background = "#244061"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d9544f"
+green = "#47d786"
+yellow = "#d7ba47"
+blue = "#478ad7"
+magenta = "#b64fd9"
+cyan = "#47bfd7"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#dd8b88"
+green = "#88ddad"
+yellow = "#ddcc88"
+blue = "#88b0dd"
+magenta = "#c888dd"
+cyan = "#88cfdd"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a33733"
+green = "#33a364"
+yellow = "#a38d33"
+blue = "#3367a3"
+magenta = "#8733a3"
+cyan = "#3390a3"
+white = "#999da3"
+

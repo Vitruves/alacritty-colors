@@ -1,0 +1,45 @@
+# alacritty-colors collection · Colour Solid
+# Colour Order · The whole arrangement, in three dimensions
+
+[colors.primary]
+background = "#0c0e12"
+foreground = "#ccd0d8"
+
+[colors.cursor]
+text = "#0c0e12"
+cursor = "#5c7ea8"
+
+[colors.selection]
+text = "#ccd0d8"
+background = "#243a5b"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d34b64"
+green = "#4bd386"
+yellow = "#d3b74b"
+blue = "#4b81d3"
+magenta = "#b553d5"
+cyan = "#4bb3d3"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#db8a99"
+green = "#8adbad"
+yellow = "#dbcb8a"
+blue = "#8aaadb"
+magenta = "#c78adb"
+cyan = "#8ac8db"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#9f374a"
+green = "#379f65"
+yellow = "#9f8a37"
+blue = "#37619f"
+magenta = "#85379f"
+cyan = "#37879f"
+white = "#999ca3"
+

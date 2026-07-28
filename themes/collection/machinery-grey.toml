@@ -1,0 +1,45 @@
+# alacritty-colors collection · Machinery Grey
+# Birren · The ground everything else sat against
+
+[colors.primary]
+background = "#141618"
+foreground = "#d0d4d8"
+
+[colors.cursor]
+text = "#141618"
+cursor = "#8a949c"
+
+[colors.selection]
+text = "#d0d4d8"
+background = "#2b425c"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#ce5d59"
+green = "#51cc87"
+yellow = "#ccb451"
+blue = "#5189cc"
+magenta = "#b259ce"
+cyan = "#51b6cc"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d6918f"
+green = "#8fd6ae"
+yellow = "#d6c88f"
+blue = "#8fafd6"
+magenta = "#c58fd6"
+cyan = "#8fc9d6"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#99403d"
+green = "#3d9965"
+yellow = "#99873d"
+blue = "#3d6799"
+magenta = "#823d99"
+cyan = "#3d8899"
+white = "#999ea3"
+

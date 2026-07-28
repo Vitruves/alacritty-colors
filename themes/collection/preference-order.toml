@@ -1,0 +1,45 @@
+# alacritty-colors collection · Preference Order
+# Luscher · The eight, ranked and read
+
+[colors.primary]
+background = "#0e1014"
+foreground = "#ced2da"
+
+[colors.cursor]
+text = "#0e1014"
+cursor = "#5a80a8"
+
+[colors.selection]
+text = "#ced2da"
+background = "#263c5c"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d2504c"
+green = "#4cd286"
+yellow = "#d2b74c"
+blue = "#4c84d2"
+magenta = "#b454d4"
+cyan = "#4cb5d2"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#da8e8b"
+green = "#8bdaad"
+yellow = "#daca8b"
+blue = "#8bacda"
+magenta = "#c68bda"
+cyan = "#8bc9da"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#9e3c38"
+green = "#389e65"
+yellow = "#9e8a38"
+blue = "#38639e"
+magenta = "#85389e"
+cyan = "#38889e"
+white = "#999ca3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Late Shift
+# Circadian · For the hours the body did not ask for
+
+[colors.primary]
+background = "#120e0a"
+foreground = "#ded0c0"
+
+[colors.cursor]
+text = "#120e0a"
+cursor = "#c08a48"
+
+[colors.selection]
+text = "#ded0c0"
+background = "#2a3758"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d46c49"
+green = "#61d449"
+yellow = "#d4a249"
+blue = "#5179d6"
+magenta = "#d449a9"
+cyan = "#49cbd4"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5752"
+red = "#dc9e89"
+green = "#97dc89"
+yellow = "#dcbe89"
+blue = "#89a2dc"
+magenta = "#dc89c2"
+cyan = "#89d6dc"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a15036"
+green = "#48a136"
+yellow = "#a17a36"
+blue = "#3656a1"
+magenta = "#a1367f"
+cyan = "#369aa1"
+white = "#a39e99"
+

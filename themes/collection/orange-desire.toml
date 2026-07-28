@@ -1,0 +1,45 @@
+# alacritty-colors collection · Orange Desire
+# Luscher · Orange-red, the third
+
+[colors.primary]
+background = "#180f08"
+foreground = "#e2d0bc"
+
+[colors.cursor]
+text = "#180f08"
+cursor = "#d87a24"
+
+[colors.selection]
+text = "#e2d0bc"
+background = "#2d385b"
+
+[colors.normal]
+black = "#302e2c"
+red = "#df673e"
+green = "#5adf3e"
+yellow = "#dfa53e"
+blue = "#4f7ce2"
+magenta = "#df3ead"
+cyan = "#3ed4df"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5652"
+red = "#e39a82"
+green = "#92e382"
+yellow = "#e3c082"
+blue = "#829fe3"
+magenta = "#e382c5"
+cyan = "#82dde3"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#ab4b2b"
+green = "#41ab2b"
+yellow = "#ab7d2b"
+blue = "#2b52ab"
+magenta = "#ab2b83"
+cyan = "#2ba2ab"
+white = "#a39d99"
+

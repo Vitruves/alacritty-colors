@@ -1,0 +1,45 @@
+# alacritty-colors collection · Signal Clarity
+# Focus · Crisp cyan, everything legible at a glance
+
+[colors.primary]
+background = "#06121a"
+foreground = "#cfe2ec"
+
+[colors.cursor]
+text = "#06121a"
+cursor = "#24a8d4"
+
+[colors.selection]
+text = "#cfe2ec"
+background = "#1e4063"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d94a45"
+green = "#45d985"
+yellow = "#d9d345"
+blue = "#458cd9"
+magenta = "#b74ddb"
+cyan = "#45c3d9"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52585b"
+red = "#df8986"
+green = "#86dfad"
+yellow = "#dfdc86"
+blue = "#86b1df"
+magenta = "#c986df"
+cyan = "#86d1df"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#a53531"
+green = "#31a564"
+yellow = "#a5a131"
+blue = "#3169a5"
+magenta = "#8831a5"
+cyan = "#3193a5"
+white = "#999fa3"
+

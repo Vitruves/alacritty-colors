@@ -1,0 +1,45 @@
+# alacritty-colors collection · Nocturne
+# Contrast · Blue pulled out for the last hours of the day
+
+[colors.primary]
+background = "#14100e"
+foreground = "#ddd2c6"
+
+[colors.cursor]
+text = "#14100e"
+cursor = "#c08a4a"
+
+[colors.selection]
+text = "#ddd2c6"
+background = "#2b385a"
+
+[colors.normal]
+black = "#302d2c"
+red = "#d56c48"
+green = "#60d548"
+yellow = "#d5a248"
+blue = "#5079d7"
+magenta = "#d548a9"
+cyan = "#48ccd5"
+white = "#cac6c4"
+
+[colors.bright]
+black = "#5b5552"
+red = "#dc9e89"
+green = "#97dc89"
+yellow = "#dcbe89"
+blue = "#89a2dc"
+magenta = "#dc89c2"
+cyan = "#89d7dc"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#a25035"
+green = "#47a235"
+yellow = "#a27a35"
+blue = "#3555a2"
+magenta = "#a2357f"
+cyan = "#359aa2"
+white = "#a39c99"
+

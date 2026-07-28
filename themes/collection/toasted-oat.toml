@@ -1,0 +1,45 @@
+# alacritty-colors collection · Toasted Oat
+# Warmth · Beige with body
+
+[colors.primary]
+background = "#f7f2e6"
+foreground = "#2d2820"
+
+[colors.cursor]
+text = "#f7f2e6"
+cursor = "#846428"
+
+[colors.selection]
+text = "#2d2820"
+background = "#a9b5d1"
+
+[colors.normal]
+black = "#4b4944"
+red = "#ae4a29"
+green = "#2d7c1d"
+yellow = "#8d6721"
+blue = "#2951ae"
+magenta = "#ae2984"
+cyan = "#1d7c6e"
+white = "#a3a099"
+
+[colors.bright]
+black = "#252422"
+red = "#7e3c26"
+green = "#357e26"
+yellow = "#7e5f26"
+blue = "#26407e"
+magenta = "#7e2662"
+cyan = "#247669"
+white = "#7b786f"
+
+[colors.dim]
+black = "#605e57"
+red = "#c46c4f"
+green = "#63c44f"
+yellow = "#c49c4f"
+blue = "#4f72c4"
+magenta = "#c44f9f"
+cyan = "#4fc4b3"
+white = "#bbb9b4"
+

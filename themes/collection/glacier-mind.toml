@@ -1,0 +1,45 @@
+# alacritty-colors collection · Glacier Mind
+# Focus · Bright ice for daylight rooms
+
+[colors.primary]
+background = "#f2f6fb"
+foreground = "#1e2833"
+
+[colors.cursor]
+text = "#f2f6fb"
+cursor = "#2f6fb0"
+
+[colors.selection]
+text = "#1e2833"
+background = "#a5bddf"
+
+[colors.normal]
+black = "#44474b"
+red = "#b02b27"
+green = "#1c7e46"
+yellow = "#7e6a1c"
+blue = "#2761b0"
+magenta = "#8e27b0"
+cyan = "#20778f"
+white = "#999ea3"
+
+[colors.bright]
+black = "#222425"
+red = "#7f2724"
+green = "#247f4c"
+yellow = "#7f6d24"
+blue = "#244b7f"
+magenta = "#69247f"
+cyan = "#246c7f"
+white = "#6f757b"
+
+[colors.dim]
+black = "#575b60"
+red = "#c7514d"
+green = "#4dc782"
+yellow = "#c7ae4d"
+blue = "#4d80c7"
+magenta = "#a84dc7"
+cyan = "#4dadc7"
+white = "#b4b7bb"
+

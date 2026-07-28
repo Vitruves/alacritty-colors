@@ -1,0 +1,45 @@
+# alacritty-colors collection · Quiet Harbor
+# Focus · Blue-grey with the volume down
+
+[colors.primary]
+background = "#121820"
+foreground = "#ccd4dc"
+
+[colors.cursor]
+text = "#121820"
+cursor = "#7fa0bb"
+
+[colors.selection]
+text = "#ccd4dc"
+background = "#294363"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d25a56"
+green = "#4ed087"
+yellow = "#d0b64e"
+blue = "#4e88d0"
+magenta = "#b75ed4"
+cyan = "#4eb8d0"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#d98f8c"
+green = "#8cd9ae"
+yellow = "#d9c98c"
+blue = "#8cafd9"
+magenta = "#c68cd9"
+cyan = "#8ccbd9"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#9c3d3a"
+green = "#3a9c65"
+yellow = "#9c893a"
+blue = "#3a669c"
+magenta = "#843a9c"
+cyan = "#3a8a9c"
+white = "#999da3"
+

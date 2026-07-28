@@ -1,0 +1,45 @@
+# alacritty-colors collection · Ordered System
+# Colour Order · Colour given three coordinates
+
+[colors.primary]
+background = "#0e1012"
+foreground = "#ced2d4"
+
+[colors.cursor]
+text = "#0e1012"
+cursor = "#6e8894"
+
+[colors.selection]
+text = "#ced2d4"
+background = "#263e5a"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d0524e"
+green = "#4ed087"
+yellow = "#d0b64e"
+blue = "#4e8ad0"
+magenta = "#b456d2"
+cyan = "#4ebad0"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d98f8c"
+green = "#8cd9ae"
+yellow = "#d9c98c"
+blue = "#8cb0d9"
+magenta = "#c68cd9"
+cyan = "#8cccd9"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#9c3d3a"
+green = "#3a9c65"
+yellow = "#9c893a"
+blue = "#3a689c"
+magenta = "#843a9c"
+cyan = "#3a8c9c"
+white = "#999ea3"
+

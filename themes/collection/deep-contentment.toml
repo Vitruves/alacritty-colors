@@ -1,0 +1,45 @@
+# alacritty-colors collection · Deep Contentment
+# Luscher · His dark blue, first of the eight
+
+[colors.primary]
+background = "#08101c"
+foreground = "#c6d0e2"
+
+[colors.cursor]
+text = "#08101c"
+cursor = "#527fc9"
+
+[colors.selection]
+text = "#c6d0e2"
+background = "#203962"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d75069"
+green = "#48d586"
+yellow = "#d5b948"
+blue = "#487cd5"
+magenta = "#b550d7"
+cyan = "#48b0d5"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#dc8998"
+green = "#89dcad"
+yellow = "#dccc89"
+blue = "#89a7dc"
+magenta = "#c889dc"
+cyan = "#89c6dc"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a23549"
+green = "#35a264"
+yellow = "#a28c35"
+blue = "#355ca2"
+magenta = "#8635a2"
+cyan = "#3584a2"
+white = "#999da3"
+

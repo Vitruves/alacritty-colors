@@ -1,0 +1,45 @@
+# alacritty-colors collection · Turbid Medium
+# Goethe · Colour as light seen through haze
+
+[colors.primary]
+background = "#14161a"
+foreground = "#d2d6dc"
+
+[colors.cursor]
+text = "#14161a"
+cursor = "#9aa8bc"
+
+[colors.selection]
+text = "#d2d6dc"
+background = "#2a3e5f"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d1576d"
+green = "#4fcf87"
+yellow = "#cfb54f"
+blue = "#4f80cf"
+magenta = "#b65fd3"
+cyan = "#4fafcf"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#d88d9b"
+green = "#8dd8ae"
+yellow = "#d8c98d"
+blue = "#8daad8"
+magenta = "#c58dd8"
+cyan = "#8dc5d8"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#9c3b4c"
+green = "#3b9c65"
+yellow = "#9c883b"
+blue = "#3b609c"
+magenta = "#833b9c"
+cyan = "#3b839c"
+white = "#999ca3"
+

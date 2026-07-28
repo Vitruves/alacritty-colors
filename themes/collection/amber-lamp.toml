@@ -1,0 +1,45 @@
+# alacritty-colors collection · Amber Lamp
+# Warmth · Lamplight amber, low blue for evenings
+
+[colors.primary]
+background = "#16120b"
+foreground = "#e0d5c2"
+
+[colors.cursor]
+text = "#16120b"
+cursor = "#d99a3c"
+
+[colors.selection]
+text = "#e0d5c2"
+background = "#2e3b5a"
+
+[colors.normal]
+black = "#302f2c"
+red = "#d96a45"
+green = "#5ed945"
+yellow = "#d9a345"
+blue = "#567edc"
+magenta = "#d945aa"
+cyan = "#45d9c3"
+white = "#cac8c4"
+
+[colors.bright]
+black = "#5b5852"
+red = "#df9c86"
+green = "#95df86"
+yellow = "#dfbf86"
+blue = "#86a1df"
+magenta = "#df86c3"
+cyan = "#86dfd2"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a54e31"
+green = "#45a531"
+yellow = "#a57b31"
+blue = "#3154a5"
+magenta = "#a53180"
+cyan = "#31a594"
+white = "#a39f99"
+

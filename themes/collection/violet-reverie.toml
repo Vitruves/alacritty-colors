@@ -1,0 +1,45 @@
+# alacritty-colors collection · Violet Reverie
+# Imagination · Violet field for wandering work
+
+[colors.primary]
+background = "#120e1c"
+foreground = "#d5cee6"
+
+[colors.cursor]
+text = "#120e1c"
+cursor = "#8b6cd8"
+
+[colors.selection]
+text = "#d5cee6"
+background = "#343268"
+
+[colors.normal]
+black = "#2d2c30"
+red = "#de4a65"
+green = "#41dc85"
+yellow = "#dcbd41"
+blue = "#6c6ee4"
+magenta = "#b94ade"
+cyan = "#41b0dc"
+white = "#c6c4ca"
+
+[colors.bright]
+black = "#55525b"
+red = "#e18495"
+green = "#84e1ad"
+yellow = "#e1cf84"
+blue = "#8485e1"
+magenta = "#ca84e1"
+cyan = "#84c7e1"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1e1d20"
+red = "#a82e44"
+green = "#2ea863"
+yellow = "#a8902e"
+blue = "#2e30a8"
+magenta = "#8a2ea8"
+cyan = "#2e86a8"
+white = "#9c99a3"
+

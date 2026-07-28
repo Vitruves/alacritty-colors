@@ -1,0 +1,45 @@
+# alacritty-colors collection · Newsprint
+# Neutral · Off-white, low glare
+
+[colors.primary]
+background = "#f6f6f4"
+foreground = "#26272a"
+
+[colors.cursor]
+text = "#f6f6f4"
+cursor = "#4a4d52"
+
+[colors.selection]
+text = "#26272a"
+background = "#a9bbd8"
+
+[colors.normal]
+black = "#4b4b44"
+red = "#aa2c43"
+green = "#22814b"
+yellow = "#816e22"
+blue = "#2c5aaa"
+magenta = "#8b2caa"
+cyan = "#267592"
+white = "#a3a399"
+
+[colors.bright]
+black = "#252522"
+red = "#7b2837"
+green = "#287b4c"
+yellow = "#7b6a28"
+blue = "#28467b"
+magenta = "#66287b"
+cyan = "#28657b"
+white = "#7b7b6f"
+
+[colors.dim]
+black = "#606057"
+red = "#c15367"
+green = "#53c183"
+yellow = "#c1ab53"
+blue = "#537bc1"
+magenta = "#a553c1"
+cyan = "#53a3c1"
+white = "#bbbbb4"
+

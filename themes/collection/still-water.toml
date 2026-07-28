@@ -1,0 +1,45 @@
+# alacritty-colors collection · Still Water
+# Focus · Teal, quiet and even
+
+[colors.primary]
+background = "#08171a"
+foreground = "#c2d6d6"
+
+[colors.cursor]
+text = "#08171a"
+cursor = "#3fa6a6"
+
+[colors.selection]
+text = "#c2d6d6"
+background = "#214961"
+
+[colors.normal]
+black = "#2c2f30"
+red = "#d65651"
+green = "#49d486"
+yellow = "#d4cf49"
+blue = "#499ad4"
+magenta = "#b95ad8"
+cyan = "#49d4d4"
+white = "#c4c9ca"
+
+[colors.bright]
+black = "#525a5b"
+red = "#dc8c89"
+green = "#89dcad"
+yellow = "#dcd989"
+blue = "#89b9dc"
+magenta = "#c789dc"
+cyan = "#89dcdc"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d2020"
+red = "#a13936"
+green = "#36a164"
+yellow = "#a19d36"
+blue = "#3674a1"
+magenta = "#8636a1"
+cyan = "#36a1a1"
+white = "#99a1a3"
+

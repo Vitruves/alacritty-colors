@@ -1,0 +1,45 @@
+# alacritty-colors collection · Modern Edge
+# Image Scale · Cool and hard, cleanly lit
+
+[colors.primary]
+background = "#0a0c10"
+foreground = "#ccd2dc"
+
+[colors.cursor]
+text = "#0a0c10"
+cursor = "#3ea0d8"
+
+[colors.selection]
+text = "#ccd2dc"
+background = "#1f3c5e"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#dc4742"
+green = "#42dc85"
+yellow = "#dcbd42"
+blue = "#428adc"
+magenta = "#b84bde"
+cyan = "#42c2dc"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#e18784"
+green = "#84e1ad"
+yellow = "#e1ce84"
+blue = "#84afe1"
+magenta = "#ca84e1"
+cyan = "#84d1e1"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a8332f"
+green = "#2fa863"
+yellow = "#a88f2f"
+blue = "#2f67a8"
+magenta = "#8a2fa8"
+cyan = "#2f93a8"
+white = "#999ca3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Safety Green
+# Birren · The signal green of his colour codes
+
+[colors.primary]
+background = "#0a140e"
+foreground = "#c8d8ca"
+
+[colors.cursor]
+text = "#0a140e"
+cursor = "#3aa050"
+
+[colors.selection]
+text = "#c8d8ca"
+background = "#21475a"
+
+[colors.normal]
+black = "#2c302d"
+red = "#d76b47"
+green = "#47d766"
+yellow = "#d7d147"
+blue = "#479bd7"
+magenta = "#d747d2"
+cyan = "#47d7c1"
+white = "#c4cac6"
+
+[colors.bright]
+black = "#525b56"
+red = "#dd9d88"
+green = "#88dd9a"
+yellow = "#ddda88"
+blue = "#88b9dd"
+magenta = "#dd88da"
+cyan = "#88ddd0"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d201e"
+red = "#a34f33"
+green = "#33a34b"
+yellow = "#a39f33"
+blue = "#3374a3"
+magenta = "#a3339f"
+cyan = "#33a392"
+white = "#99a39d"
+

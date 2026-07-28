@@ -1,0 +1,45 @@
+# alacritty-colors collection · Summer Sphere
+# Itten · Light and cool, on paper
+
+[colors.primary]
+background = "#f2f6fa"
+foreground = "#1e2632"
+
+[colors.cursor]
+text = "#f2f6fa"
+cursor = "#3570a5"
+
+[colors.selection]
+text = "#1e2632"
+background = "#a5bedd"
+
+[colors.normal]
+black = "#44474b"
+red = "#ae2c28"
+green = "#1d7c47"
+yellow = "#7c691d"
+blue = "#2863ae"
+magenta = "#8d28ae"
+cyan = "#20788d"
+white = "#999ea3"
+
+[colors.bright]
+black = "#222425"
+red = "#7e2825"
+green = "#257e4c"
+yellow = "#7e6c25"
+blue = "#254c7e"
+magenta = "#68257e"
+cyan = "#256d7e"
+white = "#6f757b"
+
+[colors.dim]
+black = "#575c60"
+red = "#c5524e"
+green = "#4ec582"
+yellow = "#c5ad4e"
+blue = "#4e82c5"
+magenta = "#a84ec5"
+cyan = "#4eaec5"
+white = "#b4b8bb"
+

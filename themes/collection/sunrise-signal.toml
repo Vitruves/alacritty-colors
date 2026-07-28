@@ -1,0 +1,45 @@
+# alacritty-colors collection · Sunrise Signal
+# Circadian · Warm light on a bright ground
+
+[colors.primary]
+background = "#fff8ee"
+foreground = "#2c2419"
+
+[colors.cursor]
+text = "#fff8ee"
+cursor = "#9e5f17"
+
+[colors.selection]
+text = "#2c2419"
+background = "#acb8d7"
+
+[colors.normal]
+black = "#4b4844"
+red = "#b14825"
+green = "#2c7e1a"
+yellow = "#8f661e"
+blue = "#254fb1"
+magenta = "#b12585"
+cyan = "#1a787e"
+white = "#a39f99"
+
+[colors.bright]
+black = "#252422"
+red = "#803a23"
+green = "#338023"
+yellow = "#805e23"
+blue = "#233f80"
+magenta = "#802363"
+cyan = "#237a80"
+white = "#7b766f"
+
+[colors.dim]
+black = "#605d57"
+red = "#c86a4b"
+green = "#61c84b"
+yellow = "#c89b4b"
+blue = "#4b71c8"
+magenta = "#c84ba1"
+cyan = "#4bc0c8"
+white = "#bbb8b4"
+

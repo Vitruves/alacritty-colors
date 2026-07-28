@@ -1,0 +1,45 @@
+# alacritty-colors collection · Astronomer Red
+# Scotopic · The observatory convention, kept dark
+
+[colors.primary]
+background = "#0a0404"
+foreground = "#d8bcba"
+
+[colors.cursor]
+text = "#0a0404"
+cursor = "#d74646"
+
+[colors.selection]
+text = "#d8bcba"
+background = "#2f2c5a"
+
+[colors.normal]
+black = "#302c2c"
+red = "#de3f3f"
+green = "#5ade3f"
+yellow = "#dea53f"
+blue = "#6b6de5"
+magenta = "#de3fac"
+cyan = "#3fd4de"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#e38282"
+green = "#93e382"
+yellow = "#e3c082"
+blue = "#8284e3"
+magenta = "#e382c4"
+cyan = "#82dce3"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#aa2c2c"
+green = "#42aa2c"
+yellow = "#aa7c2c"
+blue = "#2c2eaa"
+magenta = "#aa2c82"
+cyan = "#2ca2aa"
+white = "#a39999"
+

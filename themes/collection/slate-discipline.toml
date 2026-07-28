@@ -1,0 +1,45 @@
+# alacritty-colors collection · Slate Discipline
+# Neutral · Grey with a trace of blue
+
+[colors.primary]
+background = "#14181c"
+foreground = "#ccd2d8"
+
+[colors.cursor]
+text = "#14181c"
+cursor = "#7c8b99"
+
+[colors.selection]
+text = "#ccd2d8"
+background = "#2a4260"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d15b57"
+green = "#4fcf87"
+yellow = "#cfb54f"
+blue = "#4f86cf"
+magenta = "#b65fd3"
+cyan = "#4fb5cf"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d88f8d"
+green = "#8dd8ae"
+yellow = "#d8c98d"
+blue = "#8daed8"
+magenta = "#c58dd8"
+cyan = "#8dc9d8"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#9c3e3b"
+green = "#3b9c65"
+yellow = "#9c883b"
+blue = "#3b659c"
+magenta = "#833b9c"
+cyan = "#3b889c"
+white = "#999ea3"
+

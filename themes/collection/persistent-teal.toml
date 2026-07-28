@@ -1,0 +1,45 @@
+# alacritty-colors collection · Persistent Teal
+# Luscher · Blue-green, the second
+
+[colors.primary]
+background = "#061618"
+foreground = "#c2d6d8"
+
+[colors.cursor]
+text = "#061618"
+cursor = "#26928e"
+
+[colors.selection]
+text = "#c2d6d8"
+background = "#1f4860"
+
+[colors.normal]
+black = "#2c3030"
+red = "#d8544f"
+green = "#47d686"
+yellow = "#d6d147"
+blue = "#479ad6"
+magenta = "#ba58da"
+cyan = "#47d6d1"
+white = "#c4c9ca"
+
+[colors.bright]
+black = "#525a5b"
+red = "#dd8b88"
+green = "#88ddad"
+yellow = "#ddda88"
+blue = "#88b9dd"
+magenta = "#c888dd"
+cyan = "#88ddda"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d2020"
+red = "#a23834"
+green = "#34a264"
+yellow = "#a29e34"
+blue = "#3474a2"
+magenta = "#8734a2"
+cyan = "#34a29e"
+white = "#99a2a3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Circadian Dusk
+# Circadian · Warm and dimming, like the hour
+
+[colors.primary]
+background = "#130f0c"
+foreground = "#ded2c6"
+
+[colors.cursor]
+text = "#130f0c"
+cursor = "#b8804a"
+
+[colors.selection]
+text = "#ded2c6"
+background = "#2a3759"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d56c48"
+green = "#60d548"
+yellow = "#d5a248"
+blue = "#5079d7"
+magenta = "#d548a9"
+cyan = "#48ccd5"
+white = "#cac6c4"
+
+[colors.bright]
+black = "#5b5652"
+red = "#dc9e89"
+green = "#97dc89"
+yellow = "#dcbe89"
+blue = "#89a2dc"
+magenta = "#dc89c2"
+cyan = "#89d7dc"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#a25035"
+green = "#47a235"
+yellow = "#a27a35"
+blue = "#3555a2"
+magenta = "#a2357f"
+cyan = "#359aa2"
+white = "#a39d99"
+

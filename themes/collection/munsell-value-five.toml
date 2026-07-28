@@ -1,0 +1,45 @@
+# alacritty-colors collection · Munsell Value Five
+# Colour Order · The middle rung of his value scale
+
+[colors.primary]
+background = "#131313"
+foreground = "#d6d6d6"
+
+[colors.cursor]
+text = "#131313"
+cursor = "#8f8f8f"
+
+[colors.selection]
+text = "#d6d6d6"
+background = "#393a5e"
+
+[colors.normal]
+black = "#302c2c"
+red = "#cf5858"
+green = "#66cd50"
+yellow = "#cda050"
+blue = "#787ad8"
+magenta = "#cd50a6"
+cyan = "#50c5cd"
+white = "#cac4c4"
+
+[colors.bright]
+black = "#5b5252"
+red = "#d78e8e"
+green = "#9ad78e"
+yellow = "#d7bd8e"
+blue = "#8e8fd7"
+magenta = "#d78ec0"
+cyan = "#8ed2d7"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201d1d"
+red = "#9a3c3c"
+green = "#4c9a3c"
+yellow = "#9a783c"
+blue = "#3c3e9a"
+magenta = "#9a3c7c"
+cyan = "#3c949a"
+white = "#a39999"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Classic Weight
+# Image Scale · Warm, deep, unhurried
+
+[colors.primary]
+background = "#14110c"
+foreground = "#ded4c4"
+
+[colors.cursor]
+text = "#14110c"
+cursor = "#a07a3a"
+
+[colors.selection]
+text = "#ded4c4"
+background = "#2c3958"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d26d4b"
+green = "#62d24b"
+yellow = "#d2a14b"
+blue = "#537ad4"
+magenta = "#d24ba8"
+cyan = "#4bd2be"
+white = "#cac8c4"
+
+[colors.bright]
+black = "#5b5852"
+red = "#da9f8b"
+green = "#98da8b"
+yellow = "#dabd8b"
+blue = "#8ba3da"
+magenta = "#da8bc1"
+cyan = "#8bdace"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#9f5138"
+green = "#499f38"
+yellow = "#9f7938"
+blue = "#38579f"
+magenta = "#9f387e"
+cyan = "#389f8f"
+white = "#a39f99"
+

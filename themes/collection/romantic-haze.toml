@@ -1,0 +1,45 @@
+# alacritty-colors collection · Romantic Haze
+# Image Scale · Soft and warm, the tender quarter
+
+[colors.primary]
+background = "#fbf4f7"
+foreground = "#2e2430"
+
+[colors.cursor]
+text = "#fbf4f7"
+cursor = "#a85482"
+
+[colors.selection]
+text = "#2e2430"
+background = "#aca8db"
+
+[colors.normal]
+black = "#4b4447"
+red = "#ad2a42"
+green = "#1e7c2a"
+yellow = "#8c6522"
+blue = "#2a2cad"
+magenta = "#ad2a83"
+cyan = "#247594"
+white = "#a3999d"
+
+[colors.bright]
+black = "#252223"
+red = "#7d2636"
+green = "#267d32"
+yellow = "#7d5e26"
+blue = "#26287d"
+magenta = "#7d2662"
+cyan = "#26647d"
+white = "#7b6f74"
+
+[colors.dim]
+black = "#60575b"
+red = "#c35065"
+green = "#50c35f"
+yellow = "#c39a50"
+blue = "#5052c3"
+magenta = "#c3509f"
+cyan = "#50a3c3"
+white = "#bbb4b7"
+

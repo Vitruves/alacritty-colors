@@ -1,0 +1,45 @@
+# alacritty-colors collection · Peripheral Quiet
+# Birren · Nothing at the edge of vision competing
+
+[colors.primary]
+background = "#101212"
+foreground = "#ced0d0"
+
+[colors.cursor]
+text = "#101212"
+cursor = "#7c8a88"
+
+[colors.selection]
+text = "#ced0d0"
+background = "#294558"
+
+[colors.normal]
+black = "#2c3030"
+red = "#cd5e5a"
+green = "#52cb87"
+yellow = "#cbc752"
+blue = "#5299cb"
+magenta = "#b15acd"
+cyan = "#52cbba"
+white = "#c4caca"
+
+[colors.bright]
+black = "#525b5b"
+red = "#d6928f"
+green = "#8fd6ae"
+yellow = "#d6d38f"
+blue = "#8fb8d6"
+magenta = "#c48fd6"
+cyan = "#8fd6cc"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d2020"
+red = "#98413e"
+green = "#3e9865"
+yellow = "#98953e"
+blue = "#3e7298"
+magenta = "#823e98"
+cyan = "#3e988b"
+white = "#99a3a3"
+

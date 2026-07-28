@@ -20,6 +20,7 @@ func main() {
 	themesPath := flag.String("themes", "", "Path to themes directory")
 	showVersion := flag.Bool("version", false, "Show version information")
 	showHelp := flag.Bool("help", false, "Show help information")
+	exportPath := flag.String("export-collection", "", "Write the curated collection to a directory and exit")
 
 	// Custom usage message
 	flag.Usage = func() {
@@ -37,6 +38,10 @@ Options:
   -themes string
         Path to themes directory
         Default: ~/.config/alacritty/themes/
+
+  -export-collection string
+        Write the 150 curated themes to a directory and exit,
+        without touching your Alacritty config
 
   -version
         Show version information
@@ -58,13 +63,16 @@ Examples:
   alacritty-colors -config /path/to/alacritty.toml -themes /path/to/themes
 
 Keybindings:
-  Tab          Switch panels
+  Tab          Next column
+  a            Apply what you see
   ↑/↓          Navigate
-  ←/→          Adjust brightness
-  Shift+←/→    Adjust hue
-  n            Create new theme
-  g            Generate random theme
+  ←/→          Brighten / darken
+  Shift+←/→    Rotate hue
+  Enter        Type an exact hex value (palette panel)
+  n            Theme creator
+  g            Generate a harmonious theme
   /            Search themes
+  s            Save (quitting saves and applies too)
   ?            Show all keybindings
   q            Quit
 
@@ -83,6 +91,25 @@ For more information, visit: https://github.com/vitruves/alacritty-colors
 	// Handle help flag
 	if *showHelp {
 		flag.Usage()
+		os.Exit(0)
+	}
+
+	// Export the collection anywhere, for people who want the .toml files
+	// without letting the tool near their Alacritty config.
+	if *exportPath != "" {
+		if err := os.MkdirAll(*exportPath, 0755); err != nil {
+			ui.PrintError("Could not create %s: %v", *exportPath, err)
+			os.Exit(1)
+		}
+		written, skipped, err := tui.InstallCollection(*exportPath)
+		if err != nil {
+			ui.PrintError("Export failed: %v", err)
+			os.Exit(1)
+		}
+		ui.PrintSuccess("Wrote %d themes to %s", written, *exportPath)
+		if skipped > 0 {
+			ui.PrintInfo("Left %d edited file(s) untouched", skipped)
+		}
 		os.Exit(0)
 	}
 
@@ -116,9 +143,13 @@ For more information, visit: https://github.com/vitruves/alacritty-colors
 
 	// Launch TUI
 	ui.PrintInfo("Launching theme editor...")
-	if err := tui.StartInteractive(cfg); err != nil {
+	note, err := tui.StartInteractive(cfg)
+	if err != nil {
 		ui.PrintError("TUI error: %v", err)
 		os.Exit(1)
+	}
+	if note != "" {
+		ui.PrintSuccess("%s", note)
 	}
 }
 
@@ -157,5 +188,15 @@ func downloadThemes(cfg *config.Config) error {
 	}
 
 	ui.PrintInfo("Downloaded %d themes", count)
+
+	// The curated collection ships with the tool rather than being fetched.
+	written, _, err := tui.InstallCollection(cfg.ThemesDir)
+	if err != nil {
+		// A theme library that downloaded fine is still usable without these.
+		ui.PrintError("Could not install the curated collection: %v", err)
+		return nil
+	}
+	ui.PrintInfo("Installed %d curated themes", written)
+
 	return nil
 }

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Deep Current
+# Focus · Deep blue field for long sessions
+
+[colors.primary]
+background = "#0b1220"
+foreground = "#c6d4e6"
+
+[colors.cursor]
+text = "#0b1220"
+cursor = "#4c8fd6"
+
+[colors.selection]
+text = "#c6d4e6"
+background = "#233d64"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d65651"
+green = "#49d486"
+yellow = "#d4b949"
+blue = "#4983d4"
+magenta = "#b551d6"
+cyan = "#49b6d4"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#dc8c89"
+green = "#89dcad"
+yellow = "#dccb89"
+blue = "#89acdc"
+magenta = "#c789dc"
+cyan = "#89cadc"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a13936"
+green = "#36a164"
+yellow = "#a18b36"
+blue = "#3662a1"
+magenta = "#8636a1"
+cyan = "#368aa1"
+white = "#999ca3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Steel Repose
+# Goethe · The passive side at rest
+
+[colors.primary]
+background = "#101418"
+foreground = "#ccd2da"
+
+[colors.cursor]
+text = "#101418"
+cursor = "#6f8ca8"
+
+[colors.selection]
+text = "#ccd2da"
+background = "#283f5e"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d25a56"
+green = "#4ed087"
+yellow = "#d0b64e"
+blue = "#4e86d0"
+magenta = "#b456d2"
+cyan = "#4eb5d0"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#d98f8c"
+green = "#8cd9ae"
+yellow = "#d9c98c"
+blue = "#8cadd9"
+magenta = "#c68cd9"
+cyan = "#8cc9d9"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#9c3d3a"
+green = "#3a9c65"
+yellow = "#9c893a"
+blue = "#3a649c"
+magenta = "#843a9c"
+cyan = "#3a889c"
+white = "#999ea3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Blue Hour
+# Focus · Indigo of the minutes after sunset
+
+[colors.primary]
+background = "#0d1024"
+foreground = "#c8cce4"
+
+[colors.cursor]
+text = "#0d1024"
+cursor = "#6a79d2"
+
+[colors.selection]
+text = "#c8cce4"
+background = "#30386b"
+
+[colors.normal]
+black = "#2c2c30"
+red = "#d94f68"
+green = "#47d786"
+yellow = "#d7ba47"
+blue = "#697ade"
+magenta = "#b64fd9"
+cyan = "#47aed7"
+white = "#c4c5ca"
+
+[colors.bright]
+black = "#52535b"
+red = "#dd8897"
+green = "#88ddad"
+yellow = "#ddcc88"
+blue = "#8894dd"
+magenta = "#c888dd"
+cyan = "#88c5dd"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1d20"
+red = "#a33348"
+green = "#33a364"
+yellow = "#a38d33"
+blue = "#3344a3"
+magenta = "#8733a3"
+cyan = "#3383a3"
+white = "#999ba3"
+

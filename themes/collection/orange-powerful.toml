@@ -1,0 +1,45 @@
+# alacritty-colors collection · Orange Powerful
+# Goethe · Yellow-red, the energy raised a step
+
+[colors.primary]
+background = "#1a1108"
+foreground = "#e6d6c0"
+
+[colors.cursor]
+text = "#1a1108"
+cursor = "#d8802a"
+
+[colors.selection]
+text = "#e6d6c0"
+background = "#2f3a5a"
+
+[colors.normal]
+black = "#302e2c"
+red = "#de673f"
+green = "#5ade3f"
+yellow = "#dea53f"
+blue = "#507ce1"
+magenta = "#de3fac"
+cyan = "#3fd4de"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5752"
+red = "#e39a82"
+green = "#93e382"
+yellow = "#e3c082"
+blue = "#829fe3"
+magenta = "#e382c4"
+cyan = "#82dce3"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#aa4c2c"
+green = "#42aa2c"
+yellow = "#aa7c2c"
+blue = "#2c52aa"
+magenta = "#aa2c82"
+cyan = "#2ca2aa"
+white = "#a39e99"
+

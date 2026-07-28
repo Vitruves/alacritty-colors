@@ -2,7 +2,7 @@ package tui
 
 import (
 	"fmt"
-	"strings"
+	"runtime"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -11,355 +11,332 @@ import (
 
 // showFontTUI displays the font configuration interface
 func (ce *ColorEditor) showFontTUI() {
-	ce.applyUserThemeToTUI()
-
-	// Disable global key handler while font panel is open
-	ce.app.SetInputCapture(nil)
-
-	loadingModal := tview.NewModal()
-	loadingModal.SetBackgroundColor(tcell.ColorBlack)
-	loadingModal.SetTextColor(tcell.ColorWhite)
+	loading := ce.newModal("⠋ Scanning your system for monospace fonts…\n\nEsc to cancel")
 
 	spinnerIndex := 0
-	loadingCancelled := false
+	cancelled := false
+	ticker := time.NewTicker(SpinnerInterval)
 
-	updateSpinner := func() {
-		if !loadingCancelled {
-			spinner := SpinnerChars[spinnerIndex%len(SpinnerChars)]
-			loadingModal.SetText(fmt.Sprintf("%s Loading fonts...\n\nScanning your system for available monospace fonts.\n\nPress 'q' or Escape to cancel.", spinner))
-			spinnerIndex++
+	stop := func() {
+		if !cancelled {
+			cancelled = true
+			ticker.Stop()
 		}
 	}
 
-	updateSpinner()
-
-	spinnerTicker := time.NewTicker(SpinnerInterval)
 	go func() {
-		for range spinnerTicker.C {
-			if loadingCancelled {
-				spinnerTicker.Stop()
+		for range ticker.C {
+			if cancelled {
 				return
 			}
 			ce.app.QueueUpdateDraw(func() {
-				updateSpinner()
+				spinnerIndex++
+				loading.SetText(fmt.Sprintf("%s Scanning your system for monospace fonts…\n\nEsc to cancel",
+					SpinnerChars[spinnerIndex%len(SpinnerChars)]))
 			})
 		}
 	}()
 
-	loadingModal.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyEscape:
-			loadingCancelled = true
-			spinnerTicker.Stop()
-			ce.restoreMainUI()
+	loading.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape || (event.Key() == tcell.KeyRune && (event.Rune() == 'q' || event.Rune() == 'Q')) {
+			stop()
+			ce.closeOverlay("fonts")
 			return nil
-		case tcell.KeyRune:
-			if event.Rune() == 'q' || event.Rune() == 'Q' {
-				loadingCancelled = true
-				spinnerTicker.Stop()
-				ce.restoreMainUI()
-				return nil
-			}
 		}
 		return event
 	})
 
-	ce.app.SetRoot(loadingModal, true)
+	ce.showModal("fonts", loading)
 
 	go func() {
 		currentFamily := ce.fontManager.GetCurrentFontFamily()
 		currentStyle := ce.fontManager.GetCurrentFontStyle()
 		currentSize := ce.fontManager.GetCurrentFontSize()
 
+		// No fallback list here on purpose. Naming fonts that may not be
+		// installed is what produced "unable to load font": an empty column is
+		// honest, a column of options that cannot load is not.
 		monoFonts := ce.fontManager.GetFontFamilies()
-		if len(monoFonts) == 0 {
-			monoFonts = []string{"monospace", "JetBrains Mono", "Fira Code", "Source Code Pro"}
-		}
 
 		ce.app.QueueUpdateDraw(func() {
-			if !loadingCancelled {
-				loadingCancelled = true
-				spinnerTicker.Stop()
-				ce.setupActualFontTUI(monoFonts, currentFamily, currentStyle, currentSize)
+			if cancelled {
+				return
 			}
+			stop()
+			// Pop the loading modal off the overlay stack before pushing the
+			// browser, otherwise the stack never empties and the main view
+			// stays deaf to every global key.
+			ce.closeOverlay("fonts")
+			ce.setupActualFontTUI(monoFonts, currentFamily, currentStyle, currentSize)
 		})
 	}()
 }
 
 // setupActualFontTUI sets up the actual font configuration interface
 func (ce *ColorEditor) setupActualFontTUI(monoFonts []string, currentFamily, currentStyle string, currentSize float64) {
+	p := ce.palette
+
 	fontList := tview.NewList()
 	fontList.ShowSecondaryText(false)
-	fontList.SetMainTextColor(tcell.ColorWhite)
-	fontList.SetSelectedTextColor(tcell.ColorBlack)
-	fontList.SetSelectedBackgroundColor(tcell.ColorWhite)
-	fontList.SetBorder(true)
-	fontList.SetTitle(" Font Families ")
+	ce.styleList(fontList, " Font families ")
 
 	styleList := tview.NewList()
 	styleList.ShowSecondaryText(false)
-	styleList.SetMainTextColor(tcell.ColorWhite)
-	styleList.SetSelectedTextColor(tcell.ColorBlack)
-	styleList.SetSelectedBackgroundColor(tcell.ColorWhite)
-	styleList.SetBorder(true)
-	styleList.SetTitle(" Font Styles ")
+	ce.styleList(styleList, " Styles ")
+
+	sizeList := tview.NewList()
+	sizeList.ShowSecondaryText(false)
+	ce.styleList(sizeList, " Size ")
 
 	infoPanel := tview.NewTextView()
 	infoPanel.SetDynamicColors(true)
 	infoPanel.SetWordWrap(true)
-	infoPanel.SetBorder(true)
-	infoPanel.SetTitle(" Font Preview ")
+	infoPanel.SetTextColor(p.fg)
+	ce.styleBox(infoPanel.Box, " Sample ")
 
-	statusBar := tview.NewTextView()
-	statusBar.SetText(StatusBarFontPanel)
-	statusBar.SetTextColor(tcell.ColorYellow)
+	hint := tview.NewTextView()
+	hint.SetDynamicColors(true)
+	hint.SetBackgroundColor(p.bg)
+	hint.SetText(fmt.Sprintf("[%s]%s[-]", p.mutedHex, StatusBarFontPanel))
 
-	currentFontIndex := -1
-	for i, fontFamily := range monoFonts {
-		displayName := fontFamily
-		if fontFamily == currentFamily {
-			displayName = fmt.Sprintf("%s%s", CurrentThemeMarker, fontFamily)
-			currentFontIndex = i
-		}
-		fontList.AddItem(displayName, "", 0, nil)
+	selectedFamily := currentFamily
+	selectedStyle := currentStyle
+
+	if len(monoFonts) == 0 {
+		ce.showModal("fonts", ce.newModal(noFontsMessage()))
+		return
 	}
 
-	loadStylesForFont := func(fontFamily string) {
-		styleList.Clear()
-		styles := ce.fontManager.GetStylesForFont(fontFamily)
-		currentStyleIndex := -1
-		for i, style := range styles {
-			displayName := style
-			if style == currentStyle && fontFamily == currentFamily {
-				displayName = fmt.Sprintf("%s%s", CurrentThemeMarker, style)
-				currentStyleIndex = i
-			}
-			styleList.AddItem(displayName, "", 0, nil)
+	for i, family := range monoFonts {
+		marker := " "
+		if family == currentFamily {
+			marker = "●"
 		}
-		if currentStyleIndex >= 0 {
-			styleList.SetCurrentItem(currentStyleIndex)
-		} else if len(styles) > 0 {
+		fontList.AddItem(fmt.Sprintf("[%s]%s[-] %s", p.accentHex, marker, family), "", 0, nil)
+		if family == currentFamily {
+			fontList.SetCurrentItem(i)
+		}
+	}
+
+	updateInfo := func() {
+		display := selectedFamily
+		if len(display) > MaxFontNameDisplay {
+			display = display[:MaxFontNameDisplay-1] + "…"
+		}
+
+		infoPanel.SetText(fmt.Sprintf(`[%s::b]%s[-::-]  [%s]%s · %.1fpt[-]
+
+The quick brown fox jumps over the lazy dog
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789 !@#$%%^&*() {}[]<>
+il1I| oO0 rn m ,.;: '"`+"`"+`
+
+[%s]func[-] [%s]main[-]() {
+    [%s]fmt[-].[%s]Println[-]([%s]"Hello, World!"[-])
+    [%s]// changes apply to Alacritty immediately[-]
+}
+
+[%s]user@host[-]:[%s]~/projects[-]$ [%s]ls -la[-]`,
+			p.accentHex, display, p.mutedHex, selectedStyle, currentSize,
+			p.accentHex, p.warnHex, p.accent2Hex, p.warnHex, p.okHex, p.mutedHex,
+			p.okHex, p.accentHex, p.warnHex))
+	}
+
+	loadStyles := func(family string) {
+		styleList.Clear()
+		styles := ce.fontManager.GetStylesForFont(family)
+		if len(styles) == 0 {
+			// Generic names like "monospace" resolve to no concrete faces;
+			// offer the four Alacritty always understands.
+			styles = []string{"Regular", "Bold", "Italic", "Bold Italic"}
+		}
+		for i, style := range styles {
+			styleList.AddItem(style, "", 0, nil)
+			if style == selectedStyle {
+				styleList.SetCurrentItem(i)
+			}
+		}
+		if styleList.GetItemCount() > 0 && styleList.GetCurrentItem() >= styleList.GetItemCount() {
 			styleList.SetCurrentItem(0)
 		}
 	}
 
-	updateFontInfo := func(fontFamily, style string, size float64) {
-		displayFamily := fontFamily
-		if len(fontFamily) > MaxFontNameDisplay {
-			displayFamily = fontFamily[:MaxFontNameDisplay-3] + "..."
-		}
+	// Moving the cursor through a few hundred families must not mean a few
+	// hundred rewrites of the user's config. Only the newest request survives
+	// the debounce, exactly as browsing the theme list already works.
+	applyFont := func() {
+		family, style := selectedFamily, selectedStyle
+		seq := ce.fontSeq.Add(1)
 
-		info := fmt.Sprintf(`[yellow::b]Font Configuration[-]
-
-[white::b]Family:[-] %s
-[white::b]Style:[-]  %s
-[white::b]Size:[-]   %.1f
-
-[white::b]Sample Text:[-]
-[white]The quick brown fox jumps over the lazy dog.[-]
-[white]ABCDEFGHIJKLMNOPQRSTUVWXYZ[-]
-[white]abcdefghijklmnopqrstuvwxyz[-]
-[white]0123456789 !@#$%%^&*()[-]
-
-[white::b]Code Sample:[-]
-[cyan]func[-] [yellow]main[-]() {
-    [cyan]fmt[-].[yellow]Println[-]([green]"Hello, World!"[-])
-    [magenta]// This is a comment[-]
-}
-
-[white::b]Terminal Commands:[-]
-[green]user@hostname[-]:[blue]~/projects[-]$ [yellow]ls -la[-]
-[white]total 24[-]
-[blue]drwxr-xr-x[-] [white]3 user staff 96 Jan 15 10:30[-] [blue].[-]
-
-[white]Note: Font changes apply instantly to Alacritty[-]
-[white]Use Left/Right arrows to adjust font size[-]`,
-			displayFamily, style, size)
-		infoPanel.SetText(info)
+		go func() {
+			time.Sleep(ApplyDebounce)
+			if ce.fontSeq.Load() != seq {
+				return
+			}
+			if err := ce.fontManager.UpdateFontFamily(family); err != nil {
+				return
+			}
+			if err := ce.fontManager.UpdateFontStyle(style); err != nil {
+				ce.fontManager.UpdateFontStyle("Regular")
+			}
+		}()
 	}
 
-	fontList.SetSelectedFunc(func(index int, fontFamily string, _ string, _ rune) {
-		fontFamily = strings.TrimPrefix(fontFamily, CurrentThemeMarker)
-		loadStylesForFont(fontFamily)
+	pickFamily := func(index int) {
+		if index < 0 || index >= len(monoFonts) {
+			return
+		}
+		selectedFamily = monoFonts[index]
+		loadStyles(selectedFamily)
 		if styleList.GetItemCount() > 0 {
-			styleName, _ := styleList.GetItemText(styleList.GetCurrentItem())
-			styleName = strings.TrimPrefix(styleName, CurrentThemeMarker)
-			updateFontInfo(fontFamily, styleName, currentSize)
-
-			go func() {
-				if err := ce.fontManager.UpdateFontFamily(fontFamily); err == nil {
-					if err := ce.fontManager.UpdateFontStyle(styleName); err != nil {
-						ce.fontManager.UpdateFontStyle("Regular")
-					}
-				}
-			}()
+			selectedStyle, _ = styleList.GetItemText(styleList.GetCurrentItem())
 		}
-	})
-
-	styleList.SetSelectedFunc(func(index int, style string, _ string, _ rune) {
-		style = strings.TrimPrefix(style, CurrentThemeMarker)
-		fontIndex := fontList.GetCurrentItem()
-		if fontIndex >= 0 {
-			fontFamily, _ := fontList.GetItemText(fontIndex)
-			fontFamily = strings.TrimPrefix(fontFamily, CurrentThemeMarker)
-			updateFontInfo(fontFamily, style, currentSize)
-
-			go func() {
-				ce.fontManager.UpdateFontStyle(style)
-			}()
-		}
-	})
-
-	adjustFontSize := func(increase bool) {
-		adjustment := FontSizeStep
-		if !increase {
-			adjustment = -adjustment
-		}
-		newSize := currentSize + adjustment
-		if newSize < FontSizeMin {
-			newSize = FontSizeMin
-		} else if newSize > FontSizeMax {
-			newSize = FontSizeMax
-		}
-		currentSize = newSize
-
-		fontIndex := fontList.GetCurrentItem()
-		styleIndex := styleList.GetCurrentItem()
-		if fontIndex >= 0 && styleIndex >= 0 {
-			fontFamily, _ := fontList.GetItemText(fontIndex)
-			fontFamily = strings.TrimPrefix(fontFamily, CurrentThemeMarker)
-			styleName, _ := styleList.GetItemText(styleIndex)
-			styleName = strings.TrimPrefix(styleName, CurrentThemeMarker)
-			updateFontInfo(fontFamily, styleName, currentSize)
-
-			go func() {
-				ce.fontManager.UpdateFontSize(fmt.Sprintf("%.1f", currentSize))
-			}()
-		}
+		updateInfo()
+		applyFont()
 	}
 
-	fontList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyTab:
-			ce.app.SetFocus(styleList)
-			styleList.SetBorderColor(tcell.ColorYellow)
-			fontList.SetBorderColor(tcell.ColorDefault)
-			statusBar.SetText("Tab: switch panels | ↑↓: navigate styles | ←→: size | q: quit")
-			return nil
-		case tcell.KeyLeft:
-			adjustFontSize(false)
-			return nil
-		case tcell.KeyRight:
-			adjustFontSize(true)
-			return nil
-		case tcell.KeyUp, tcell.KeyDown:
-			result := event
-			go func() {
-				time.Sleep(KeyDebounceDelay)
-				ce.app.QueueUpdateDraw(func() {
-					index := fontList.GetCurrentItem()
-					if index >= 0 {
-						fontFamily, _ := fontList.GetItemText(index)
-						fontFamily = strings.TrimPrefix(fontFamily, CurrentThemeMarker)
-						loadStylesForFont(fontFamily)
-						if styleList.GetItemCount() > 0 {
-							styleName, _ := styleList.GetItemText(styleList.GetCurrentItem())
-							styleName = strings.TrimPrefix(styleName, CurrentThemeMarker)
-							updateFontInfo(fontFamily, styleName, currentSize)
+	// applySize writes the size on the same debounce as the family, so holding
+	// an arrow key or scrolling the size list costs one write, not thirty.
+	applySize := func() {
+		size := currentSize
+		seq := ce.fontSeq.Add(1)
 
-							go func() {
-								if err := ce.fontManager.UpdateFontFamily(fontFamily); err == nil {
-									if err := ce.fontManager.UpdateFontStyle(styleName); err != nil {
-										ce.fontManager.UpdateFontStyle("Regular")
-									}
-								}
-							}()
-						}
-					}
-				})
-			}()
-			return result
-		}
-		return event
-	})
+		go func() {
+			time.Sleep(ApplyDebounce)
+			if ce.fontSeq.Load() != seq {
+				return
+			}
+			ce.fontManager.UpdateFontSize(fmt.Sprintf("%.1f", size))
+		}()
+	}
 
-	styleList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyTab:
-			ce.app.SetFocus(fontList)
-			fontList.SetBorderColor(tcell.ColorYellow)
-			styleList.SetBorderColor(tcell.ColorDefault)
-			statusBar.SetText(StatusBarFontPanel)
-			return nil
-		case tcell.KeyLeft:
-			adjustFontSize(false)
-			return nil
-		case tcell.KeyRight:
-			adjustFontSize(true)
-			return nil
-		case tcell.KeyUp, tcell.KeyDown:
-			result := event
-			go func() {
-				time.Sleep(KeyDebounceDelay)
-				ce.app.QueueUpdateDraw(func() {
-					styleIndex := styleList.GetCurrentItem()
-					fontIndex := fontList.GetCurrentItem()
-					if styleIndex >= 0 && fontIndex >= 0 {
-						styleName, _ := styleList.GetItemText(styleIndex)
-						styleName = strings.TrimPrefix(styleName, CurrentThemeMarker)
-						fontFamily, _ := fontList.GetItemText(fontIndex)
-						fontFamily = strings.TrimPrefix(fontFamily, CurrentThemeMarker)
-						updateFontInfo(fontFamily, styleName, currentSize)
-
-						go func() {
-							ce.fontManager.UpdateFontStyle(styleName)
-						}()
-					}
-				})
-			}()
-			return result
-		}
-		return event
-	})
-
-	globalKeyHandler := func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyEscape:
-			ce.restoreMainUI()
-			return nil
-		case tcell.KeyRune:
-			switch event.Rune() {
-			case 'q', 'Q':
-				ce.restoreMainUI()
-				return nil
+	// syncSizeSelection moves the size list cursor onto currentSize without
+	// letting the resulting change event write the value straight back.
+	syncingSize := false
+	syncSizeSelection := func() {
+		for i, size := range fontSizes {
+			if size == currentSize {
+				syncingSize = true
+				sizeList.SetCurrentItem(i)
+				syncingSize = false
+				return
 			}
 		}
-		return event
 	}
 
-	if currentFontIndex >= 0 {
-		fontList.SetCurrentItem(currentFontIndex)
-		loadStylesForFont(currentFamily)
-		updateFontInfo(currentFamily, currentStyle, currentSize)
-	} else if len(monoFonts) > 0 {
-		fontList.SetCurrentItem(0)
-		loadStylesForFont(monoFonts[0])
-		updateFontInfo(monoFonts[0], "Regular", currentSize)
+	adjustSize := func(increase bool) {
+		step := FontSizeStep
+		if !increase {
+			step = -step
+		}
+		currentSize = clampFloat(currentSize+step, FontSizeMin, FontSizeMax)
+		updateInfo()
+		syncSizeSelection()
+		applySize()
 	}
 
-	mainFlex := tview.NewFlex()
-	mainFlex.AddItem(fontList, 0, 2, true)
-	mainFlex.AddItem(styleList, 0, 1, false)
-	mainFlex.AddItem(infoPanel, 0, 3, false)
+	for _, size := range fontSizes {
+		sizeList.AddItem(fmt.Sprintf("%.1f pt", size), "", 0, nil)
+	}
+	syncSizeSelection()
 
-	rootFlex := tview.NewFlex()
-	rootFlex.SetDirection(tview.FlexRow)
-	rootFlex.AddItem(mainFlex, 0, 1, true)
-	rootFlex.AddItem(statusBar, 1, 0, false)
+	sizeList.SetChangedFunc(func(index int, _ string, _ string, _ rune) {
+		if syncingSize || index < 0 || index >= len(fontSizes) {
+			return
+		}
+		currentSize = fontSizes[index]
+		updateInfo()
+		applySize()
+	})
 
-	ce.app.SetRoot(rootFlex, true)
-	ce.app.SetInputCapture(globalKeyHandler)
-	ce.app.SetFocus(fontList)
-	fontList.SetBorderColor(tcell.ColorYellow)
+	boxes := []*tview.Box{fontList.Box, styleList.Box, sizeList.Box}
+	targets := []tview.Primitive{fontList, styleList, sizeList}
+	focusIdx := 0
+
+	capture := func(self int) func(*tcell.EventKey) *tcell.EventKey {
+		return func(event *tcell.EventKey) *tcell.EventKey {
+			switch event.Key() {
+			case tcell.KeyTab, tcell.KeyBacktab:
+				focusIdx = (self + 1) % len(targets)
+				ce.focusRing(boxes, targets, focusIdx)
+				return nil
+			case tcell.KeyLeft:
+				adjustSize(false)
+				return nil
+			case tcell.KeyRight:
+				adjustSize(true)
+				return nil
+			case tcell.KeyEscape:
+				ce.closeOverlay("fonts")
+				return nil
+			case tcell.KeyRune:
+				switch event.Rune() {
+				case 'q', 'Q':
+					ce.closeOverlay("fonts")
+					return nil
+				case 'd', 'D':
+					ce.showFontDownloader()
+					return nil
+				}
+			}
+			return event
+		}
+	}
+
+	fontList.SetInputCapture(capture(0))
+	styleList.SetInputCapture(capture(1))
+	sizeList.SetInputCapture(capture(2))
+
+	fontList.SetChangedFunc(func(index int, _ string, _ string, _ rune) { pickFamily(index) })
+	styleList.SetChangedFunc(func(_ int, style string, _ string, _ rune) {
+		selectedStyle = style
+		updateInfo()
+		applyFont()
+	})
+
+	loadStyles(selectedFamily)
+	updateInfo()
+
+	body := tview.NewFlex()
+	body.AddItem(fontList, 0, 2, true)
+	body.AddItem(styleList, 0, 1, false)
+	body.AddItem(sizeList, 10, 0, false)
+	body.AddItem(infoPanel, 0, 3, false)
+
+	root := tview.NewFlex()
+	root.SetDirection(tview.FlexRow)
+	root.AddItem(body, 0, 1, true)
+	root.AddItem(hint, 1, 0, false)
+	root.SetBackgroundColor(p.bg)
+
+	ce.overlays = append(ce.overlays, "fonts")
+	ce.pages.AddPage("fonts", root, true, true)
+	ce.focusRing(boxes, targets, focusIdx)
 }
 
+// noFontsMessage explains an empty font browser in terms of the thing that is
+// actually missing on this platform, rather than naming a Unix tool at someone
+// running Windows.
+func noFontsMessage() string {
+	const intro = "No monospace font could be listed.\n\n" +
+		"Only families the terminal can genuinely resolve are offered, so\n" +
+		"nothing here can fail to load — but that also means an empty list\n" +
+		"when the font database cannot be read.\n\n"
+
+	switch runtime.GOOS {
+	case "windows":
+		return intro +
+			"Font browsing is not implemented on Windows yet. Set the family\n" +
+			"by hand in alacritty.toml; everything else in this editor works.\n\n" +
+			"Esc to go back"
+	case "darwin":
+		return intro +
+			"macOS is queried through Core Text, which should always answer.\n" +
+			"If you are seeing this, please report it.\n\nEsc to go back"
+	default:
+		return intro +
+			"Install fontconfig and check that `fc-list :spacing=mono family`\n" +
+			"returns something.\n\nEsc to go back"
+	}
+}

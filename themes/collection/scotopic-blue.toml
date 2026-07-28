@@ -1,0 +1,45 @@
+# alacritty-colors collection · Scotopic Blue
+# Scotopic · Peak rod sensitivity, near 500 nanometres
+
+[colors.primary]
+background = "#04060e"
+foreground = "#bcc6dc"
+
+[colors.cursor]
+text = "#04060e"
+cursor = "#4e79cc"
+
+[colors.selection]
+text = "#bcc6dc"
+background = "#1d315b"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d84660"
+green = "#46d886"
+yellow = "#d8bb46"
+blue = "#4678d8"
+magenta = "#b446d8"
+cyan = "#46afd8"
+white = "#c4c5ca"
+
+[colors.bright]
+black = "#52545b"
+red = "#de8797"
+green = "#87dead"
+yellow = "#decd87"
+blue = "#87a5de"
+magenta = "#c987de"
+cyan = "#87c5de"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a43247"
+green = "#32a464"
+yellow = "#a48d32"
+blue = "#3259a4"
+magenta = "#8832a4"
+cyan = "#3284a4"
+white = "#999ba3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Cone Silence
+# Scotopic · Colour vision almost switched off
+
+[colors.primary]
+background = "#05070a"
+foreground = "#bec6d0"
+
+[colors.cursor]
+text = "#05070a"
+cursor = "#518192"
+
+[colors.selection]
+text = "#bec6d0"
+background = "#203a56"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d1514d"
+green = "#4dd186"
+yellow = "#d1cc4d"
+blue = "#4d8cd1"
+magenta = "#b04dd1"
+cyan = "#4dbdd1"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#d98e8c"
+green = "#8cd9ae"
+yellow = "#d9d68c"
+blue = "#8cb1d9"
+magenta = "#c68cd9"
+cyan = "#8cced9"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#9d3c39"
+green = "#399d65"
+yellow = "#9d9939"
+blue = "#39699d"
+magenta = "#84399d"
+cyan = "#398e9d"
+white = "#999da3"
+

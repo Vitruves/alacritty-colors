@@ -1,0 +1,45 @@
+# alacritty-colors collection · Saturation Step
+# Itten · One hue, walked down in chroma
+
+[colors.primary]
+background = "#101216"
+foreground = "#ced2da"
+
+[colors.cursor]
+text = "#101216"
+cursor = "#5a8fd0"
+
+[colors.selection]
+text = "#ced2da"
+background = "#253c5f"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d94f68"
+green = "#47d786"
+yellow = "#d7ba47"
+blue = "#4780d7"
+magenta = "#b64fd9"
+cyan = "#47b5d7"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#dd8897"
+green = "#88ddad"
+yellow = "#ddcc88"
+blue = "#88aadd"
+magenta = "#c888dd"
+cyan = "#88c9dd"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a33348"
+green = "#33a364"
+yellow = "#a38d33"
+blue = "#3360a3"
+magenta = "#8733a3"
+cyan = "#3389a3"
+white = "#999ca3"
+

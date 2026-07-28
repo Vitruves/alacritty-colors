@@ -1,0 +1,45 @@
+# alacritty-colors collection · Zeitgeber
+# Circadian · The cue that sets the clock
+
+[colors.primary]
+background = "#0a1018"
+foreground = "#c8d2e0"
+
+[colors.cursor]
+text = "#0a1018"
+cursor = "#3a86cc"
+
+[colors.selection]
+text = "#c8d2e0"
+background = "#203c61"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d94a45"
+green = "#45d985"
+yellow = "#d9bb45"
+blue = "#4585d9"
+magenta = "#b74ddb"
+cyan = "#45bcd9"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#df8986"
+green = "#86dfad"
+yellow = "#dfcd86"
+blue = "#86addf"
+magenta = "#c986df"
+cyan = "#86cddf"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a53531"
+green = "#31a564"
+yellow = "#a58e31"
+blue = "#3164a5"
+magenta = "#8831a5"
+cyan = "#318ea5"
+white = "#999da3"
+

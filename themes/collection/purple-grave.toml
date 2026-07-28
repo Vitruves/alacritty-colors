@@ -1,0 +1,45 @@
+# alacritty-colors collection · Purple Grave
+# Goethe · Gravity and dignity in one hue
+
+[colors.primary]
+background = "#150b12"
+foreground = "#ddcad6"
+
+[colors.cursor]
+text = "#150b12"
+cursor = "#c05b93"
+
+[colors.selection]
+text = "#ddcad6"
+background = "#373261"
+
+[colors.normal]
+black = "#302c2f"
+red = "#d94560"
+green = "#45d958"
+yellow = "#d9a345"
+blue = "#6f71e2"
+magenta = "#d945aa"
+cyan = "#45afd9"
+white = "#cac4c8"
+
+[colors.bright]
+black = "#5b5258"
+red = "#df8696"
+green = "#86df92"
+yellow = "#dfbf86"
+blue = "#8688df"
+magenta = "#df86c3"
+cyan = "#86c6df"
+white = "#f0eff0"
+
+[colors.dim]
+black = "#201d1f"
+red = "#a53146"
+green = "#31a541"
+yellow = "#a57b31"
+blue = "#3133a5"
+magenta = "#a53180"
+cyan = "#3184a5"
+white = "#a399a0"
+

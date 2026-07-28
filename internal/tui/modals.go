@@ -10,590 +10,506 @@ import (
 	"github.com/vitruves/alacritty-colors/internal/theme"
 )
 
-// confirmQuit shows the quit confirmation dialog
-func (ce *ColorEditor) confirmQuit() {
-	ce.resetTUITheme()
-	ce.app.SetInputCapture(nil)
-
-	modal := tview.NewModal()
-	modal.SetText("You have unsaved changes. Are you sure you want to quit?")
-	modal.AddButtons([]string{"Save & Quit", "Quit", "Cancel"})
-
-	modal.SetBackgroundColor(tcell.ColorBlack)
-	modal.SetTextColor(tcell.ColorWhite)
-	modal.SetButtonBackgroundColor(tcell.ColorBlue)
-	modal.SetButtonTextColor(tcell.ColorWhite)
-
-	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-		switch buttonIndex {
-		case 0: // Save & Quit
-			ce.saveTheme()
-			ce.app.Stop()
-		case 1: // Quit
-			ce.app.Stop()
-		case 2: // Cancel
-			ce.applyUserThemeToTUI()
-			ce.setupUI()
-			ce.buildColorPanel()
-			ce.updatePreview()
-		}
-	})
-
-	ce.app.SetRoot(modal, true)
-}
-
-// showParametersPanel shows the parameters/utilities modal
+// showParametersPanel lists the maintenance actions. A list rather than a row
+// of buttons, so each entry has room to say what it does.
 func (ce *ColorEditor) showParametersPanel() {
-	ce.resetTUITheme()
-	ce.app.SetInputCapture(nil)
+	actions := []struct {
+		label, detail string
+		run           func()
+	}{
+		{"Install the curated collection", fmt.Sprintf("Add %d designed themes to your library", len(Collection)), ce.installCollection},
+		{"Redownload themes", "Refetch the official Alacritty theme set", ce.cleanAndRedownloadThemes},
+		{"Back up config", "Copy alacritty.toml into backups/", ce.backupCurrentConfig},
+		{"Reset to defaults", "Restore the stock configuration", ce.resetToDefaults},
+		{"Cancel", "Close this panel", func() {}},
+	}
 
-	modal := tview.NewModal()
-	modal.SetText("Parameters & Utilities\n\nSelect an option:")
-	modal.AddButtons([]string{"Clean & Redownload Themes", "Backup Current Config", "Reset to Defaults", "Cancel"})
+	list := tview.NewList()
+	list.ShowSecondaryText(true)
+	ce.styleList(list, " Parameters & utilities ")
 
-	modal.SetBackgroundColor(tcell.ColorBlack)
-	modal.SetTextColor(tcell.ColorWhite)
-	modal.SetButtonBackgroundColor(tcell.ColorBlue)
-	modal.SetButtonTextColor(tcell.ColorWhite)
+	for _, action := range actions {
+		run := action.run
+		list.AddItem(action.label, action.detail, 0, func() {
+			ce.closeOverlay("params")
+			run()
+		})
+	}
 
-	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-		ce.restoreMainUI()
-
-		switch buttonIndex {
-		case 0:
-			ce.cleanAndRedownloadThemes()
-		case 1:
-			ce.backupCurrentConfig()
-		case 2:
-			ce.resetToDefaults()
+	list.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape || (event.Key() == tcell.KeyRune && (event.Rune() == 'q' || event.Rune() == 'Q')) {
+			ce.closeOverlay("params")
+			return nil
 		}
+		return event
 	})
 
-	ce.app.SetRoot(modal, true)
+	ce.showOverlay("params", list, 58, 12)
 }
 
-// showFontPanel shows the font settings modal
-func (ce *ColorEditor) showFontPanel() {
-	ce.resetTUITheme()
-	ce.app.SetInputCapture(nil)
+// installCollection writes the curated themes and refreshes the list.
+func (ce *ColorEditor) installCollection() {
+	ce.info("Installing the curated collection…")
 
-	modal := tview.NewModal()
-	modal.SetText("Font Settings\n\nSelect an option:")
-	modal.AddButtons([]string{"Change Font Family", "Adjust Font Size", "Font Weight", "Cancel"})
-
-	modal.SetBackgroundColor(tcell.ColorBlack)
-	modal.SetTextColor(tcell.ColorWhite)
-	modal.SetButtonBackgroundColor(tcell.ColorGreen)
-	modal.SetButtonTextColor(tcell.ColorWhite)
-
-	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-		ce.restoreMainUI()
-
-		switch buttonIndex {
-		case 0, 1, 2:
-			ce.showFontTUI()
-		}
-	})
-
-	ce.app.SetRoot(modal, true)
-}
-
-// showHelpOverlay shows the keyboard shortcuts help
-func (ce *ColorEditor) showHelpOverlay() {
-	ce.resetTUITheme()
-
-	// Disable global key handler while help is open
-	ce.app.SetInputCapture(nil)
-
-	helpText := `[yellow::b]Keyboard Shortcuts[-]
-
-[cyan::b]Navigation[-]
-  Tab          Switch between panels
-  ↑/↓          Navigate items
-  a-z          Jump to theme starting with letter
-  /            Search themes
-
-[cyan::b]Theme Operations[-]
-  Enter/a      Apply selected theme
-  e            Create editable copy
-  d            Delete edited theme
-  *            Toggle favorite
-  r            Reset to original
-
-[cyan::b]Theme Creation[-]
-  n            Open theme creator
-  g            Generate random harmonious theme
-
-[cyan::b]Color Editing[-]
-  ←/→          Adjust brightness
-  Shift+←/→    Adjust hue
-  s            Save changes
-  c            Cycle preview color mode
-
-[cyan::b]Settings[-]
-  f            Font settings
-  p            Parameters & utilities
-
-[cyan::b]General[-]
-  ?            Show this help
-  q            Quit
-  Ctrl+C       Force quit
-
-[white]Press any key to close this help[-]`
-
-	textView := tview.NewTextView()
-	textView.SetDynamicColors(true)
-	textView.SetText(helpText)
-	textView.SetBorder(true)
-	textView.SetTitle(" Help ")
-	textView.SetTitleAlign(tview.AlignCenter)
-	textView.SetBackgroundColor(tcell.ColorBlack)
-
-	textView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		ce.restoreMainUI()
-		return nil
-	})
-
-	// Center the help in a flex container
-	flex := tview.NewFlex()
-	flex.SetDirection(tview.FlexRow)
-	flex.AddItem(nil, 0, 1, false)
-	flex.AddItem(tview.NewFlex().
-		AddItem(nil, 0, 1, false).
-		AddItem(textView, 60, 0, true).
-		AddItem(nil, 0, 1, false), 25, 0, true)
-	flex.AddItem(nil, 0, 1, false)
-
-	ce.app.SetRoot(flex, true)
-}
-
-// showSearchDialog shows the theme search dialog
-func (ce *ColorEditor) showSearchDialog() {
-	ce.resetTUITheme()
-
-	// Disable global key handler while search is open
-	ce.app.SetInputCapture(nil)
-
-	inputField := tview.NewInputField()
-	inputField.SetLabel("Search: ")
-	inputField.SetFieldWidth(40)
-	inputField.SetFieldBackgroundColor(tcell.ColorBlack)
-	inputField.SetFieldTextColor(tcell.ColorWhite)
-	inputField.SetLabelColor(tcell.ColorYellow)
-	inputField.SetBorder(true)
-	inputField.SetTitle(" Search Themes ")
-
-	// Results list
-	resultsList := tview.NewList()
-	resultsList.ShowSecondaryText(false)
-	resultsList.SetBorder(true)
-	resultsList.SetTitle(" Results ")
-
-	// Get all themes for filtering
-	themes, _ := ce.getThemeFiles()
-
-	// Update results as user types
-	inputField.SetChangedFunc(func(text string) {
-		resultsList.Clear()
-		if text == "" {
-			return
-		}
-
-		searchLower := strings.ToLower(text)
-		matchCount := 0
-		for _, themeName := range themes {
-			if strings.Contains(strings.ToLower(themeName), searchLower) {
-				displayName := themeName
-				if themeName == ce.appliedTheme {
-					displayName = CurrentThemeMarker + themeName
-				}
-				if ce.isFavorite(themeName) {
-					displayName = "♥ " + displayName
-				}
-				resultsList.AddItem(displayName, "", 0, nil)
-				matchCount++
-				if matchCount >= 20 { // Limit results
-					break
-				}
+	go func() {
+		written, skipped, err := InstallCollection(ce.config.ThemesDir)
+		ce.app.QueueUpdateDraw(func() {
+			if err != nil {
+				ce.fail("Could not install the collection: %v", err)
+				return
 			}
-		}
-	})
-
-	// Handle Enter to select
-	inputField.SetDoneFunc(func(key tcell.Key) {
-		switch key {
-		case tcell.KeyEnter:
-			if resultsList.GetItemCount() > 0 {
-				index := resultsList.GetCurrentItem()
-				if index < 0 {
-					index = 0
-				}
-				themeName, _ := resultsList.GetItemText(index)
-				themeName = strings.TrimPrefix(themeName, CurrentThemeMarker)
-				themeName = strings.TrimPrefix(themeName, "♥ ")
-				ce.restoreMainUI()
-				ce.selectThemeByName(themeName)
+			ce.refreshThemeList()
+			if skipped > 0 {
+				ce.info("Installed %d themes · left %d of your edited copies alone", written, skipped)
 			} else {
-				ce.restoreMainUI()
+				ce.info("Installed %d curated themes — press / and type a name to find them", written)
 			}
-		case tcell.KeyEscape:
-			ce.restoreMainUI()
-		}
-	})
-
-	// Handle navigation in results
-	inputField.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyDown:
-			if resultsList.GetItemCount() > 0 {
-				ce.app.SetFocus(resultsList)
-				resultsList.SetCurrentItem(0)
-			}
-			return nil
-		case tcell.KeyEscape:
-			ce.restoreMainUI()
-			return nil
-		}
-		return event
-	})
-
-	resultsList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyUp:
-			if resultsList.GetCurrentItem() == 0 {
-				ce.app.SetFocus(inputField)
-				return nil
-			}
-		case tcell.KeyEnter:
-			if resultsList.GetItemCount() > 0 {
-				index := resultsList.GetCurrentItem()
-				themeName, _ := resultsList.GetItemText(index)
-				themeName = strings.TrimPrefix(themeName, CurrentThemeMarker)
-				themeName = strings.TrimPrefix(themeName, "♥ ")
-				ce.restoreMainUI()
-				ce.selectThemeByName(themeName)
-				return nil
-			}
-		case tcell.KeyEscape:
-			ce.restoreMainUI()
-			return nil
-		}
-		return event
-	})
-
-	// Layout
-	flex := tview.NewFlex()
-	flex.SetDirection(tview.FlexRow)
-	flex.AddItem(nil, 0, 1, false)
-	flex.AddItem(tview.NewFlex().
-		AddItem(nil, 0, 1, false).
-		AddItem(tview.NewFlex().
-			SetDirection(tview.FlexRow).
-			AddItem(inputField, 3, 0, true).
-			AddItem(resultsList, 15, 0, false), 50, 0, true).
-		AddItem(nil, 0, 1, false), 20, 0, true)
-	flex.AddItem(nil, 0, 1, false)
-
-	ce.app.SetRoot(flex, true)
-	ce.app.SetFocus(inputField)
+		})
+	}()
 }
 
 // showDeleteConfirmation shows the delete confirmation dialog
-func (ce *ColorEditor) showDeleteConfirmation() {
-	ce.resetTUITheme()
-	ce.app.SetInputCapture(nil)
+func (ce *ColorEditor) showDeleteConfirmation(name string) {
+	modal := ce.newModal(fmt.Sprintf("Delete theme '%s'?\n\nThis cannot be undone.", name))
+	modal.AddButtons([]string{"Cancel", "Delete"})
+	modal.SetButtonTextColor(ce.palette.fg)
 
-	modal := tview.NewModal()
-	modal.SetText(fmt.Sprintf("Are you sure you want to delete theme '%s'?", ce.themeName))
-	modal.AddButtons([]string{"Delete", "Cancel"})
-
-	modal.SetBackgroundColor(tcell.ColorBlack)
-	modal.SetTextColor(tcell.ColorWhite)
-	modal.SetButtonBackgroundColor(tcell.ColorRed)
-	modal.SetButtonTextColor(tcell.ColorWhite)
-
-	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-		ce.restoreMainUI()
-
-		if buttonIndex == 0 {
-			ce.performThemeDelete()
+	modal.SetDoneFunc(func(buttonIndex int, _ string) {
+		ce.closeOverlay("delete")
+		if buttonIndex == 1 {
+			ce.performThemeDelete(name)
 		}
 	})
 
-	ce.app.SetRoot(modal, true)
+	ce.showModal("delete", modal)
 }
 
-// restoreMainUI restores the main three-panel layout
-func (ce *ColorEditor) restoreMainUI() {
-	rootFlex := tview.NewFlex()
-	rootFlex.SetDirection(tview.FlexRow)
+// showHelpOverlay shows the keyboard shortcuts help in two columns so it fits
+// on a short terminal without scrolling.
+func (ce *ColorEditor) showHelpOverlay() {
+	p := ce.palette
 
-	mainFlex := tview.NewFlex()
-	mainFlex.AddItem(ce.themeList, 0, 1, false)
-	mainFlex.AddItem(ce.colorPanel, 0, 2, false)
-	mainFlex.AddItem(ce.previewPanel, 0, 1, false)
-
-	rootFlex.AddItem(mainFlex, 0, 1, true)
-	rootFlex.AddItem(ce.statusBar, 1, 0, false)
-
-	ce.app.SetRoot(rootFlex, true)
-	ce.applyUserThemeToTUI()
-
-	ce.app.SetInputCapture(ce.handleGlobalKeys)
-
-	ce.app.SetFocus(ce.themeList)
-	ce.themeList.SetBorderColor(tcell.ColorYellow)
-	ce.colorPanel.SetBorderColor(tcell.ColorDefault)
-}
-
-// selectThemeByName finds and selects a theme by name
-func (ce *ColorEditor) selectThemeByName(themeName string) {
-	count := ce.themeList.GetItemCount()
-	for i := 0; i < count; i++ {
-		name, _ := ce.themeList.GetItemText(i)
-		name = strings.TrimPrefix(name, CurrentThemeMarker)
-		name = strings.TrimPrefix(name, "♥ ")
-		if name == themeName {
-			ce.themeList.SetCurrentItem(i)
-			ce.onThemeSelected(i, themeName, "", 0)
-			break
+	build := func(groups [][2]interface{}) string {
+		var b strings.Builder
+		for _, group := range groups {
+			fmt.Fprintf(&b, "[%s::b]%s[-::-]\n", p.accentHex, group[0].(string))
+			for _, entry := range group[1].([][2]string) {
+				fmt.Fprintf(&b, "  [%s]%-11s[-] %s\n", p.warnHex, entry[0], entry[1])
+			}
+			b.WriteString("\n")
 		}
+		return b.String()
 	}
+
+	left := build([][2]interface{}{
+		{"Everywhere", [][2]string{
+			{"Tab", "Next column"},
+			{"a", "Apply what you see, now"},
+			{"s / S", "Save / save as…"},
+			{"? / q", "This help / quit"},
+		}},
+		{"Navigation", [][2]string{
+			{"↑ ↓ j k", "Move"},
+			{"PgUp PgDn", "Jump ten rows"},
+			{"Home End", "First / last"},
+			{"/", "Search themes as you type"},
+			{"Esc", "Clear the search"},
+		}},
+		{"Themes", [][2]string{
+			{"↑ ↓", "Browsing applies live"},
+			{"*", "Toggle favourite"},
+			{"F", "Favourites only"},
+			{"e", "Fork an editable copy"},
+			{"d", "Delete your own theme"},
+			{"n", "Theme creator"},
+			{"g", "Instant harmony theme"},
+		}},
+	})
+
+	right := build([][2]interface{}{
+		{"Colours", [][2]string{
+			{"← →", "Brighten / darken"},
+			{"Shift+← →", "Rotate hue"},
+			{"- +", "Saturation"},
+			{"[ ]", "Lightness"},
+			{"Enter / #", "Type an exact hex"},
+			{"u", "Undo this colour"},
+			{"r", "Revert the theme"},
+		}},
+		{"Elsewhere", [][2]string{
+			{"c", "Preview colour mode"},
+			{"f", "Font settings"},
+			{"p", "Parameters"},
+		}},
+	})
+
+	right += fmt.Sprintf("[%s]Edits show live in your terminal.\nBrowsing applies as you go, a\napplies at once, and quitting\nkeeps what you landed on —\nsaving it first if you have not.[-]", p.mutedHex)
+
+	column := func(text string) *tview.TextView {
+		tv := tview.NewTextView()
+		tv.SetDynamicColors(true)
+		tv.SetText(text)
+		tv.SetTextColor(p.fg)
+		tv.SetBackgroundColor(p.bg)
+		return tv
+	}
+
+	body := tview.NewFlex()
+	body.AddItem(column(left), 0, 1, false)
+	body.AddItem(column(right), 0, 1, false)
+	ce.styleBox(body.Box, " Keyboard shortcuts · any key closes ")
+	body.SetBackgroundColor(p.bg)
+
+	body.SetInputCapture(func(*tcell.EventKey) *tcell.EventKey {
+		ce.closeOverlay("help")
+		return nil
+	})
+
+	ce.showOverlay("help", body, 76, 25)
 }
 
-// showThemeCreator shows the theme creator/generator modal
+// showHexInput lets the user type an exact colour instead of nudging it.
+func (ce *ColorEditor) showHexInput() {
+	key := ce.selectedColorKey()
+	if key == "" {
+		ce.warn("Move to a colour row first")
+		return
+	}
+
+	original, defined := ce.colorValues[key]
+	seed := original
+	if !defined || seed == "" {
+		seed = ce.derivedDefault(key)
+	}
+	p := ce.palette
+
+	input := tview.NewInputField()
+	input.SetLabel(" hex ")
+	input.SetText(seed)
+	input.SetFieldWidth(12)
+	input.SetLabelColor(p.accent)
+	input.SetFieldBackgroundColor(p.selBg)
+	input.SetFieldTextColor(p.fg)
+	ce.styleBox(input.Box, fmt.Sprintf(" %s ", strings.ReplaceAll(key, ".", " ")))
+
+	// Live: a valid value repaints the terminal as you type.
+	input.SetChangedFunc(func(text string) {
+		if hex, ok := expandHex(text); ok {
+			ce.setColorValue(key, hex)
+		}
+	})
+
+	restore := func() {
+		if defined {
+			ce.setColorValue(key, original)
+		} else {
+			// The slot was empty before this dialog; leave it empty.
+			delete(ce.colorValues, key)
+			ce.colorPanel.SetItemText(ce.colorKeyToListItem[key], ce.formatColorItem(key), "")
+			ce.updatePreview()
+			ce.scheduleLivePreview()
+		}
+		ce.isDirty = ce.hasUnsavedChanges()
+		ce.colorPanel.SetTitle(ce.colorPanelTitle())
+		ce.renderStatus()
+	}
+
+	input.SetDoneFunc(func(k tcell.Key) {
+		ce.closeOverlay("hex")
+		switch k {
+		case tcell.KeyEnter:
+			if hex, ok := expandHex(input.GetText()); ok {
+				ce.setColorValue(key, hex)
+				ce.info("%s set to %s", shortColorLabel(key), hex)
+			} else {
+				restore()
+				ce.warn("Not a hex colour — nothing changed")
+			}
+		case tcell.KeyEscape:
+			restore()
+		}
+	})
+
+	ce.showOverlay("hex", input, 30, 3)
+}
+
+// expandHex accepts "#rrggbb", "rrggbb", "#rgb" and "rgb".
+func expandHex(text string) (string, bool) {
+	text = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(text), "#"))
+	if len(text) == 3 {
+		text = string([]byte{text[0], text[0], text[1], text[1], text[2], text[2]})
+	}
+	if len(text) != 6 {
+		return "", false
+	}
+	hex := "#" + strings.ToLower(text)
+	if _, err := theme.HexToRGB(hex); err != nil {
+		return "", false
+	}
+	return hex, true
+}
+
+// showSaveAsDialog asks for a name before writing a new theme file.
+func (ce *ColorEditor) showSaveAsDialog() {
+	if ce.currentTheme == nil {
+		ce.warn("No theme to save")
+		return
+	}
+
+	p := ce.palette
+	suggestion := ce.suggestThemeName()
+
+	input := tview.NewInputField()
+	input.SetLabel(" name ")
+	input.SetText(suggestion)
+	input.SetFieldWidth(34)
+	input.SetLabelColor(p.accent)
+	input.SetFieldBackgroundColor(p.selBg)
+	input.SetFieldTextColor(p.fg)
+
+	title := " Save theme as "
+	if !ce.themeOwned {
+		title = " Save a copy (originals are never overwritten) "
+	}
+	ce.styleBox(input.Box, title)
+
+	input.SetDoneFunc(func(k tcell.Key) {
+		ce.closeOverlay("saveas")
+		if k == tcell.KeyEnter {
+			ce.saveThemeAs(input.GetText())
+		}
+	})
+
+	ce.showOverlay("saveas", input, 52, 3)
+}
+
+// --- theme creator --------------------------------------------------------
+
+// showThemeCreator opens the guided generator: pick a style, a harmony and an
+// optional seed colour, then regenerate until something looks right.
 func (ce *ColorEditor) showThemeCreator() {
-	ce.resetTUITheme()
+	p := ce.palette
+	var generated *GeneratedTheme
+	seed := ce.colorValues["normal.blue"]
 
-	// Disable global key handler while creator is open
-	ce.app.SetInputCapture(nil)
-
-	// Style selection
 	styleList := tview.NewList()
-	styleList.ShowSecondaryText(true)
-	styleList.SetBorder(true)
-	styleList.SetTitle(" Theme Style ")
-	styleList.AddItem("Dark Theme", "Light text on dark background", 0, nil)
-	styleList.AddItem("Light Theme", "Dark text on light background", 0, nil)
+	styleList.ShowSecondaryText(false)
+	styleList.AddItem("Dark", "", 0, nil)
+	styleList.AddItem("Light", "", 0, nil)
+	ce.styleList(styleList, " Style ")
 
-	// Generation method selection
 	methodList := tview.NewList()
 	methodList.ShowSecondaryText(true)
-	methodList.SetBorder(true)
-	methodList.SetTitle(" Generation Method ")
-	methodList.AddItem("Full Random", "Completely random colors", 0, nil)
-	methodList.AddItem("Complementary", "Opposite colors (high contrast)", 0, nil)
-	methodList.AddItem("Analogous", "Adjacent colors (cohesive)", 0, nil)
-	methodList.AddItem("Triadic", "Three balanced colors", 0, nil)
-	methodList.AddItem("Split-Complementary", "Vibrant with less tension", 0, nil)
-	methodList.AddItem("Tetradic", "Four rich colors", 0, nil)
-	methodList.AddItem("Monochromatic", "Single hue variations", 0, nil)
+	methodList.AddItem("Random", "Anything goes", 0, nil)
+	for i, name := range HarmonyNames {
+		methodList.AddItem(name, HarmonyDescriptions[i], 0, nil)
+	}
+	ce.styleList(methodList, " Harmony ")
 
-	// Preview panel
+	seedInput := tview.NewInputField()
+	seedInput.SetLabel(" seed ")
+	seedInput.SetText(seed)
+	seedInput.SetLabelColor(p.accent)
+	seedInput.SetFieldBackgroundColor(p.selBg)
+	seedInput.SetFieldTextColor(p.fg)
+	ce.styleBox(seedInput.Box, " Base colour (blank = random) ")
+
 	previewPanel := tview.NewTextView()
 	previewPanel.SetDynamicColors(true)
-	previewPanel.SetBorder(true)
-	previewPanel.SetTitle(" Preview ")
+	previewPanel.SetTextColor(p.fg)
+	ce.styleBox(previewPanel.Box, " Preview ")
 
-	// Status bar
-	statusBar := tview.NewTextView()
-	statusBar.SetText("Tab: switch panels | ↑↓: navigate | Enter: generate | g: generate new | s: save & apply | q: cancel")
-	statusBar.SetTextColor(tcell.ColorYellow)
+	hint := tview.NewTextView()
+	hint.SetDynamicColors(true)
+	hint.SetBackgroundColor(p.bg)
+	hint.SetText(fmt.Sprintf("[%s]Tab move · ↑↓ choose · g regenerate · s keep it · Esc cancel[-]", p.mutedHex))
 
-	var currentGenerated *GeneratedTheme
-
-	// Update preview with generated theme
-	updatePreviewPanel := func() {
-		if currentGenerated == nil {
-			previewPanel.SetText("[yellow]Select options and press Enter to generate[-]")
-			return
-		}
-
-		preview := fmt.Sprintf(`[yellow::b]Generated Theme: %s[-]
-
-[white::b]Background:[-] [%s]████[-] %s
-[white::b]Foreground:[-] [%s]████[-] %s
-
-[white::b]Normal Colors:[-]
-`, currentGenerated.Name,
-			currentGenerated.Background, currentGenerated.Background,
-			currentGenerated.Foreground, currentGenerated.Foreground)
-
-		for _, name := range BaseColorNames {
-			if color, ok := currentGenerated.Normal[name]; ok {
-				preview += fmt.Sprintf("[%s]██[-] %-8s ", color, name)
-			}
-		}
-
-		preview += "\n\n[white::b]Bright Colors:[-]\n"
-		for _, name := range BaseColorNames {
-			if color, ok := currentGenerated.Bright[name]; ok {
-				preview += fmt.Sprintf("[%s]██[-] %-8s ", color, name)
-			}
-		}
-
-		preview += "\n\n[white::b]Sample:[-]\n"
-		preview += fmt.Sprintf("[%s]user@host[-]:[%s]~/code[-]$ [%s]ls -la[-]\n",
-			currentGenerated.Normal["green"],
-			currentGenerated.Normal["blue"],
-			currentGenerated.Normal["yellow"])
-		preview += fmt.Sprintf("[%s]func[-] [%s]main[-]() { [%s]// comment[-] }\n",
-			currentGenerated.Normal["blue"],
-			currentGenerated.Normal["yellow"],
-			currentGenerated.Normal["magenta"])
-
-		previewPanel.SetText(preview)
-	}
-
-	// Generate theme based on current selections
-	generateTheme := func() {
-		styleIdx := styleList.GetCurrentItem()
-		methodIdx := methodList.GetCurrentItem()
-
+	generate := func() {
 		style := ThemeStyleDark
-		if styleIdx == 1 {
+		if styleList.GetCurrentItem() == 1 {
 			style = ThemeStyleLight
 		}
 
+		baseHue, hasSeed := seedHue(seedInput.GetText())
+		methodIdx := methodList.GetCurrentItem()
 		if methodIdx == 0 {
-			// Full random
-			currentGenerated = GenerateRandomTheme(style)
+			generated = GenerateRandomTheme(style, baseHue, hasSeed)
 		} else {
-			// Harmonious generation
-			harmony := HarmonyType(methodIdx - 1)
-			currentGenerated = GenerateHarmoniousTheme(style, harmony)
+			generated = GenerateHarmoniousTheme(style, HarmonyType(methodIdx-1), baseHue, hasSeed)
 		}
-
-		updatePreviewPanel()
-		statusBar.SetText(fmt.Sprintf("Generated: %s | g: regenerate | s: save & apply | q: cancel", currentGenerated.Name))
+		previewPanel.SetText(ce.renderGeneratedPreview(generated))
+		previewPanel.SetTitle(fmt.Sprintf(" Preview · %s ", generated.Name))
 	}
 
-	// Key handlers
-	styleList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyTab:
-			ce.app.SetFocus(methodList)
-			methodList.SetBorderColor(tcell.ColorYellow)
-			styleList.SetBorderColor(tcell.ColorDefault)
-			return nil
-		case tcell.KeyEnter:
-			generateTheme()
-			return nil
-		case tcell.KeyEscape:
-			ce.restoreMainUI()
-			return nil
-		case tcell.KeyRune:
-			switch event.Rune() {
-			case 'g', 'G':
-				generateTheme()
-				return nil
-			case 's', 'S':
-				if currentGenerated != nil {
-					ce.restoreMainUI()
-					ce.ApplyGeneratedTheme(currentGenerated)
-					ce.saveTheme()
-					ce.refreshThemeList()
-					ce.setStatus(fmt.Sprintf("Created and applied: %s", currentGenerated.Name))
-				}
-				return nil
-			case 'q', 'Q':
-				ce.restoreMainUI()
-				return nil
-			}
+	keep := func() {
+		if generated == nil {
+			return
 		}
-		return event
-	})
+		ce.closeOverlay("creator")
+		ce.ApplyGeneratedTheme(generated)
+		ce.showSaveAsDialog()
+	}
 
-	methodList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyTab:
-			ce.app.SetFocus(styleList)
-			styleList.SetBorderColor(tcell.ColorYellow)
-			methodList.SetBorderColor(tcell.ColorDefault)
-			return nil
-		case tcell.KeyEnter:
-			generateTheme()
-			return nil
-		case tcell.KeyEscape:
-			ce.restoreMainUI()
-			return nil
-		case tcell.KeyRune:
-			switch event.Rune() {
-			case 'g', 'G':
-				generateTheme()
+	boxes := []*tview.Box{styleList.Box, methodList.Box, seedInput.Box}
+	targets := []tview.Primitive{styleList, methodList, seedInput}
+	focusIdx := 0
+
+	capture := func(self int) func(*tcell.EventKey) *tcell.EventKey {
+		return func(event *tcell.EventKey) *tcell.EventKey {
+			switch event.Key() {
+			case tcell.KeyTab:
+				focusIdx = (self + 1) % len(targets)
+				ce.focusRing(boxes, targets, focusIdx)
 				return nil
-			case 's', 'S':
-				if currentGenerated != nil {
-					ce.restoreMainUI()
-					ce.ApplyGeneratedTheme(currentGenerated)
-					ce.saveTheme()
-					ce.refreshThemeList()
-					ce.setStatus(fmt.Sprintf("Created and applied: %s", currentGenerated.Name))
+			case tcell.KeyBacktab:
+				focusIdx = (self - 1 + len(targets)) % len(targets)
+				ce.focusRing(boxes, targets, focusIdx)
+				return nil
+			case tcell.KeyEscape:
+				ce.closeOverlay("creator")
+				return nil
+			case tcell.KeyEnter:
+				if self == 2 {
+					generate()
+					return nil
 				}
+				generate()
 				return nil
-			case 'q', 'Q':
-				ce.restoreMainUI()
-				return nil
+			case tcell.KeyRune:
+				// The seed field must keep accepting typed characters.
+				if self == 2 {
+					return event
+				}
+				switch event.Rune() {
+				case 'g', 'G':
+					generate()
+					return nil
+				case 's', 'S':
+					keep()
+					return nil
+				case 'q', 'Q':
+					ce.closeOverlay("creator")
+					return nil
+				}
 			}
+			return event
 		}
-		return event
+	}
+
+	styleList.SetInputCapture(capture(0))
+	methodList.SetInputCapture(capture(1))
+	seedInput.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEnter {
+			generate()
+			return nil
+		}
+		return capture(2)(event)
 	})
+	styleList.SetChangedFunc(func(int, string, string, rune) { generate() })
+	methodList.SetChangedFunc(func(int, string, string, rune) { generate() })
 
-	// Initial preview
-	updatePreviewPanel()
+	left := tview.NewFlex()
+	left.SetDirection(tview.FlexRow)
+	left.AddItem(styleList, 4, 0, true)
+	left.AddItem(methodList, 0, 1, false)
+	left.AddItem(seedInput, 3, 0, false)
 
-	// Layout
-	leftFlex := tview.NewFlex()
-	leftFlex.SetDirection(tview.FlexRow)
-	leftFlex.AddItem(styleList, 6, 0, true)
-	leftFlex.AddItem(methodList, 0, 1, false)
+	body := tview.NewFlex()
+	body.AddItem(left, 46, 0, true)
+	body.AddItem(previewPanel, 0, 1, false)
 
-	mainFlex := tview.NewFlex()
-	mainFlex.AddItem(leftFlex, 0, 1, true)
-	mainFlex.AddItem(previewPanel, 0, 2, false)
+	root := tview.NewFlex()
+	root.SetDirection(tview.FlexRow)
+	root.AddItem(body, 0, 1, true)
+	root.AddItem(hint, 1, 0, false)
+	root.SetBackgroundColor(p.bg)
 
-	rootFlex := tview.NewFlex()
-	rootFlex.SetDirection(tview.FlexRow)
-	rootFlex.AddItem(mainFlex, 0, 1, true)
-	rootFlex.AddItem(statusBar, 1, 0, false)
+	generate()
 
-	ce.app.SetRoot(rootFlex, true)
-	ce.app.SetFocus(styleList)
-	styleList.SetBorderColor(tcell.ColorYellow)
+	ce.showOverlay("creator", root, 104, 26)
+	ce.focusRing(boxes, targets, focusIdx)
 }
 
-// generateAndApplyRandomTheme generates and applies a random theme immediately
-func (ce *ColorEditor) generateAndApplyRandomTheme(harmonious bool) {
-	var gen *GeneratedTheme
+// renderGeneratedPreview draws the candidate palette using its own colours.
+func (ce *ColorEditor) renderGeneratedPreview(gen *GeneratedTheme) string {
+	if gen == nil {
+		return ""
+	}
 
-	// Detect current theme style (dark or light)
+	var b strings.Builder
+	fmt.Fprintf(&b, "[%s::b]%s[-::-]  [%s]%s[-]\n\n", gen.Foreground, gen.Name, ce.palette.mutedHex, gen.StyleName())
+
+	fmt.Fprintf(&b, "[%s]███[-] background %s\n", gen.Background, gen.Background)
+	fmt.Fprintf(&b, "[%s]███[-] foreground %s   [%s]%.1f:1 %s[-]\n\n",
+		gen.Foreground, gen.Foreground,
+		ce.contrastColor(gen.Contrast()), gen.Contrast(), contrastGrade(gen.Contrast()))
+
+	for _, row := range []struct {
+		label  string
+		colors map[string]string
+	}{{"normal", gen.Normal}, {"bright", gen.Bright}} {
+		fmt.Fprintf(&b, "[%s]%-7s[-]", ce.palette.mutedHex, row.label)
+		for _, name := range BaseColorNames {
+			fmt.Fprintf(&b, "[%s]███[-]", row.colors[name])
+		}
+		b.WriteString("\n")
+	}
+
+	fmt.Fprintf(&b, "\n[%s]user[-]@[%s]host[-] [%s]~/code[-] [%s]$[-] [%s]git status[-]\n",
+		gen.Normal["green"], gen.Normal["green"], gen.Normal["blue"], gen.Foreground, gen.Bright["yellow"])
+	fmt.Fprintf(&b, "[%s]modified:[-]   [%s]main.go[-]\n", gen.Normal["red"], gen.Foreground)
+	fmt.Fprintf(&b, "[%s]new file:[-]   [%s]palette.go[-]\n\n", gen.Normal["green"], gen.Foreground)
+	fmt.Fprintf(&b, "[%s]func[-] [%s]main[-]() {\n", gen.Normal["magenta"], gen.Bright["blue"])
+	fmt.Fprintf(&b, "    [%s]fmt[-].[%s]Println[-]([%s]\"hello\"[-])  [%s]// comment[-]\n",
+		gen.Normal["cyan"], gen.Bright["blue"], gen.Normal["yellow"], gen.Bright["black"])
+	b.WriteString("}\n")
+
+	return b.String()
+}
+
+// seedHue reads a hex seed from the creator's input field.
+func seedHue(text string) (float64, bool) {
+	hex, ok := expandHex(text)
+	if !ok {
+		return 0, false
+	}
+	rgb, err := theme.HexToRGB(hex)
+	if err != nil {
+		return 0, false
+	}
+	return RGBToHSL(rgb.R, rgb.G, rgb.B).H, true
+}
+
+// generateAndApplyRandomTheme generates and previews a theme immediately
+func (ce *ColorEditor) generateAndApplyRandomTheme(harmonious bool) {
 	style := ThemeStyleDark
 	if bg, exists := ce.colorValues["primary.background"]; exists {
-		if rgb, err := theme.HexToRGB(bg); err == nil {
-			hsl := RGBToHSL(rgb.R, rgb.G, rgb.B)
-			if hsl.L > 0.5 {
+		if rgb, err := theme.HexToRGB(normalizeHex(bg, "#000000")); err == nil {
+			if RGBToHSL(rgb.R, rgb.G, rgb.B).L > 0.5 {
 				style = ThemeStyleLight
 			}
 		}
 	}
 
+	var gen *GeneratedTheme
 	if harmonious {
-		// Pick a random harmony type
-		harmony := HarmonyType(rand.Intn(6))
-		gen = GenerateHarmoniousTheme(style, harmony)
-		ce.setStatus(fmt.Sprintf("Generated harmonious theme (%s) - Press 's' to save", HarmonyNames[harmony]))
+		gen = GenerateHarmoniousTheme(style, HarmonyType(rand.Intn(len(HarmonyNames))), 0, false)
 	} else {
-		gen = GenerateRandomTheme(style)
-		ce.setStatus("Generated random theme - Press 's' to save")
+		gen = GenerateRandomTheme(style, 0, false)
 	}
 
 	ce.ApplyGeneratedTheme(gen)
+	ce.info("Generated %s — g for another, S to save it, r to go back", gen.Name)
+}
 
-	// Apply to Alacritty immediately
-	go func() {
-		ce.updateThemeConfig()
-		if err := ce.saveThemeToFile(); err == nil {
-			ce.themeManager.ApplyTheme(ce.themeName)
-		}
-	}()
+// --- font panel plumbing --------------------------------------------------
+
+// showFontPanel opens the font browser directly.
+func (ce *ColorEditor) showFontPanel() {
+	ce.showFontTUI()
+}
+
+// restoreMainUI closes the font browser overlay.
+func (ce *ColorEditor) restoreMainUI() {
+	ce.closeOverlay("fonts")
 }

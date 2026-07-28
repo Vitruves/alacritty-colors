@@ -1,0 +1,45 @@
+# alacritty-colors collection · Purkinje Shift
+# Scotopic · The blue-ward shift as light drops
+
+[colors.primary]
+background = "#06080e"
+foreground = "#c2cade"
+
+[colors.cursor]
+text = "#06080e"
+cursor = "#5278c3"
+
+[colors.selection]
+text = "#c2cade"
+background = "#1f335a"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d74761"
+green = "#47d786"
+yellow = "#d7ba47"
+blue = "#4778d7"
+magenta = "#b347d7"
+cyan = "#47aed7"
+white = "#c4c5ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#dd8897"
+green = "#88ddad"
+yellow = "#ddcc88"
+blue = "#88a5dd"
+magenta = "#c888dd"
+cyan = "#88c5dd"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a33348"
+green = "#33a364"
+yellow = "#a38d33"
+blue = "#3359a3"
+magenta = "#8733a3"
+cyan = "#3383a3"
+white = "#999ca3"
+

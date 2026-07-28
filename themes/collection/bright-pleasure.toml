@@ -1,0 +1,45 @@
+# alacritty-colors collection · Bright Pleasure
+# Affect · The brightest end of the scale
+
+[colors.primary]
+background = "#fafcff"
+foreground = "#1e2530"
+
+[colors.cursor]
+text = "#fafcff"
+cursor = "#2675b7"
+
+[colors.selection]
+text = "#1e2530"
+background = "#a9c2e1"
+
+[colors.normal]
+black = "#44474b"
+red = "#b12a25"
+green = "#1a7e46"
+yellow = "#87711c"
+blue = "#2564b1"
+magenta = "#8e25b1"
+cyan = "#1e7a8f"
+white = "#999da3"
+
+[colors.bright]
+black = "#222325"
+red = "#802623"
+green = "#23804c"
+yellow = "#806e23"
+blue = "#234d80"
+magenta = "#692380"
+cyan = "#236f80"
+white = "#6f747b"
+
+[colors.dim]
+black = "#575b60"
+red = "#c84f4b"
+green = "#4bc882"
+yellow = "#c8af4b"
+blue = "#4b83c8"
+magenta = "#a94bc8"
+cyan = "#4bb1c8"
+white = "#b4b7bb"
+

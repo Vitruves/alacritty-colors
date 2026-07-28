@@ -1,0 +1,45 @@
+# alacritty-colors collection · Cold Reason
+# Focus · Slate blue, cool and unhurried
+
+[colors.primary]
+background = "#10151d"
+foreground = "#ccd3dd"
+
+[colors.cursor]
+text = "#10151d"
+cursor = "#6f9dc6"
+
+[colors.selection]
+text = "#ccd3dd"
+background = "#264062"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d45853"
+green = "#4bd286"
+yellow = "#d2b74b"
+blue = "#4b87d2"
+magenta = "#b85bd6"
+cyan = "#4bb8d2"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#da8d8b"
+green = "#8bdaad"
+yellow = "#daca8b"
+blue = "#8baeda"
+magenta = "#c78bda"
+cyan = "#8bcbda"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#9f3b38"
+green = "#389f65"
+yellow = "#9f8a38"
+blue = "#38659f"
+magenta = "#85389f"
+cyan = "#388b9f"
+white = "#999da3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Soft Focus
+# Contrast · Gentle on tired eyes, still above AA
+
+[colors.primary]
+background = "#191b1e"
+foreground = "#c2c6cc"
+
+[colors.cursor]
+text = "#191b1e"
+cursor = "#7f96b0"
+
+[colors.selection]
+text = "#c2c6cc"
+background = "#2d4362"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d4625e"
+green = "#4ed087"
+yellow = "#d0b64e"
+blue = "#4e83d0"
+magenta = "#b75ed4"
+cyan = "#4eb3d0"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#d98f8c"
+green = "#8cd9ae"
+yellow = "#d9c98c"
+blue = "#8cacd9"
+magenta = "#c68cd9"
+cyan = "#8cc8d9"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#9c3d3a"
+green = "#3a9c65"
+yellow = "#9c893a"
+blue = "#3a629c"
+magenta = "#843a9c"
+cyan = "#3a869c"
+white = "#999da3"
+

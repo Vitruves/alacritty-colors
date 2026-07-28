@@ -1,0 +1,45 @@
+# alacritty-colors collection · Opponent Channels
+# Opponent · The three axes, given equal weight
+
+[colors.primary]
+background = "#0c1016"
+foreground = "#ccd4de"
+
+[colors.cursor]
+text = "#0c1016"
+cursor = "#4a8ec4"
+
+[colors.selection]
+text = "#ccd4de"
+background = "#233e5f"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d54d48"
+green = "#48d586"
+yellow = "#d5b948"
+blue = "#4888d5"
+magenta = "#b550d7"
+cyan = "#48bcd5"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52565b"
+red = "#dc8b89"
+green = "#89dcad"
+yellow = "#dccc89"
+blue = "#89afdc"
+magenta = "#c889dc"
+cyan = "#89cddc"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a23835"
+green = "#35a264"
+yellow = "#a28c35"
+blue = "#3566a2"
+magenta = "#8635a2"
+cyan = "#358ea2"
+white = "#999da3"
+

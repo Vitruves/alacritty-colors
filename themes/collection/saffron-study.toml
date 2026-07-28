@@ -1,0 +1,45 @@
+# alacritty-colors collection · Saffron Study
+# Warmth · Saffron accent on dark spice
+
+[colors.primary]
+background = "#15120c"
+foreground = "#e2d8c4"
+
+[colors.cursor]
+text = "#15120c"
+cursor = "#e0a52e"
+
+[colors.selection]
+text = "#e2d8c4"
+background = "#2d3b5b"
+
+[colors.normal]
+black = "#302f2c"
+red = "#da6944"
+green = "#5dda44"
+yellow = "#daa844"
+blue = "#557edd"
+magenta = "#da44ab"
+cyan = "#44dac3"
+white = "#cac8c4"
+
+[colors.bright]
+black = "#5b5852"
+red = "#df9c86"
+green = "#95df86"
+yellow = "#dfc286"
+blue = "#86a1df"
+magenta = "#df86c3"
+cyan = "#86dfd2"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a64e30"
+green = "#44a630"
+yellow = "#a67f30"
+blue = "#3054a6"
+magenta = "#a63081"
+cyan = "#30a694"
+white = "#a3a099"
+

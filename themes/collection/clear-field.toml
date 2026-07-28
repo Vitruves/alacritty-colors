@@ -1,0 +1,45 @@
+# alacritty-colors collection · Clear Field
+# Image Scale · Cool and clean, nothing muddied
+
+[colors.primary]
+background = "#f4faff"
+foreground = "#1c2630"
+
+[colors.cursor]
+text = "#f4faff"
+cursor = "#2875af"
+
+[colors.selection]
+text = "#1c2630"
+background = "#a6c2e1"
+
+[colors.normal]
+black = "#44484b"
+red = "#b02b27"
+green = "#1c7e46"
+yellow = "#86711e"
+blue = "#2766b0"
+magenta = "#8e27b0"
+cyan = "#207b8f"
+white = "#999fa3"
+
+[colors.bright]
+black = "#222425"
+red = "#7f2724"
+green = "#247f4c"
+yellow = "#7f6d24"
+blue = "#244e7f"
+magenta = "#69247f"
+cyan = "#24707f"
+white = "#6f767b"
+
+[colors.dim]
+black = "#575c60"
+red = "#c7514d"
+green = "#4dc782"
+yellow = "#c7ae4d"
+blue = "#4d85c7"
+magenta = "#a84dc7"
+cyan = "#4db2c7"
+white = "#b4b8bb"
+

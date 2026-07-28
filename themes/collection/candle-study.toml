@@ -1,0 +1,45 @@
+# alacritty-colors collection · Candle Study
+# Warmth · Candlelit, deliberately short on blue
+
+[colors.primary]
+background = "#14100a"
+foreground = "#e4d8c0"
+
+[colors.cursor]
+text = "#14100a"
+cursor = "#d8a44a"
+
+[colors.selection]
+text = "#e4d8c0"
+background = "#2a3859"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d86a46"
+green = "#5fd846"
+yellow = "#d8a346"
+blue = "#4e78da"
+magenta = "#d846aa"
+cyan = "#46d8c2"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5852"
+red = "#de9d87"
+green = "#96de87"
+yellow = "#debf87"
+blue = "#87a1de"
+magenta = "#de87c3"
+cyan = "#87ded1"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a44f32"
+green = "#45a432"
+yellow = "#a47b32"
+blue = "#3254a4"
+magenta = "#a43280"
+cyan = "#32a493"
+white = "#a39f99"
+

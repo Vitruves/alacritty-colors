@@ -1,0 +1,45 @@
+# alacritty-colors collection · Chevreul Law
+# Colour Order · Simultaneous contrast, stated in 1839
+
+[colors.primary]
+background = "#101210"
+foreground = "#d0d4ce"
+
+[colors.cursor]
+text = "#101210"
+cursor = "#5fa070"
+
+[colors.selection]
+text = "#d0d4ce"
+background = "#25465b"
+
+[colors.normal]
+black = "#2c302c"
+red = "#d56c48"
+green = "#48d56d"
+yellow = "#d5d048"
+blue = "#489ad5"
+magenta = "#d548d1"
+cyan = "#48d5c0"
+white = "#c4cac4"
+
+[colors.bright]
+black = "#525b52"
+red = "#dc9e89"
+green = "#89dc9f"
+yellow = "#dcd989"
+blue = "#89b9dc"
+magenta = "#dc89da"
+cyan = "#89dcd0"
+white = "#eff0ef"
+
+[colors.dim]
+black = "#1d201d"
+red = "#a25035"
+green = "#35a251"
+yellow = "#a29d35"
+blue = "#3574a2"
+magenta = "#a2359e"
+cyan = "#35a291"
+white = "#99a399"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Copper Patina
+# Warmth · Copper against oxidised teal
+
+[colors.primary]
+background = "#0e1618"
+foreground = "#d2dcdb"
+
+[colors.cursor]
+text = "#0e1618"
+cursor = "#c07a45"
+
+[colors.selection]
+text = "#d2dcdb"
+background = "#2a3e62"
+
+[colors.normal]
+black = "#2c2f30"
+red = "#d76b47"
+green = "#5fd747"
+yellow = "#d7a347"
+blue = "#587fdb"
+magenta = "#d747a9"
+cyan = "#47cdd7"
+white = "#c4c9ca"
+
+[colors.bright]
+black = "#52595b"
+red = "#dd9d88"
+green = "#96dd88"
+yellow = "#ddbe88"
+blue = "#88a1dd"
+magenta = "#dd88c2"
+cyan = "#88d8dd"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d2020"
+red = "#a34f33"
+green = "#46a333"
+yellow = "#a37a33"
+blue = "#3355a3"
+magenta = "#a33380"
+cyan = "#339ba3"
+white = "#99a1a3"
+

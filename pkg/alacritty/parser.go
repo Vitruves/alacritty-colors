@@ -55,6 +55,7 @@ type FontFamily struct {
 type WindowConfig struct {
 	Padding WindowPadding `toml:"padding,omitempty"`
 	Title   string        `toml:"title,omitempty"`
+	Opacity float64       `toml:"opacity,omitempty"`
 }
 
 type WindowPadding struct {
@@ -229,6 +230,10 @@ func (p *Parser) setWindowConfig(config *Config, key, value string) {
 	switch key {
 	case "title":
 		config.Window.Title = value
+	case "opacity":
+		if opacity, err := parseFloat(value); err == nil {
+			config.Window.Opacity = opacity
+		}
 	}
 }
 

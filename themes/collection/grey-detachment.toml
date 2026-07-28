@@ -1,0 +1,45 @@
+# alacritty-colors collection · Grey Detachment
+# Luscher · Grey, standing outside the set
+
+[colors.primary]
+background = "#131315"
+foreground = "#d2d2d4"
+
+[colors.cursor]
+text = "#131315"
+cursor = "#8c8c90"
+
+[colors.selection]
+text = "#d2d2d4"
+background = "#37385e"
+
+[colors.normal]
+black = "#2c2c30"
+red = "#cc5b70"
+green = "#53ca87"
+yellow = "#cab353"
+blue = "#7274d4"
+magenta = "#b15bcc"
+cyan = "#53a9ca"
+white = "#c4c4ca"
+
+[colors.bright]
+black = "#52525b"
+red = "#d5909d"
+green = "#90d5ae"
+yellow = "#d5c790"
+blue = "#9091d5"
+magenta = "#c490d5"
+cyan = "#90c1d5"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1d20"
+red = "#973f4f"
+green = "#3f9766"
+yellow = "#97863f"
+blue = "#3f4197"
+magenta = "#813f97"
+cyan = "#3f7e97"
+white = "#9999a3"
+

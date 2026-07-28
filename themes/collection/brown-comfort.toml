@@ -1,0 +1,45 @@
+# alacritty-colors collection · Brown Comfort
+# Luscher · Brown, the bodily one
+
+[colors.primary]
+background = "#16110d"
+foreground = "#ded0c2"
+
+[colors.cursor]
+text = "#16110d"
+cursor = "#ae7448"
+
+[colors.selection]
+text = "#ded0c2"
+background = "#2d3959"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d36d4b"
+green = "#62d34b"
+yellow = "#d3a14b"
+blue = "#537ad5"
+magenta = "#d34ba8"
+cyan = "#4bcad3"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5652"
+red = "#db9e8a"
+green = "#98db8a"
+yellow = "#dbbe8a"
+blue = "#8aa2db"
+magenta = "#db8ac1"
+cyan = "#8ad5db"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#9f5137"
+green = "#499f37"
+yellow = "#9f7937"
+blue = "#37569f"
+magenta = "#9f377e"
+cyan = "#37989f"
+white = "#a39e99"
+

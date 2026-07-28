@@ -1,0 +1,45 @@
+# alacritty-colors collection · Cardinal Direction
+# Opponent · Four bearings on the colour plane
+
+[colors.primary]
+background = "#0e1216"
+foreground = "#ccd4dc"
+
+[colors.cursor]
+text = "#0e1216"
+cursor = "#4ea0a8"
+
+[colors.selection]
+text = "#ccd4dc"
+background = "#24455f"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#d75550"
+green = "#48d586"
+yellow = "#d5d048"
+blue = "#4898d5"
+magenta = "#b550d7"
+cyan = "#48cbd5"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#dc8b89"
+green = "#89dcad"
+yellow = "#dcd989"
+blue = "#89b8dc"
+magenta = "#c889dc"
+cyan = "#89d7dc"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#a23835"
+green = "#35a264"
+yellow = "#a29d35"
+blue = "#3572a2"
+magenta = "#8635a2"
+cyan = "#359aa2"
+white = "#999ea3"
+

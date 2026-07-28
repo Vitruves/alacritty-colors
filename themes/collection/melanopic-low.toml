@@ -1,0 +1,45 @@
+# alacritty-colors collection · Melanopic Low
+# Circadian · Short wavelengths pulled right out
+
+[colors.primary]
+background = "#150f08"
+foreground = "#e0d2bc"
+
+[colors.cursor]
+text = "#150f08"
+cursor = "#d09a38"
+
+[colors.selection]
+text = "#e0d2bc"
+background = "#2b3757"
+
+[colors.normal]
+black = "#302e2c"
+red = "#d76b47"
+green = "#5fd747"
+yellow = "#d7a447"
+blue = "#4f78d9"
+magenta = "#d747aa"
+cyan = "#47d7c1"
+white = "#cac7c4"
+
+[colors.bright]
+black = "#5b5752"
+red = "#de9d87"
+green = "#96de87"
+yellow = "#debf87"
+blue = "#87a1de"
+magenta = "#de87c2"
+cyan = "#87ded1"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#201f1d"
+red = "#a34f33"
+green = "#46a333"
+yellow = "#a37b33"
+blue = "#3355a3"
+magenta = "#a33380"
+cyan = "#33a392"
+white = "#a39e99"
+

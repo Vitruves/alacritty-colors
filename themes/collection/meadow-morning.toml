@@ -1,0 +1,45 @@
+# alacritty-colors collection · Meadow Morning
+# Calm · Warm green under early sun
+
+[colors.primary]
+background = "#f7faf1"
+foreground = "#232b1e"
+
+[colors.cursor]
+text = "#f7faf1"
+cursor = "#467b27"
+
+[colors.selection]
+text = "#232b1e"
+background = "#a8c8d8"
+
+[colors.normal]
+black = "#494b44"
+red = "#b04927"
+green = "#2c7e1c"
+yellow = "#76721a"
+blue = "#2776b0"
+magenta = "#b027ab"
+cyan = "#1c7e6f"
+white = "#a0a399"
+
+[colors.bright]
+black = "#242522"
+red = "#7f3b24"
+green = "#337f24"
+yellow = "#777422"
+blue = "#24597f"
+magenta = "#7f247c"
+cyan = "#247f72"
+white = "#777b6f"
+
+[colors.dim]
+black = "#5d6057"
+red = "#c76b4d"
+green = "#61c74d"
+yellow = "#c7c24d"
+blue = "#4d94c7"
+magenta = "#c74dc3"
+cyan = "#4dc7b4"
+white = "#b9bbb4"
+

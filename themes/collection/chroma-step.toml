@@ -1,0 +1,45 @@
+# alacritty-colors collection · Chroma Step
+# Colour Order · One hue, walked out from the axis
+
+[colors.primary]
+background = "#0f1116"
+foreground = "#ced2da"
+
+[colors.cursor]
+text = "#0f1116"
+cursor = "#6a80b8"
+
+[colors.selection]
+text = "#ced2da"
+background = "#2c3a5f"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d5526a"
+green = "#4ad386"
+yellow = "#d3b84a"
+blue = "#5a7ed7"
+magenta = "#b552d5"
+cyan = "#4aadd3"
+white = "#c4c6ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#db8a99"
+green = "#8adbad"
+yellow = "#dbcb8a"
+blue = "#8aa1db"
+magenta = "#c78adb"
+cyan = "#8ac4db"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a0364a"
+green = "#36a064"
+yellow = "#a08b36"
+blue = "#3654a0"
+magenta = "#8636a0"
+cyan = "#3682a0"
+white = "#999ca3"
+

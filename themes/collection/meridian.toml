@@ -1,0 +1,45 @@
+# alacritty-colors collection · Meridian
+# Focus · Azure at its most exact
+
+[colors.primary]
+background = "#071a24"
+foreground = "#c4dbe4"
+
+[colors.cursor]
+text = "#071a24"
+cursor = "#2b9ec4"
+
+[colors.selection]
+text = "#c4dbe4"
+background = "#1f4568"
+
+[colors.normal]
+black = "#2c2f30"
+red = "#d9544f"
+green = "#47d786"
+yellow = "#d7d147"
+blue = "#478cd7"
+magenta = "#ba58db"
+cyan = "#47c1d7"
+white = "#c4c8ca"
+
+[colors.bright]
+black = "#52585b"
+red = "#dd8b88"
+green = "#88ddad"
+yellow = "#ddda88"
+blue = "#88b1dd"
+magenta = "#c888dd"
+cyan = "#88d0dd"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#a33733"
+green = "#33a364"
+yellow = "#a39f33"
+blue = "#3369a3"
+magenta = "#8733a3"
+cyan = "#3392a3"
+white = "#99a0a3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · High Noon
+# Contrast · Maximum legibility in a bright room
+
+[colors.primary]
+background = "#ffffff"
+foreground = "#101010"
+
+[colors.cursor]
+text = "#ffffff"
+cursor = "#1a56c4"
+
+[colors.selection]
+text = "#101010"
+background = "#acbfe2"
+
+[colors.normal]
+black = "#4b4444"
+red = "#b2243e"
+green = "#1a7f46"
+yellow = "#88721b"
+blue = "#2456b2"
+magenta = "#8f24b2"
+cyan = "#217da1"
+white = "#a39999"
+
+[colors.bright]
+black = "#252222"
+red = "#812234"
+green = "#22814c"
+yellow = "#816e22"
+blue = "#224481"
+magenta = "#692281"
+cyan = "#226681"
+white = "#7b6f6f"
+
+[colors.dim]
+black = "#605757"
+red = "#c94a62"
+green = "#4ac982"
+yellow = "#c9b04a"
+blue = "#4a77c9"
+magenta = "#aa4ac9"
+cyan = "#4aa5c9"
+white = "#bbb4b4"
+

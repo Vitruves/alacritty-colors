@@ -1,0 +1,45 @@
+# alacritty-colors collection · Yellow Serene
+# Goethe · Serene, gay, softly exciting
+
+[colors.primary]
+background = "#171408"
+foreground = "#e8dfc4"
+
+[colors.cursor]
+text = "#171408"
+cursor = "#d8bc3c"
+
+[colors.selection]
+text = "#e8dfc4"
+background = "#2f3d59"
+
+[colors.normal]
+black = "#302f2c"
+red = "#d86a46"
+green = "#5fd846"
+yellow = "#d8be46"
+blue = "#577fdc"
+magenta = "#d846aa"
+cyan = "#46d8c2"
+white = "#cac9c4"
+
+[colors.bright]
+black = "#5b5952"
+red = "#de9d87"
+green = "#96de87"
+yellow = "#decf87"
+blue = "#87a1de"
+magenta = "#de87c3"
+cyan = "#87ded1"
+white = "#f0f0ef"
+
+[colors.dim]
+black = "#20201d"
+red = "#a44f32"
+green = "#45a432"
+yellow = "#a49032"
+blue = "#3254a4"
+magenta = "#a43280"
+cyan = "#32a493"
+white = "#a3a199"
+

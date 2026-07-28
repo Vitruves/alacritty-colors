@@ -1,0 +1,45 @@
+# alacritty-colors collection · Elegant Reserve
+# Image Scale · Cool, soft, and deliberately quiet
+
+[colors.primary]
+background = "#14121a"
+foreground = "#d6d0dc"
+
+[colors.cursor]
+text = "#14121a"
+cursor = "#9a80b8"
+
+[colors.selection]
+text = "#d6d0dc"
+background = "#393863"
+
+[colors.normal]
+black = "#2d2c30"
+red = "#d3556c"
+green = "#4dd186"
+yellow = "#d1a14d"
+blue = "#7677db"
+magenta = "#b455d3"
+cyan = "#4dabd1"
+white = "#c5c4ca"
+
+[colors.bright]
+black = "#55525b"
+red = "#d98c9a"
+green = "#8cd9ae"
+yellow = "#d9bd8c"
+blue = "#8c8dd9"
+magenta = "#c68cd9"
+cyan = "#8cc3d9"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1e1d20"
+red = "#9d394b"
+green = "#399d65"
+yellow = "#9d7939"
+blue = "#393b9d"
+magenta = "#84399d"
+cyan = "#39819d"
+white = "#9c99a3"
+

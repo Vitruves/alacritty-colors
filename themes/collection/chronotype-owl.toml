@@ -1,0 +1,45 @@
+# alacritty-colors collection · Chronotype Owl
+# Circadian · Built for whoever is up at two
+
+[colors.primary]
+background = "#0d0b12"
+foreground = "#d2cbdc"
+
+[colors.cursor]
+text = "#0d0b12"
+cursor = "#866bc6"
+
+[colors.selection]
+text = "#d2cbdc"
+background = "#333260"
+
+[colors.normal]
+black = "#2d2c30"
+red = "#d74761"
+green = "#47d786"
+yellow = "#d7a347"
+blue = "#7172e0"
+magenta = "#b64fd9"
+cyan = "#47aed7"
+white = "#c6c4ca"
+
+[colors.bright]
+black = "#55525b"
+red = "#de8797"
+green = "#87dead"
+yellow = "#debe87"
+blue = "#8789de"
+magenta = "#c887de"
+cyan = "#87c5de"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1e1d20"
+red = "#a33348"
+green = "#33a364"
+yellow = "#a37b33"
+blue = "#3335a3"
+magenta = "#8733a3"
+cyan = "#3383a3"
+white = "#9c99a3"
+

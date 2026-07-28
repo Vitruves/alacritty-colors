@@ -1,0 +1,45 @@
+# alacritty-colors collection · Verdant Calm
+# Calm · Emerald, cool but alive
+
+[colors.primary]
+background = "#071612"
+foreground = "#c4d8d0"
+
+[colors.cursor]
+text = "#071612"
+cursor = "#2fa77e"
+
+[colors.selection]
+text = "#c4d8d0"
+background = "#20485c"
+
+[colors.normal]
+black = "#2c302f"
+red = "#d75550"
+green = "#48d586"
+yellow = "#d5d048"
+blue = "#489ad5"
+magenta = "#b959d9"
+cyan = "#48d5c0"
+white = "#c4cac8"
+
+[colors.bright]
+black = "#525b59"
+red = "#dc8b89"
+green = "#89dcad"
+yellow = "#dcd989"
+blue = "#89b9dc"
+magenta = "#c889dc"
+cyan = "#89dcd0"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d201f"
+red = "#a23835"
+green = "#35a264"
+yellow = "#a29d35"
+blue = "#3574a2"
+magenta = "#8635a2"
+cyan = "#35a291"
+white = "#99a3a0"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Saturated Signal
+# Affect · High chroma on a dark ground
+
+[colors.primary]
+background = "#0a0e12"
+foreground = "#ccd6e0"
+
+[colors.cursor]
+text = "#0a0e12"
+cursor = "#00a8c8"
+
+[colors.selection]
+text = "#ccd6e0"
+background = "#1d4161"
+
+[colors.normal]
+black = "#2c2e30"
+red = "#e2413c"
+green = "#3ce284"
+yellow = "#e2dc3c"
+blue = "#3c93e2"
+magenta = "#bc45e3"
+cyan = "#3cd0e2"
+white = "#c4c7ca"
+
+[colors.bright]
+black = "#52575b"
+red = "#e58380"
+green = "#80e5ac"
+yellow = "#e5e180"
+blue = "#80b5e5"
+magenta = "#cc80e5"
+cyan = "#80dae5"
+white = "#eff0f0"
+
+[colors.dim]
+black = "#1d1f20"
+red = "#ae2d29"
+green = "#29ae63"
+yellow = "#aea929"
+blue = "#296fae"
+magenta = "#8d29ae"
+cyan = "#299fae"
+white = "#999ea3"
+

@@ -1,0 +1,45 @@
+# alacritty-colors collection · Light Dark Ladder
+# Itten · Contrast of value, nothing else
+
+[colors.primary]
+background = "#0a0a0c"
+foreground = "#e4e4e8"
+
+[colors.cursor]
+text = "#0a0a0c"
+cursor = "#8890a0"
+
+[colors.selection]
+text = "#e4e4e8"
+background = "#233457"
+
+[colors.normal]
+black = "#2c2c30"
+red = "#d14d65"
+green = "#4dd186"
+yellow = "#d1b64d"
+blue = "#4d79d1"
+magenta = "#b04dd1"
+cyan = "#4dabd1"
+white = "#c4c4ca"
+
+[colors.bright]
+black = "#52525b"
+red = "#d98c9a"
+green = "#8cd9ae"
+yellow = "#d9ca8c"
+blue = "#8ca6d9"
+magenta = "#c68cd9"
+cyan = "#8cc3d9"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1d20"
+red = "#9d394b"
+green = "#399d65"
+yellow = "#9d8939"
+blue = "#395a9d"
+magenta = "#84399d"
+cyan = "#39819d"
+white = "#9999a3"
+

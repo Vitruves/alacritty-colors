@@ -1,0 +1,45 @@
+# alacritty-colors collection · Dynamic Surge
+# Image Scale · Warm and hard, the loudest corner
+
+[colors.primary]
+background = "#100c0a"
+foreground = "#e0d4cc"
+
+[colors.cursor]
+text = "#100c0a"
+cursor = "#e0642a"
+
+[colors.selection]
+text = "#e0d4cc"
+background = "#24345d"
+
+[colors.normal]
+black = "#302d2c"
+red = "#e3653b"
+green = "#57e33b"
+yellow = "#e3a63b"
+blue = "#4474e4"
+magenta = "#e33bae"
+cyan = "#3bd8e3"
+white = "#cac6c4"
+
+[colors.bright]
+black = "#5b5552"
+red = "#e6997f"
+green = "#91e67f"
+yellow = "#e6c17f"
+blue = "#7f9ee6"
+magenta = "#e67fc5"
+cyan = "#7fdfe6"
+white = "#f0efef"
+
+[colors.dim]
+black = "#201e1d"
+red = "#ae4928"
+green = "#3fae28"
+yellow = "#ae7e28"
+blue = "#2850ae"
+magenta = "#ae2884"
+cyan = "#28a5ae"
+white = "#a39c99"
+

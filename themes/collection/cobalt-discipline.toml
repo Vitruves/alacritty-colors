@@ -1,0 +1,45 @@
+# alacritty-colors collection · Cobalt Discipline
+# Focus · Hard cobalt, little warmth
+
+[colors.primary]
+background = "#0a0f1e"
+foreground = "#c8cfe2"
+
+[colors.cursor]
+text = "#0a0f1e"
+cursor = "#5f7bdd"
+
+[colors.selection]
+text = "#c8cfe2"
+background = "#2a3867"
+
+[colors.normal]
+black = "#2c2d30"
+red = "#d94560"
+green = "#45d985"
+yellow = "#d9bb45"
+blue = "#5e7bde"
+magenta = "#b74ddb"
+cyan = "#45afd9"
+white = "#c4c5ca"
+
+[colors.bright]
+black = "#52555b"
+red = "#df8696"
+green = "#86dfad"
+yellow = "#dfcd86"
+blue = "#869adf"
+magenta = "#c986df"
+cyan = "#86c6df"
+white = "#efeff0"
+
+[colors.dim]
+black = "#1d1e20"
+red = "#a53146"
+green = "#31a564"
+yellow = "#a58e31"
+blue = "#314ba5"
+magenta = "#8831a5"
+cyan = "#3184a5"
+white = "#999ca3"
+

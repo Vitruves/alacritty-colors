@@ -1,0 +1,45 @@
+# alacritty-colors collection · Fern Light
+# Calm · Pale green daylight
+
+[colors.primary]
+background = "#f4f8f2"
+foreground = "#1f2a22"
+
+[colors.cursor]
+text = "#f4f8f2"
+cursor = "#37803f"
+
+[colors.selection]
+text = "#1f2a22"
+background = "#a7c7d8"
+
+[colors.normal]
+black = "#464b44"
+red = "#ae4a29"
+green = "#1d7c27"
+yellow = "#74711b"
+blue = "#2976ae"
+magenta = "#ae29a9"
+cyan = "#1d7c6e"
+white = "#9ca399"
+
+[colors.bright]
+black = "#232522"
+red = "#7e3c26"
+green = "#267e2f"
+yellow = "#767224"
+blue = "#26597e"
+magenta = "#7e267b"
+cyan = "#267e70"
+white = "#737b6f"
+
+[colors.dim]
+black = "#5a6057"
+red = "#c46c4f"
+green = "#4fc45c"
+yellow = "#c4c04f"
+blue = "#4f93c4"
+magenta = "#c44fc0"
+cyan = "#4fc4b3"
+white = "#b6bbb4"
+
