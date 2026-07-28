@@ -11,14 +11,15 @@ A command-line tool for managing Alacritty terminal themes, offering automatic d
 
 ## Features
 
-- **150 curated themes** - A designed collection: fifty grouped by mood, and a hundred grouped by the account of colour their structure comes from — Goethe, Itten, Hering, Kobayashi, Birren, scotopic vision, circadian light and more. Every one contrast-checked. See [the collection](#the-curated-collection).
+- **326 themes out of the box** - 176 fetched automatically from the official Alacritty repository, plus 150 exclusive to this tool.
+- **150 exclusive themes** - Designed here and found nowhere else: fifty grouped by mood, a hundred built on named accounts of colour — Goethe, Itten, Hering, Kobayashi, Birren, scotopic vision, circadian light, Munsell. Every one contrast-checked. See [the collection](#the-curated-collection).
 - **Interactive TUI** - A terminal user interface for theme and font management.
 - **Theme Management** - Apply, preview, and switch between available themes.
 - **Theme Editing** - Edit theme colors directly within the TUI, with options for brightness and hue adjustments.
 - **Theme Generation** - Create custom themes with color science-based harmonies (complementary, analogous, triadic, split-complementary, tetradic, monochromatic).
 - **Random Theme Generator** - Generate random themes with WCAG-compliant contrast ratios.
 - **Font Management** - Family, style and size, previewed live. Only fonts the terminal can actually resolve are offered, and sixteen popular monospace families can be downloaded and installed from inside the editor.
-- **Auto-Download** - Automatically download themes from the official Alacritty repository.
+- **Auto-Download** - The 176 official themes are fetched and installed on first run.
 - **Search & Favorites** - Find themes by name and mark favorites for quick access.
 - **Backup & Restore** - Configuration management with automatic backups.
 - **Cross-Platform** - Compatible with macOS, Linux, and Windows.
@@ -129,9 +130,9 @@ Every palette row shows its WCAG contrast ratio against the theme background, an
 
 ## The curated collection
 
-**150 designed themes** ship with the tool and are installed on first run — press **p** → *Install the curated collection* to add or refresh them at any time. Each is built from a chosen background, text colour and accent; the sixteen ANSI slots are derived from that identity, so red stays red and blue stays distinct from cyan.
+**150 themes exclusive to this tool** ship with it and install on first run, alongside the 176 fetched from the official repository — press **p** → *Install the curated collection* to add or refresh them at any time. Each is built from a chosen background, text colour and accent; the sixteen ANSI slots are derived from that identity, so red stays red and blue stays distinct from cyan.
 
-The first fifty are grouped by mood; the hundred that follow by the account of colour their structure comes from. Naming a theory says where a palette's logic comes from — it is not an endorsement. Goethe was wrong about Newton and Luscher's test does not measure what it claimed to; what each left behind is a coherent way of arranging colour, which is what a sixteen-slot palette needs.
+The first fifty are grouped by mood — Focus, Calm, Warmth, Energy, Imagination, Neutral, Contrast. The hundred that follow are grouped by the account of colour their structure comes from: Goethe, Itten, Hering, Kobayashi, Valdez & Mehrabian, Birren, scotopic vision, circadian light, Luscher, and the colour order systems of Munsell and Chevreul — ten palettes each. Naming a theory says where a palette's logic comes from — it is not an endorsement. Goethe was wrong about Newton and Luscher's test does not measure what it claimed to; what each left behind is a coherent way of arranging colour, which is what a sixteen-slot palette needs.
 
 **On "colour psychology":** colour–mood links are mostly cultural convention, and the literature is thin. Two effects are better supported and are the ones leaned on here: short-wavelength light suppresses melatonin, which is why the evening palettes pull blue out; and strong red raises arousal, which is why it is an accent and never a field. The rest is stated design intent, not a claim about your brain.
 
@@ -160,58 +161,7 @@ alacritty-colors -export-collection ./somewhere
 
 Each file carries a `# alacritty-colors collection ·` header. That marker is how the tool knows a file is its own: it will refresh those on reinstall, and never overwrite one you have edited.
 
-**Focus** (10) — cool, low-chroma fields
-<sub>Deep Current · Cold Reason · Blue Hour · Still Water · Glacier Mind · Signal Clarity · North Study · Quiet Harbor · Meridian · Cobalt Discipline</sub>
-
-**Calm** (10) — green, the conventional colour of rest
-<sub>Forest Rest · Moss Hour · Verdant Calm · Fern Light · Sage Counsel · Evergreen Watch · Meadow Morning · Jade Patience · Cedar Quiet · Aloe</sub>
-
-**Warmth** (10) — amber with the blue pulled down
-<sub>Amber Lamp · Hearth · Candle Study · Honeyed Dusk · Terracotta Evening · Parchment · Linen Morning · Toasted Oat · Copper Patina · Saffron Study</sub>
-
-**Energy** (5) — red as accent, never as field
-<sub>Ember Drive · Redshift · Kiln · Alarum · Firebrand</sub>
-
-**Imagination** (5) — violet and magenta
-<sub>Violet Reverie · Orchid Hour · Neon Reverie · Mulberry Dusk · Iris Bloom</sub>
-
-**Neutral** (5) — near-zero chroma
-<sub>Graphite · Slate Discipline · Paper Mind · Ash Study · Newsprint</sub>
-
-**Contrast** (5) — legibility and time of day
-<sub>High Noon · Midnight Contrast · Soft Focus · Nocturne · Dawn Patrol</sub>
-
-**Goethe** (10) — his active/passive polarity, *Zur Farbenlehre* 1810
-<sub>Plus Side · Minus Side · Turbid Medium · Vermilion Peak · Yellow Serene · Orange Powerful · Purple Grave · Green Contentment · Sulphur Anomaly · Steel Repose</sub>
-
-**Itten** (10) — the seven Bauhaus contrasts and the colour sphere
-<sub>Cold Warm Divide · Light Dark Ladder · Simultaneous Ghost · Saturation Step · Extension Ratio · Complement Tension · Autumn Sphere · Winter Sphere · Spring Sphere · Summer Sphere</sub>
-
-**Opponent** (10) — Hering's red–green, blue–yellow, black–white axes
-<sub>Opponent Channels · Red Green Axis · Blue Yellow Axis · Achromatic Axis · Unique Hues · Afterimage · Chromatic Cancel · Hering Balance · Opponent Night · Cardinal Direction</sub>
-
-**Image Scale** (10) — Kobayashi's warm–cool × soft–hard plane
-<sub>Romantic Haze · Clear Field · Natural Ground · Elegant Reserve · Chic Monochrome · Dynamic Surge · Modern Edge · Classic Weight · Casual Ease · Gorgeous Depth</sub>
-
-**Affect** (10) — Valdez & Mehrabian: brightness and saturation, not hue
-<sub>Pleasure Curve · Arousal Peak · Low Arousal · Bright Pleasure · Saturated Signal · Muted Submission · Valence Positive · Affective Neutral · Chroma Lift · Luminance Lift</sub>
-
-**Birren** (10) — functional colour, written for factories and hospitals
-<sub>Functional Blue Green · Safety Green · Machinery Grey · Focal Point · Visual Rest · Colour Conditioning · Tint Tone Shade · Institutional Calm · Task Light · Peripheral Quiet</sub>
-
-**Scotopic** (10) — the Purkinje shift, and why red preserves night vision
-<sub>Purkinje Shift · Rod Vision · Scotopic Blue · Mesopic Hour · Dark Adaptation · Night Watch · Red Preserve · Astronomer Red · Twilight Threshold · Cone Silence</sub>
-
-**Circadian** (10) — melanopic response — the best-supported effect here
-<sub>Melanopic Low · Melatonin Guard · Evening Filter · Blue Suppressed · Circadian Dusk · Late Shift · Sunrise Signal · Daylight Alert · Zeitgeber · Chronotype Owl</sub>
-
-**Luscher** (10) — the eight test colours of 1947
-<sub>Deep Contentment · Persistent Teal · Orange Desire · Yellow Aspiration · Violet Identity · Brown Comfort · Black Renunciation · Grey Detachment · Preference Order · Eight Colour Test</sub>
-
-**Colour Order** (10) — Munsell's hue/value/chroma, Chevreul's simultaneous contrast
-<sub>Munsell Value Five · Chroma Neutral · Hue Circle Ten · Chevreul Law · Gobelins Grey · Value Scale · Chroma Step · Balanced Neutral · Ordered System · Colour Solid</sub>
-
-The `.toml` files carry the family and the one-line intent in their header comments.
+Each `.toml` names its family and its intent in the header comment, so the file explains itself.
 
 ## How it works
 
